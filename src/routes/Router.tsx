@@ -47,5 +47,5 @@ const Router = [
   },
 ];
 
-const router = createBrowserRouter(Router, { basename: '/MatDash' });
+const router = createBrowserRouter(Router);
 export default router;

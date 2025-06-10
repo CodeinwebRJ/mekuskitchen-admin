@@ -32,7 +32,6 @@ var vite_config_default = defineConfig({
     }
   },
   plugins: [svgr(), react()],
-  base: "/MatDash"
 });
 export {
   vite_config_default as default
