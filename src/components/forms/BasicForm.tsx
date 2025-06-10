@@ -83,7 +83,7 @@ const BasicForm = () => {
           </div>
         </div>
         <div className="col-span-12 flex gap-3">
-          <Button>Submit</Button>
+          <Button color='blue' >Submit</Button>
           <Button color={'error'}>Cancel</Button>
         </div>
       </div>

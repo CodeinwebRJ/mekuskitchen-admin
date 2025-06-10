@@ -1,7 +1,6 @@
-
-import { Card, Button } from "flowbite-react";
-import { Icon } from "@iconify/react";
-import React from "react";
+import { Card, Button } from 'flowbite-react';
+import { Icon } from '@iconify/react';
+import React from 'react';
 
 interface TitleCardProps {
   children: React.ReactNode;
@@ -11,14 +10,7 @@ interface TitleCardProps {
   onDownload?: () => void;
 }
 
-const TitleIconCard: React.FC<TitleCardProps> = ({
-  children,
-  className,
-  title,
-  onDownload,
-}) => {
-
-
+const TitleIconCard: React.FC<TitleCardProps> = ({ children, className, title, onDownload }) => {
   return (
     <Card
       className={`card dark:shadow-dark-md shadow-md p-0 ${className}`}
@@ -29,16 +21,8 @@ const TitleIconCard: React.FC<TitleCardProps> = ({
       <div className="flex justify-between items-center border-b border-ld px-6 py-4">
         <h5 className="text-xl font-semibold">{title}</h5>
 
-        <Button
-          className="flex items-center"
-          size="sm"
-          onClick={onDownload}
-        >
-          <Icon
-            icon="solar:download-minimalistic-bold-duotone"
-            width={20}
-            height={20}
-          />
+        <Button color="blue" className="flex items-center" size="sm" onClick={onDownload}>
+          <Icon icon="solar:download-minimalistic-bold-duotone" width={20} height={20} />
         </Button>
       </div>
       <div className="pt-4 p-6">{children}</div>

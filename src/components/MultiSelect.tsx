@@ -69,6 +69,7 @@ export const MultiSelect: React.FC<CustomMultiSelectProps> = ({
                 >
                   {value}
                   <button
+                    color="blue"
                     type="button"
                     className="ml-1 focus:outline-none"
                     onClick={(e) => {

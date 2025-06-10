@@ -179,7 +179,7 @@ const SimpleProduct = () => {
   const removeFeature = useCallback((index: number) => {
     setProduct((prev) => ({
       ...prev,
-      features: prev.features.filter((_, i :number) => i !== index),
+      features: prev.features.filter((_, i: number) => i !== index),
     }));
   }, []);
 
@@ -197,7 +197,7 @@ const SimpleProduct = () => {
   const removeTag = useCallback((index: number) => {
     setProduct((prev) => ({
       ...prev,
-      tags: prev.tags.filter((_, i:number) => i !== index),
+      tags: prev.tags.filter((_, i: number) => i !== index),
     }));
   }, []);
 
@@ -247,7 +247,7 @@ const SimpleProduct = () => {
               aria-label="Add new tag"
             />
             <div className="w-full">
-              <Button size="sm" type="button" onClick={addTag}>
+              <Button color="blue" size="sm" type="button" onClick={addTag}>
                 Add Tag
               </Button>
             </div>
@@ -282,7 +282,7 @@ const SimpleProduct = () => {
               maxLength={100}
             />
             <div className="w-full">
-              <Button size="sm" type="button" onClick={addFeature}>
+              <Button color='blue' size="sm" type="button" onClick={addFeature}>
                 Add Feature
               </Button>
             </div>
@@ -323,7 +323,7 @@ const SimpleProduct = () => {
               maxLength={100}
             />
             <div className="w-full">
-              <Button size="sm" onClick={addSpecification}>
+              <Button color="blue" size="sm" onClick={addSpecification}>
                 Add Specification
               </Button>
             </div>
@@ -349,7 +349,7 @@ const SimpleProduct = () => {
       </div>
 
       <div className="mt-6 flex justify-end">
-        <Button onClick={handleSubmit} size="lg">
+        <Button color="blue" onClick={handleSubmit} size="lg">
           Submit
         </Button>
       </div>

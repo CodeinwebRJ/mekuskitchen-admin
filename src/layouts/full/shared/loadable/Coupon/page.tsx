@@ -104,6 +104,7 @@ const Page: FC = () => {
       <div className="flex justify-between items-center mb-8">
         <span className="text-xl font-semibold text-gray-700">Coupons</span>
         <Button
+          color="blue"
           size="sm"
           onClick={() => {
             setShowForm(!showForm);
@@ -181,20 +182,20 @@ const Page: FC = () => {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
+                        <Button
                           className="text-blue-500 hover:text-blue-700 mr-4"
                           title="Edit"
                           onClick={() => handleEdit(coupon)}
                         >
                           <FiEdit size={18} />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           className="text-red-500 hover:text-red-700"
                           title="Delete"
                           onClick={() => handleDelete(coupon._id)}
                         >
                           <FiTrash size={18} />
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}

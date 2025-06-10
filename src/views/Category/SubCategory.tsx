@@ -291,22 +291,22 @@ const SubCategory = () => {
                   disabled={loadingStates[`toggle-${sub._id}`]}
                   aria-label={`Toggle active status for ${sub.name}`}
                 />
-                <button
+                <Button
                   onClick={() => handleEditStart(sub._id, sub.name)}
                   className="text-blue-500 hover:text-blue-700 disabled:text-gray-400"
                   aria-label={`Edit ${sub.name}`}
                   disabled={loadingStates[`edit-${sub._id}`] || loadingStates[`delete-${sub._id}`]}
                 >
                   <FiEdit size={18} />
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleDelete(selectedCategory, sub)}
                   className="text-red-500 hover:text-red-700 disabled:text-gray-400"
                   aria-label={`Delete ${sub.name}`}
                   disabled={loadingStates[`edit-${sub._id}`] || loadingStates[`delete-${sub._id}`]}
                 >
                   <FiTrash size={18} />
-                </button>
+                </Button>
               </div>
             </>
           )}

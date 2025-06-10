@@ -408,7 +408,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 </div>
               )}
               <div className="flex items-end mt-5">
-                <Button type="button" size="sm" onClick={addVariantField}>
+                <Button color="blue" type="button" size="sm" onClick={addVariantField}>
                   Add Variant Field
                 </Button>
               </div>
@@ -488,7 +488,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 </div>
               )}
               <div className="flex items-end mt-5">
-                <Button type="button" size="sm" onClick={addCombinationField}>
+                <Button color="blue" type="button" size="sm" onClick={addCombinationField}>
                   Add Combination
                 </Button>
               </div>
@@ -673,6 +673,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 </div>
                 <div className="w-1/3 flex justify-end">
                   <Button
+                    color="blue"
                     type="button"
                     onClick={() => addCombination(index)}
                     size="sm"
@@ -853,6 +854,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             </Card>
           ))}
           <Button
+            color="blue"
             type="button"
             onClick={addVariant}
             className="mt-4 transition-transform transform hover:scale-105"

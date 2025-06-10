@@ -45,6 +45,8 @@ const Page: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  console.log(data);
+
   const fetchCoupons = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -68,11 +70,10 @@ const Page: FC = () => {
       setData((prev) =>
         prev.map((coupon) => (coupon._id === id ? { ...coupon, isActive: checked } : coupon)),
       );
-      await EditCoupons({ _id: id, isActive: checked });
+      await EditCoupons({ couponId: id, isActive: checked });
     } catch (error) {
       console.error('Failed to update coupon status:', error);
       setError('Failed to update coupon status.');
-      // Revert state on failure
       setData((prev) =>
         prev.map((coupon) => (coupon._id === id ? { ...coupon, isActive: !checked } : coupon)),
       );
@@ -105,6 +106,7 @@ const Page: FC = () => {
         <span className="text-xl font-semibold text-gray-700">Coupons</span>
         <Button
           size="sm"
+          color="blue"
           onClick={() => {
             setShowForm(!showForm);
             if (showForm) {
@@ -151,6 +153,12 @@ const Page: FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Index
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Image
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Code
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -165,13 +173,30 @@ const Page: FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {data?.map((coupon) => (
+                  {data?.map((coupon, index) => (
                     <tr key={coupon._id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {index + 1}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {coupon.image ? (
+                          <img
+                            src={coupon?.image}
+                            alt={coupon.code}
+                            className="h-12 w-12 object-cover rounded"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/fallback-image.jpg';
+                            }}
+                          />
+                        ) : (
+                          'No Image'
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {coupon.code}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {coupon.discountValue} {coupon.discountType}
+                        {coupon.discountValue} {coupon.discountType === 'percentage' ? '%' : '$'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <ToggleSwitch
@@ -180,21 +205,23 @@ const Page: FC = () => {
                           className="focus:ring-0"
                         />
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          className="text-blue-500 hover:text-blue-700 mr-4"
+                      <td className="px-6 py-4 flex gap-2 text-sm font-medium">
+                        <Button
+                          color="blue"
+                          className="text-white"
                           title="Edit"
                           onClick={() => handleEdit(coupon)}
                         >
                           <FiEdit size={18} />
-                        </button>
-                        <button
-                          className="text-red-500 hover:text-red-700"
+                        </Button>
+                        <Button
+                          color="blue"
+                          className="text-white"
                           title="Delete"
                           onClick={() => handleDelete(coupon._id)}
                         >
                           <FiTrash size={18} />
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}

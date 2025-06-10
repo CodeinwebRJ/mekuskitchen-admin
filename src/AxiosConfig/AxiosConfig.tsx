@@ -35,6 +35,7 @@ export const CreateProduct = async (data: any) => {
 };
 
 export const UploadImage = async (files: any) => {
+  console.log(files)
   const formData = new FormData();
   files?.forEach((file: any) => {
     formData.append('images', file);
@@ -89,20 +90,21 @@ export const EditCoupons = async (data: any) => {
 };
 
 export const getallTax = async (data?: any) => {
-  const { provinceCode, category } = data;
-  return axiosInstance.get(`/api/v1/tax/get?provinceCode=${provinceCode}&category=${category}`);
+  return axiosInstance.get(
+    `/api/v1/tax/get?provinceCode=${data?.provinceCode}&category=${data?.category}`,
+  );
 };
 
 export const CreateTax = async (data: any) => {
-  return axiosInstance.post('/api/v1/tax/', data);
-};
-
-export const DeleteTax = async (data: any) => {
-  return axiosInstance.delete('/api/v1/tax/edit', { data });
+  return axiosInstance.post('/api/v1/tax', data);
 };
 
 export const EditTax = async (data: any) => {
-  return axiosInstance.put(`/api/v1/tax/delete?provinceCode=${data}`);
+  return axiosInstance.put('/api/v1/tax/edit', data);
+};
+
+export const DeleteTax = async (data: any) => {
+  return axiosInstance.delete(`/api/v1/tax/delete?provinceCode=${data}`);
 };
 
 export const getAllOrders = async () => {

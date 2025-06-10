@@ -344,7 +344,7 @@ const ProductCategory = () => {
                   disabled={loadingStates[`toggle-${ssub._id}`]}
                   aria-label={`Toggle active status for ${ssub.name}`}
                 />
-                <button
+                <Button
                   onClick={() => handleEditStart(ssub)}
                   className="text-blue-500 hover:text-blue-700 disabled:text-gray-400"
                   aria-label={`Edit ${ssub.name}`}
@@ -353,8 +353,8 @@ const ProductCategory = () => {
                   }
                 >
                   <FiEdit size={18} />
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleDelete(selectedCategory, selectedSubCategory, ssub)}
                   className="text-red-500 hover:text-red-700 disabled:text-gray-400"
                   aria-label={`Delete ${ssub.name}`}
@@ -363,7 +363,7 @@ const ProductCategory = () => {
                   }
                 >
                   <FiTrash size={18} />
-                </button>
+                </Button>
               </div>
             </>
           )}

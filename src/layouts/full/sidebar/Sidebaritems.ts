@@ -21,17 +21,17 @@ export interface MenuItem {
 
 // Static IDs for consistency across renders
 const SidebarContent: MenuItem[] = [
-  // {
-  //   heading: 'HOME',
-  //   children: [
-  //     {
-  //       name: 'Dashboard',
-  //       icon: 'solar:widget-add-line-duotone',
-  //       id: 'home-dashboard',
-  //       url: '/',
-  //     },
-  //   ],
-  // },
+  {
+    heading: 'HOME',
+    children: [
+      {
+        name: 'Dashboard',
+        icon: 'solar:widget-add-line-duotone',
+        id: 'home-dashboard',
+        url: '/',
+      },
+    ],
+  },
   {
     heading: 'UTILITIES',
     children: [

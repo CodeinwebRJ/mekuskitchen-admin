@@ -3,6 +3,7 @@ import { getAllOrders } from 'src/AxiosConfig/AxiosConfig';
 import user1 from '/src/assets/images/profile/user-1.jpg';
 import dayjs from 'dayjs';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+import { Button } from 'flowbite-react';
 
 // Define interfaces
 interface Combination {
@@ -52,7 +53,7 @@ const Page: React.FC = () => {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
-  console.log(data)
+  console.log(data);
   const toggleExpand = (orderId: string) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
@@ -108,22 +109,20 @@ const Page: React.FC = () => {
             className="border rounded px-2 py-1"
           />
         </div>
-
-        <button type="submit" className="bg-purple-700 text-white px-4 py-2 rounded">
+        <Button type="submit" color="blue">
           Filter
-        </button>
-
-        <button
+        </Button>
+        <Button
           type="button"
           onClick={() => {
             setStartDate('');
             setEndDate('');
             fetchOrders();
           }}
-          className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+          color="gray"
         >
           Reset
-        </button>
+        </Button>
       </form>
 
       <div className="overflow-x-auto">

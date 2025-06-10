@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Stepper from '../Product/Component/Stepper';
 import TiffinInfo from './TiffinInfo';
 import Items from './Items';
+import { Button } from 'flowbite-react';
 
 const Tiffin = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -29,18 +30,18 @@ const Tiffin = () => {
 
       {/* Example: Buttons to move between steps */}
       <div className="flex gap-4 mt-8">
-        <button
+        <Button
           onClick={() => setCurrentStep((prev) => Math.max(prev - 1, 1))}
           className="px-4 py-2 bg-gray-300 rounded"
         >
           Back
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setCurrentStep((prev) => Math.min(prev + 1, steps.length))}
           className="px-4 py-2 bg-blue-500 text-white rounded"
         >
           Next
-        </button>
+        </Button>
       </div>
     </div>
   );

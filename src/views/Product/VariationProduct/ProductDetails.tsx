@@ -281,7 +281,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 aria-label="Add new tag"
               />
               <div className="w-full">
-                <Button size="xs" type="button" onClick={addTag}>
+                <Button color='blue' size="xs" type="button" onClick={addTag}>
                   Add Tag
                 </Button>
               </div>
@@ -314,7 +314,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 className="w-full"
               />
               <div className="w-full">
-                <Button size="xs" type="button" onClick={addFeature}>
+                <Button color='blue' size="xs" type="button" onClick={addFeature}>
                   Add Feature
                 </Button>
               </div>
@@ -347,7 +347,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 placeholder="Specification Value"
               />
               <div className="w-full">
-                <Button type="button" size="xs" onClick={addSpecification}>
+                <Button color="blue" type="button" size="xs" onClick={addSpecification}>
                   Add Specification
                 </Button>
               </div>

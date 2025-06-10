@@ -1,9 +1,8 @@
 import { Button, Checkbox, Label, Textarea, TextInput } from 'flowbite-react';
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { CreateCoupon } from 'src/AxiosConfig/AxiosConfig';
+import { useSelector } from 'react-redux';
+import { CreateCoupon, UploadImage } from 'src/AxiosConfig/AxiosConfig';
 import MultiSelect from 'src/components/MultiSelect';
-import { createCoupon } from 'src/Store/Slices/Coupon';
 import { RootState } from 'src/Store/Store';
 
 interface SubSubCategoryType {
@@ -60,18 +59,11 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
   setShowForm,
   setFormData,
   formData,
-  // onSuccess,
+  onSuccess,
 }) => {
-  const dispatch = useDispatch();
   const categories = useSelector((state: RootState) => state.category.categoryList);
   const [subCategories, setSubCategories] = useState<SubCategoryType[]>([]);
   const [subSubCategories, setSubSubCategories] = useState<SubSubCategoryType[]>([]);
-
-  const formatDateToDDMMYYYY = (date: string): string => {
-    if (!date) return '';
-    const [year, month, day] = date.split('-');
-    return `${day}-${month}-${year}`;
-  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -115,35 +107,44 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
     e.preventDefault();
 
     try {
-      if (new Date(formData.expiresAt) < new Date(formData.startAt)) {
-        alert('Expiration date must be after start date');
-        return;
+      const requiredNumbers = ['discountValue', 'minOrderAmount', 'usageLimit'];
+      for (const field of requiredNumbers) {
+        if (!formData[field] || Number(formData[field]) <= 0) {
+          return;
+        }
       }
 
-      if (
-        !formData.code ||
-        !formData.discountValue ||
-        !formData.minOrderAmount ||
-        !formData.usageLimit ||
-        Number(formData.discountValue) <= 0 ||
-        Number(formData.minOrderAmount) <= 0 ||
-        Number(formData.usageLimit) <= 0
-      ) {
-        alert('All numeric fields must be positive numbers');
+      const startDate = new Date(formData.startAt);
+      const endDate = new Date(formData.expiresAt);
+      if (endDate < startDate) {
         return;
       }
+      let uploadedImageUrl = '';
+      if (formData.image && typeof formData.image !== 'string') {
+        const uploadResult = await UploadImage([formData.image]);
+        uploadedImageUrl = uploadResult?.data?.url || '';
+      }
 
-      const couponData = {
-        ...formData,
-        discountValue: Number(formData.discountValue),
-        minOrderAmount: Number(formData.minOrderAmount),
-        usageLimit: Number(formData.usageLimit),
-        startAt: formatDateToDDMMYYYY(formData.startAt),
-        expiresAt: formatDateToDDMMYYYY(formData.expiresAt),
-      };
+      const data = new FormData();
+      data.append('code', formData.code);
+      data.append('discountType', formData.discountType);
+      data.append('discountValue', formData.discountValue);
+      data.append('minOrderAmount', formData.minOrderAmount);
+      data.append('startAt', new Date(formData.startAt).toISOString());
+      data.append('expiresAt', new Date(formData.expiresAt).toISOString());
+      data.append('usageLimit', formData.usageLimit);
+      data.append('isActive', String(formData.isActive));
+      data.append('termsAndConditions', formData.termsAndConditions);
+      data.append('description', formData.description);
+      data.append('image', uploadedImageUrl || '');
 
-      const res = await CreateCoupon(couponData);
-      dispatch(createCoupon(res.data.data));
+      ['category', 'subCategory', 'productCategory'].forEach((key) => {
+        formData[key]?.forEach((val: string) => {
+          data.append(`${key}[]`, val);
+        });
+      });
+      await CreateCoupon(data);
+      onSuccess();
       setFormData({
         code: '',
         discountType: 'percentage',
@@ -160,10 +161,9 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
         subCategory: [],
         productCategory: [],
       });
-
       setShowForm(false);
     } catch (error) {
-      console.error('Submit Error:', error);
+      console.error('Coupon creation failed:', error);
     }
   };
 
@@ -271,13 +271,17 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="image" value="Image URL" />
-            <TextInput
+            <input
               type="file"
               id="image"
               name="image"
-              className="p-0"
-              value={formData.image}
-              onChange={handleInputChange}
+              className="border rounded-md p-2"
+              onChange={(e) =>
+                setFormData((prev: any) => ({
+                  ...prev,
+                  image: e.target.files?.[0] || '',
+                }))
+              }
             />
           </div>
         </div>
@@ -347,7 +351,9 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           <Button color="gray" onClick={() => setShowForm(false)}>
             Cancel
           </Button>
-          <Button type="submit">Create Coupon</Button>
+          <Button color="blue" type="submit">
+            Submit
+          </Button>
         </div>
       </form>
     </div>

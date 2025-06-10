@@ -217,6 +217,7 @@ const Category = () => {
                 aria-label={`Edit name for ${cat.name}`}
               />
               <Button
+                color="blue"
                 type="submit"
                 size="sm"
                 disabled={loadingStates[`edit-${cat._id}`]}
@@ -243,22 +244,22 @@ const Category = () => {
                   disabled={loadingStates[`toggle-${cat._id}`]}
                   aria-label={`Toggle active status for ${cat.name}`}
                 />
-                <button
+                <Button
                   onClick={() => handleEditStart(cat._id, cat.name)}
                   className="text-blue-500 hover:text-blue-700 disabled:text-gray-400"
                   aria-label={`Edit ${cat.name}`}
                   disabled={loadingStates[`edit-${cat._id}`] || loadingStates[`delete-${cat._id}`]}
                 >
                   <FiEdit size={18} />
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleDelete(cat)}
                   className="text-red-500 hover:text-red-700 disabled:text-gray-400"
                   aria-label={`Delete ${cat.name}`}
                   disabled={loadingStates[`edit-${cat._id}`] || loadingStates[`delete-${cat._id}`]}
                 >
                   <FiTrash size={18} />
-                </button>
+                </Button>
               </div>
             </>
           )}
@@ -307,7 +308,7 @@ const Category = () => {
               disabled={loadingStates.create}
               aria-label="Category name"
             />
-            <Button type="submit" size="sm" disabled={loadingStates.create}>
+            <Button color="blue" type="submit" size="sm" disabled={loadingStates.create}>
               {loadingStates.create ? 'Creating...' : 'Create Category'}
             </Button>
           </form>

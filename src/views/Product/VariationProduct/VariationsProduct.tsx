@@ -145,7 +145,7 @@ const VariationsProduct = () => {
         </Button>
         <Button
           onClick={currentStep === steps.length ? handleSubmit : handleNext}
-          gradientDuoTone="purpleToBlue"
+          color='blue'
         >
           {currentStep === steps.length ? 'Submit' : 'Next'}
         </Button>

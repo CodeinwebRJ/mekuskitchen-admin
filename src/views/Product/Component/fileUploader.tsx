@@ -1,3 +1,4 @@
+import { Button } from 'flowbite-react';
 import React, { useRef, ChangeEvent, DragEvent } from 'react';
 
 export interface ImageItem {
@@ -94,7 +95,7 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
                 </span>
               )}
               <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity duration-200">
-                <button
+                <Button
                   onClick={(e) => {
                     e.stopPropagation();
                     removeImage(index);
@@ -117,7 +118,7 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
                       d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                </button>
+                </Button>
               </div>
             </div>
           ))}

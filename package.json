@@ -1,6 +1,5 @@
 {
   "name": "matdash-react-vite-ts",
-  "homepage": "https://themewagon.github.io/MatDash/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
