@@ -3,7 +3,7 @@ import { Button, TextInput, Label, Select } from 'flowbite-react';
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { FiEdit, FiTrash, FiPlus, FiX } from 'react-icons/fi';
 import { useSelector } from 'react-redux';
-import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosConfig'; // Ensure this is correctly set up
+import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosConfig';
 import { RootState } from 'src/Store/Store';
 
 interface TaxEntry {
@@ -50,10 +50,6 @@ const Page = () => {
     }
   };
 
-  useEffect(() => {
-    fetchTax();
-  }, []);
-
   const handleAddTaxField = () => {
     setTaxes((prev) => [...prev, { category: '', taxRate: '' }]);
   };
@@ -86,11 +82,10 @@ const Page = () => {
     };
 
     try {
-      let res;
       if (editId) {
-        res = await EditTax(payload);
+        await EditTax(payload);
       } else {
-        res = await CreateTax(payload);
+        await CreateTax(payload);
       }
       setProvinceCode('');
       setProvinceName('');
@@ -133,11 +128,15 @@ const Page = () => {
     setTaxes([{ category: '', taxRate: '' }]);
   };
 
+  useEffect(() => {
+    fetchTax();
+  }, []);
+
   return (
     <div className="flex flex-col items-center gap-6 p-4">
       <div className="w-full">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">Tax Configurations</h2>
+          <h2 className="text-xl font-semibold text-blue-700">Tax</h2>
           <Button size="sm" color="blue" onClick={() => setShowForm((prev) => !prev)}>
             {showForm ? 'Cancel' : 'Create Tax'}
           </Button>
@@ -259,10 +258,13 @@ const Page = () => {
                         </Button>
                       </div>
                     </div>
-                    <div className="mt-2">
+                    <div className="flex gap-2 items-center flex-wrap mt-2">
                       {config.taxes.map((tax, index) => (
-                        <div key={index} className="text-sm text-gray-600">
-                          {tax.category}: {tax.taxRate}%
+                        <div
+                          key={index}
+                          className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-1 rounded-md shadow-sm"
+                        >
+                          {tax.category}: <span className="text-gray-900">{tax.taxRate}%</span>
                         </div>
                       ))}
                     </div>

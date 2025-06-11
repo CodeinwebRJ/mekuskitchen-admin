@@ -55,12 +55,12 @@ const SidebarContent: MenuItem[] = [
           },
         ],
       },
-      {
-        name: 'Tiffin',
-        icon: 'solar:text-circle-outline',
-        id: 'util-tiffin',
-        url: '/tiffin',
-      },
+      // {
+      //   name: 'Tiffin',
+      //   icon: 'solar:text-circle-outline',
+      //   id: 'util-tiffin',
+      //   url: '/tiffin',
+      // },
       {
         name: 'Category',
         icon: 'solar:bedside-table-3-linear',

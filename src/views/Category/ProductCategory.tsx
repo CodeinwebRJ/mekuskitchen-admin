@@ -251,8 +251,6 @@ const ProductCategory = () => {
 
   const handleDelete = useCallback(
     async (catId: string, subCatId: string, subSubCategory: SubSubCategoryType) => {
-      if (!window.confirm(`Are you sure you want to delete "${subSubCategory.name}"?`)) return;
-
       setLoading(`delete-${subSubCategory._id}`, true);
       setError(null);
       try {
@@ -317,11 +315,7 @@ const ProductCategory = () => {
                 disabled={loadingStates[`edit-${ssub._id}`]}
                 aria-label={`Edit name for ${ssub.name}`}
               />
-              <Button
-                type="submit"
-                size="sm"
-                disabled={loadingStates[`edit-${ssub._id}`]}
-              >
+              <Button type="submit" size="sm" color="blue">
                 {loadingStates[`edit-${ssub._id}`] ? 'Saving...' : 'Save'}
               </Button>
               <Button
@@ -341,12 +335,11 @@ const ProductCategory = () => {
                 <ToggleSwitch
                   checked={ssub.isActive}
                   onChange={() => handleToggle(selectedCategory, selectedSubCategory, ssub)}
-                  disabled={loadingStates[`toggle-${ssub._id}`]}
                   aria-label={`Toggle active status for ${ssub.name}`}
                 />
                 <Button
                   onClick={() => handleEditStart(ssub)}
-                  className="text-blue-500 hover:text-blue-700 disabled:text-gray-400"
+                  color="blue"
                   aria-label={`Edit ${ssub.name}`}
                   disabled={
                     loadingStates[`edit-${ssub._id}`] || loadingStates[`delete-${ssub._id}`]
@@ -356,7 +349,7 @@ const ProductCategory = () => {
                 </Button>
                 <Button
                   onClick={() => handleDelete(selectedCategory, selectedSubCategory, ssub)}
-                  className="text-red-500 hover:text-red-700 disabled:text-gray-400"
+                  color="blue"
                   aria-label={`Delete ${ssub.name}`}
                   disabled={
                     loadingStates[`edit-${ssub._id}`] || loadingStates[`delete-${ssub._id}`]
@@ -390,6 +383,7 @@ const ProductCategory = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-700">Product Categories</h2>
           <Button
+            color="blue"
             size="sm"
             onClick={() => setShowForm(!showForm)}
             disabled={loadingStates.create || categoryList.length === 0 || !selectedSubCategory}

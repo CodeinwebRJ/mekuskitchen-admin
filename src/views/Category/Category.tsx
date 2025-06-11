@@ -138,14 +138,12 @@ const Category = () => {
     [categoryList, dispatch],
   );
 
-  // Handle start editing a category
   const handleEditStart = useCallback((id: string, name: string) => {
     setEditCategoryId(id);
     setEditCategoryName(name);
     setError(null);
   }, []);
 
-  // Handle edit form submission
   const handleEditSubmit = useCallback(
     async (e: FormEvent, category: CategoryType) => {
       e.preventDefault();
@@ -190,14 +188,12 @@ const Category = () => {
     [editCategoryName, categoryList, dispatch],
   );
 
-  // Handle cancel editing
   const handleEditCancel = useCallback(() => {
     setEditCategoryId(null);
     setEditCategoryName('');
     setError(null);
   }, []);
 
-  // Memoize category list rendering to prevent unnecessary re-renders
   const categoryListRender = useMemo(
     () =>
       categoryList.map((cat: CategoryType) => (
@@ -241,20 +237,19 @@ const Category = () => {
                   checked={cat.isActive}
                   onChange={() => handleToggle(cat)}
                   className="focus:ring-0"
-                  disabled={loadingStates[`toggle-${cat._id}`]}
                   aria-label={`Toggle active status for ${cat.name}`}
                 />
                 <Button
                   onClick={() => handleEditStart(cat._id, cat.name)}
-                  className="text-blue-500 hover:text-blue-700 disabled:text-gray-400"
+                  color="blue"
                   aria-label={`Edit ${cat.name}`}
                   disabled={loadingStates[`edit-${cat._id}`] || loadingStates[`delete-${cat._id}`]}
                 >
                   <FiEdit size={18} />
                 </Button>
                 <Button
+                  color="blue"
                   onClick={() => handleDelete(cat)}
-                  className="text-red-500 hover:text-red-700 disabled:text-gray-400"
                   aria-label={`Delete ${cat.name}`}
                   disabled={loadingStates[`edit-${cat._id}`] || loadingStates[`delete-${cat._id}`]}
                 >
@@ -284,6 +279,7 @@ const Category = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-700">Main Category</h2>
           <Button
+            color="blue"
             size="sm"
             onClick={() => setShowCategoryForm(!showCategoryForm)}
             disabled={loadingStates.create}

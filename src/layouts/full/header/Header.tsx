@@ -27,7 +27,6 @@ const Header = () => {
     };
   }, []);
 
-  // mobile-sidebar
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   return (

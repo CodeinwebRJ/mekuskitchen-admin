@@ -85,7 +85,6 @@ const Page: FC = () => {
   };
 
   const handleDelete = async (id: any) => {
-    if (!window.confirm('Are you sure you want to delete this coupon?')) return;
     setLoading(true);
     setError(null);
     try {

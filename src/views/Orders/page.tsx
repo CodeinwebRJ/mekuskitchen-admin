@@ -88,7 +88,7 @@ const Page: React.FC = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-6 text-purple-700">Admin Orders</h1>
+      <h1 className="text-2xl font-bold mb-6 text-blue-700">Orders</h1>
       <form onSubmit={handleFilterSubmit} className="flex gap-4 mb-6 justify-end items-end">
         <div>
           <label className="block text-sm font-medium text-gray-700">Start Date</label>

@@ -44,8 +44,7 @@ const Page: FC = () => {
   const [data, setData] = useState<CouponFormData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
-  console.log(data);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const fetchCoupons = useCallback(async () => {
     setLoading(true);
@@ -81,12 +80,12 @@ const Page: FC = () => {
   };
 
   const handleEdit = (coupon: CouponFormData) => {
-    setFormData(coupon);
+    setFormData({ ...coupon });
+    setIsEdit(true);
     setShowForm(true);
   };
 
   const handleDelete = async (id: any) => {
-    if (!window.confirm('Are you sure you want to delete this coupon?')) return;
     setLoading(true);
     setError(null);
     try {
@@ -103,7 +102,7 @@ const Page: FC = () => {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-8">
-        <span className="text-xl font-semibold text-gray-700">Coupons</span>
+        <span className="text-xl font-semibold text-blue-700">Coupons</span>
         <Button
           size="sm"
           color="blue"
@@ -141,7 +140,9 @@ const Page: FC = () => {
           setShowForm={setShowForm}
           formData={formData}
           setFormData={setFormData}
-          // onSuccess={fetchCoupons}
+          onSuccess={fetchCoupons}
+          setIsEdit={setIsEdit}
+          isEdit={isEdit}
         />
       ) : (
         <div className="divide-y">

@@ -87,7 +87,7 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
                 src={image.file ? URL.createObjectURL(image.file) : image.url}
                 alt="preview"
                 className="w-full h-24 object-contain"
-                onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)} // revoke url after load
+                onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
               />
               {index === 0 && (
                 <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-1 rounded-full z-10">
@@ -96,7 +96,7 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
               )}
               <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity duration-200">
                 <Button
-                  onClick={(e) => {
+                  onClick={(e: any) => {
                     e.stopPropagation();
                     removeImage(index);
                   }}

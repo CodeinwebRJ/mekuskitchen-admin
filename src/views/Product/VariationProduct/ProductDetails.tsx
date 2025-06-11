@@ -10,7 +10,6 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
   const [specValue, setSpecValue] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Validate inputs before adding
   const validateInput = useCallback((value: string, field: string): boolean => {
     if (!value.trim()) {
       setError(`Please enter a valid ${field}`);

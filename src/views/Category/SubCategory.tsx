@@ -59,7 +59,6 @@ const SubCategory = () => {
     return null;
   };
 
-  // Handle form submission for creating a subcategory
   const handleAddSubCategory = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
@@ -102,7 +101,6 @@ const SubCategory = () => {
     [subCategoryName, selectedCategory, categoryList, dispatch],
   );
 
-  // Handle toggle subcategory active status
   const handleToggle = useCallback(
     async (catId: string, subCategory: SubCategoryType) => {
       setLoading(`toggle-${subCategory._id}`, true);
@@ -142,14 +140,12 @@ const SubCategory = () => {
     [categoryList, dispatch],
   );
 
-  // Handle start editing a subcategory
   const handleEditStart = useCallback((subCatId: string, name: string) => {
     setEditSubCategoryId(subCatId);
     setEditSubCategoryName(name);
     setError(null);
   }, []);
 
-  // Handle edit form submission
   const handleEditSubmit = useCallback(
     async (e: FormEvent, catId: string, subCategory: SubCategoryType) => {
       e.preventDefault();
@@ -204,14 +200,12 @@ const SubCategory = () => {
     [editSubCategoryName, categoryList, dispatch],
   );
 
-  // Handle cancel editing
   const handleEditCancel = useCallback(() => {
     setEditSubCategoryId(null);
     setEditSubCategoryName('');
     setError(null);
   }, []);
 
-  // Handle delete subcategory
   const handleDelete = useCallback(
     async (catId: string, subCategory: SubCategoryType) => {
       setLoading(`delete-${subCategory._id}`, true);
@@ -240,13 +234,11 @@ const SubCategory = () => {
     [categoryList, dispatch],
   );
 
-  // Get filtered subcategories
   const filteredSubCategories = useMemo(
     () => categoryList.find((cat) => cat._id === selectedCategory)?.subCategories || [],
     [categoryList, selectedCategory],
   );
 
-  // Memoize subcategory list rendering
   const subCategoryListRender = useMemo(
     () =>
       filteredSubCategories.map((sub: SubCategoryType) => (
@@ -265,11 +257,7 @@ const SubCategory = () => {
                 disabled={loadingStates[`edit-${sub._id}`]}
                 aria-label={`Edit name for ${sub.name}`}
               />
-              <Button
-                type="submit"
-                size="sm"
-                disabled={loadingStates[`edit-${sub._id}`]}
-              >
+              <Button color="blue" type="submit" size="sm">
                 {loadingStates[`edit-${sub._id}`] ? 'Saving...' : 'Save'}
               </Button>
               <Button
@@ -288,12 +276,11 @@ const SubCategory = () => {
                 <ToggleSwitch
                   checked={sub.isActive}
                   onChange={() => handleToggle(selectedCategory, sub)}
-                  disabled={loadingStates[`toggle-${sub._id}`]}
                   aria-label={`Toggle active status for ${sub.name}`}
                 />
                 <Button
                   onClick={() => handleEditStart(sub._id, sub.name)}
-                  className="text-blue-500 hover:text-blue-700 disabled:text-gray-400"
+                  color="blue"
                   aria-label={`Edit ${sub.name}`}
                   disabled={loadingStates[`edit-${sub._id}`] || loadingStates[`delete-${sub._id}`]}
                 >
@@ -301,7 +288,7 @@ const SubCategory = () => {
                 </Button>
                 <Button
                   onClick={() => handleDelete(selectedCategory, sub)}
-                  className="text-red-500 hover:text-red-700 disabled:text-gray-400"
+                  color="blue"
                   aria-label={`Delete ${sub.name}`}
                   disabled={loadingStates[`edit-${sub._id}`] || loadingStates[`delete-${sub._id}`]}
                 >
@@ -332,6 +319,7 @@ const SubCategory = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-700">Sub Categories</h2>
           <Button
+            color="blue"
             size="sm"
             onClick={() => setShowForm(!showForm)}
             disabled={loadingStates.create || categoryList.length === 0 || !selectedCategory}
@@ -373,7 +361,7 @@ const SubCategory = () => {
               disabled={loadingStates.create}
               aria-label="Subcategory name"
             />
-            <Button type="submit" size="sm" disabled={loadingStates.create}>
+            <Button color="blue" type="submit" size="sm" disabled={loadingStates.create}>
               {loadingStates.create ? 'Creating...' : 'Create SubCategory'}
             </Button>
           </form>

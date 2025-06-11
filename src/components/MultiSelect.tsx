@@ -20,7 +20,7 @@ export const MultiSelect: React.FC<CustomMultiSelectProps> = ({
   required = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const multiSelectRef = useRef<HTMLDivElement>(null); // Ref to track the component
+  const multiSelectRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -58,11 +58,11 @@ export const MultiSelect: React.FC<CustomMultiSelectProps> = ({
           className="w-full border border-gray-300 rounded-md p-2 bg-white cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           onClick={toggleDropdown}
         >
-          {selectedValues.length === 0 ? (
+          {selectedValues?.length === 0 ? (
             <span className="text-gray-500">Select {label.toLowerCase()}...</span>
           ) : (
             <div className="flex flex-wrap gap-1">
-              {selectedValues.map((value) => (
+              {selectedValues?.map((value) => (
                 <span
                   key={value}
                   className="inline-flex items-center bg-blue-50 text-blue-800 text-sm font-medium px-2 py-1 rounded-sm"
@@ -90,13 +90,13 @@ export const MultiSelect: React.FC<CustomMultiSelectProps> = ({
               <div
                 key={option}
                 className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                  selectedValues.includes(option) ? 'bg-blue-100' : ''
+                  selectedValues?.includes(option) ? 'bg-blue-100' : ''
                 }`}
                 onClick={() => handleSelect(option)}
               >
                 <input
                   type="checkbox"
-                  checked={selectedValues.includes(option)}
+                  checked={selectedValues?.includes(option)}
                   onChange={() => {}}
                   className="mr-2"
                 />
@@ -111,7 +111,7 @@ export const MultiSelect: React.FC<CustomMultiSelectProps> = ({
           type="hidden"
           id={id}
           required
-          value={selectedValues.length > 0 ? selectedValues.join(',') : ''}
+          value={selectedValues?.length > 0 ? selectedValues?.join(',') : ''}
         />
       )}
     </div>

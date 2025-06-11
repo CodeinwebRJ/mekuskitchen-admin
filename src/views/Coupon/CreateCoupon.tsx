@@ -1,7 +1,7 @@
 import { Button, Checkbox, Label, Textarea, TextInput } from 'flowbite-react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { CreateCoupon, UploadImage } from 'src/AxiosConfig/AxiosConfig';
+import { CreateCoupon, EditCoupons, UploadImage } from 'src/AxiosConfig/AxiosConfig';
 import MultiSelect from 'src/components/MultiSelect';
 import { RootState } from 'src/Store/Store';
 
@@ -53,12 +53,16 @@ interface CreateCouponsProps {
   formData: any;
   setFormData: any;
   onSuccess?: any;
+  setIsEdit: any;
+  isEdit: boolean;
 }
 
 export const CreateCoupons: React.FC<CreateCouponsProps> = ({
   setShowForm,
   setFormData,
   formData,
+  setIsEdit,
+  isEdit,
   onSuccess,
 }) => {
   const categories = useSelector((state: RootState) => state.category.categoryList);
@@ -105,7 +109,6 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
       const requiredNumbers = ['discountValue', 'minOrderAmount', 'usageLimit'];
       for (const field of requiredNumbers) {
@@ -119,10 +122,11 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
       if (endDate < startDate) {
         return;
       }
+
       let uploadedImageUrl = '';
       if (formData.image && typeof formData.image !== 'string') {
         const uploadResult = await UploadImage([formData.image]);
-        uploadedImageUrl = uploadResult?.data?.url || '';
+        uploadedImageUrl = uploadResult?.data?.data?.images[0]?.url || '';
       }
 
       const data = new FormData();
@@ -136,15 +140,28 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
       data.append('isActive', String(formData.isActive));
       data.append('termsAndConditions', formData.termsAndConditions);
       data.append('description', formData.description);
-      data.append('image', uploadedImageUrl || '');
+      data.append(
+        'image',
+        uploadedImageUrl || (typeof formData.image === 'string' ? formData.image : ''),
+      );
 
       ['category', 'subCategory', 'productCategory'].forEach((key) => {
         formData[key]?.forEach((val: string) => {
           data.append(`${key}[]`, val);
         });
       });
-      await CreateCoupon(data);
-      onSuccess();
+
+      if (isEdit && formData._id) {
+        const Editdata = {
+          couponId: formData._id,
+          ...data,
+        };
+        await EditCoupons(Editdata);
+      } else {
+        await CreateCoupon(data);
+      }
+
+      onSuccess?.();
       setFormData({
         code: '',
         discountType: 'percentage',
@@ -161,9 +178,10 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
         subCategory: [],
         productCategory: [],
       });
+      setIsEdit(false);
       setShowForm(false);
     } catch (error) {
-      console.error('Coupon creation failed:', error);
+      console.error('Coupon submission failed:', error);
     }
   };
 

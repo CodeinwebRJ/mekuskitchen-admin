@@ -80,7 +80,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
 
   return (
     <div>
-      <h3 className="text-2xl font-bold text-gray-900 mb-6">Product Information</h3>
+      <h3 className="text-2xl font-bold text-blue-700 mb-6">Product Information</h3>
 
       <form className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
