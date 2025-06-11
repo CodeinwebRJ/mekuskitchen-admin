@@ -5,7 +5,7 @@ import authSlice from './Slices/AdminUser';
 export const store = configureStore({
   reducer: {
     category: categorySlice,
-    admin: authSlice,
+    auth: authSlice,
   },
 });
 

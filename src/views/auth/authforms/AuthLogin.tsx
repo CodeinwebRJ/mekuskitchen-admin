@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, Checkbox, Label, TextInput } from 'flowbite-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Login } from 'src/AxiosConfig/AxiosConfig';
-import { setUser } from 'src/Store/Slices/AdminUser';
+import { login } from 'src/Store/Slices/AdminUser';
 import { useDispatch } from 'react-redux';
 
 const AuthLogin = () => {
@@ -31,7 +31,7 @@ const AuthLogin = () => {
     try {
       const response = await Login({ uniqueId, password });
       const { token, admin } = response.data.data;
-      dispatch(setUser(response.data.data));
+      dispatch(login(response.data.data));
       if (rememberMe) {
         localStorage.setItem('token', token);
         localStorage.setItem('admin', JSON.stringify(admin));

@@ -10,11 +10,16 @@ interface UserDetail {
 let userDetail: UserDetail | null = null;
 
 if (typeof window !== 'undefined') {
-  const getUserDetails = localStorage.getItem('user');
+  const adminString = localStorage.getItem('admin');
+  const token = localStorage.getItem('token');
 
-  if (getUserDetails) {
+  if (adminString) {
     try {
-      userDetail = JSON.parse(getUserDetails) as UserDetail;
+      const parsedAdmin = JSON.parse(adminString);
+      userDetail = {
+        ...parsedAdmin,
+        token: token || undefined,
+      };
     } catch (error) {
       console.error('Failed to parse user details from localStorage:', error);
     }

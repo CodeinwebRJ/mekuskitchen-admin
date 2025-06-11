@@ -42,7 +42,6 @@ const Page = () => {
         category: '',
       };
       const response = await getallTax(data);
-      console.log(response.data.data);
       setTaxConfigs(response.data.data);
     } catch (error) {
       console.log(error);

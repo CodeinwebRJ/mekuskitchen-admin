@@ -43,7 +43,6 @@ export const CreateProduct = async (data: any) => {
 };
 
 export const UploadImage = async (files: any) => {
-  console.log(files);
   const formData = new FormData();
   files?.forEach((file: any) => {
     formData.append('images', file);
