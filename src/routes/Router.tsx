@@ -3,11 +3,11 @@ import { Navigate, createBrowserRouter } from 'react-router';
 import Loadable from 'src/layouts/full/shared/loadable/Loadable';
 import Category from 'src/views/Category/page';
 import Coupon from 'src/views/Coupon/page';
-import SimpleProduct from 'src/views/Product/SimpleProduct/SimpleProduct';
-import VariationsProduct from 'src/views/Product/VariationProduct/VariationsProduct';
 import Tax from 'src/views/Tax/page';
 import Orders from 'src/views/Orders/page';
 import Tiffin from 'src/views/Tiffin/Tiffin';
+import SimpleProduct from 'src/views/CreateProduct/SimpleProduct/SimpleProduct';
+import VariationsProduct from 'src/views/CreateProduct/VariationProduct/VariationsProduct';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));

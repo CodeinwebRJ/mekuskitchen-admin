@@ -14,18 +14,26 @@ const axiosInstance = axios.create({
   },
 });
 
+export const Login = async (data: any) => {
+  return axiosInstance.post(`/api/v1/admin/login`, data);
+};
+
 export const getCategory = async () => {
   return axiosInstance.get('/api/v1/C/get/category');
 };
+
 export const getSubCategory = async () => {
   return axiosInstance.get('/api/v1/C/get/subCategory');
 };
+
 export const CreateCategory = async (data: CategoryData) => {
   return axiosInstance.post('/api/v1/C/add/category', data);
 };
+
 export const CreateSubCategory = async (data: SubCategoryData) => {
   return axiosInstance.post('/api/v1/C/add/subCategory', data);
 };
+
 export const CreateSubSubCategory = async (data: any) => {
   return axiosInstance.post('/api/v1/C/add/subsubCategory', data);
 };
@@ -35,7 +43,7 @@ export const CreateProduct = async (data: any) => {
 };
 
 export const UploadImage = async (files: any) => {
-  console.log(files)
+  console.log(files);
   const formData = new FormData();
   files?.forEach((file: any) => {
     formData.append('images', file);

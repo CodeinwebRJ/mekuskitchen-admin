@@ -28,7 +28,7 @@ const BasicForm = () => {
               <TextInput
                 id="email1"
                 type="email"
-                placeholder="name@matdash.com"
+                placeholder="name@mekus.com"
                 required
                 className="form-control form-rounded-xl"
               />

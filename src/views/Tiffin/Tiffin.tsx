@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Stepper from '../Product/Component/Stepper';
+import Stepper from '../CreateProduct/Component/Stepper';
 import TiffinInfo from './TiffinInfo';
 import Items from './Items';
 import { Button } from 'flowbite-react';
