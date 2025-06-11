@@ -4,12 +4,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Login } from 'src/AxiosConfig/AxiosConfig';
 import { login } from 'src/Store/Slices/AdminUser';
 import { useDispatch } from 'react-redux';
+import { HiEye, HiEyeOff } from 'react-icons/hi';
 
 const AuthLogin = () => {
   const [uniqueId, setUniqueId] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -63,14 +65,27 @@ const AuthLogin = () => {
         <div className="mb-2 block">
           <Label value="Password" />
         </div>
-        <TextInput
-          id="userpwd"
-          type="password"
-          sizing="md"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="relative">
+          <TextInput
+            id="userpwd"
+            type={showPassword ? 'text' : 'password'}
+            sizing="md"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <HiEyeOff className="h-5 w-5 text-gray-500" />
+            ) : (
+              <HiEye className="h-5 w-5 text-gray-500" />
+            )}
+          </button>
+        </div>
       </div>
       <div className="flex justify-between my-5">
         <div className="flex items-center gap-2">
@@ -84,7 +99,7 @@ const AuthLogin = () => {
             Remember Me
           </Label>
         </div>
-        <Link to="/forgot-password" className="text-primary text-sm font-medium">
+        <Link to="/auth/forgot-password" className="text-primary text-sm font-medium">
           Forgot Password?
         </Link>
       </div>

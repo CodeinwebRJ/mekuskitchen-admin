@@ -117,3 +117,11 @@ export const DeleteTax = async (data: any) => {
 export const getAllOrders = async () => {
   return axiosInstance.get(`/api/v1/order/admin/orders`);
 };
+
+export const SendOtp = async (data: any) => {
+  return axiosInstance.get(`/api/v1/admin/otp/${data}`);
+};
+
+export const ResetPassword = async (data: any) => {
+  return axiosInstance.get(`/api/v1/order/admin/orders?email=${data}`);
+};

@@ -9,6 +9,7 @@ import Tiffin from 'src/views/Tiffin/Tiffin';
 import SimpleProduct from 'src/views/CreateProduct/SimpleProduct/SimpleProduct';
 import VariationsProduct from 'src/views/CreateProduct/VariationProduct/VariationsProduct';
 import ProtectedRoute from 'src/components/ProtectedRoute/ProtectedRoute';
+import ForgotPassword from 'src/views/auth/authforms/ForgotPassword';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -94,6 +95,7 @@ const Router = [
     element: <BlankLayout />,
     children: [
       { path: '/auth/login', element: <Login /> },
+      { path: '/auth/forgot-password', element: <ForgotPassword /> },
       { path: '404', element: <Error /> },
       { path: '/auth/404', element: <Error /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
