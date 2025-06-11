@@ -1,6 +1,6 @@
 
 import FullLogo from "src/layouts/full/shared/logo/FullLogo";
-import AuthRegister from "../authforms/AuthRegister";
+// import AuthRegister from "../authforms/AuthRegister";
 import { Link } from "react-router";
 
 const gradientStyle = {
@@ -23,7 +23,7 @@ const BoxedRegister = () => {
             <p className="text-sm text-center text-dark my-3">
               Sign Up on Meku's
             </p>
-            <AuthRegister />
+            {/* <AuthRegister /> */}
             <div className="flex gap-2 text-base text-ld font-medium mt-6 items-center justify-center">
               <p>Already have an Account?</p>
               <Link to="/auth/login" className="text-primary text-sm font-medium">
