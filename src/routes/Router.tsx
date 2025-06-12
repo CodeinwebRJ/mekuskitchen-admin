@@ -10,10 +10,10 @@ import SimpleProduct from 'src/views/CreateProduct/SimpleProduct/SimpleProduct';
 import VariationsProduct from 'src/views/CreateProduct/VariationProduct/VariationsProduct';
 import ProtectedRoute from 'src/components/ProtectedRoute/ProtectedRoute';
 import ForgotPassword from 'src/views/auth/authforms/ForgotPassword';
+import Productdata from 'src/views/ProductData/page';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
-const Dashboard = Loadable(lazy(() => import('../views/dashboards/Dashboard')));
 const Login = Loadable(lazy(() => import('../views/auth/login/Login')));
 const Error = Loadable(lazy(() => import('../views/auth/error/Error')));
 
@@ -27,7 +27,7 @@ const Router = [
         exact: true,
         element: (
           <ProtectedRoute>
-            <Dashboard />
+            <Productdata />
           </ProtectedRoute>
         ),
       },

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Label, TextInput, Alert } from 'flowbite-react';
 import FullLogo from 'src/layouts/full/shared/logo/FullLogo';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { SendOtp, ResetPassword } from 'src/AxiosConfig/AxiosConfig';
 
@@ -22,8 +22,10 @@ const ForgotPassword: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [successMsg, setSuccessMsg] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const validateEmail = (email: string): boolean => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -38,7 +40,6 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(true);
     try {
       const res = await SendOtp(email);
-      console.log(res.data.data);
       localStorage.setItem('otp', res.data.data);
       setStep(2);
     } catch (error) {
@@ -83,52 +84,13 @@ const ForgotPassword: React.FC = () => {
     try {
       await ResetPassword({ email, newPassword });
       setSuccessMsg('Password updated successfully');
+      navigate('/auth/login');
     } catch (error) {
       setErrorMsg('Reset failed');
     } finally {
       setIsLoading(false);
     }
   };
-
-  const PasswordInput = ({
-    id,
-    value,
-    onChange,
-    label,
-  }: {
-    id: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    label: string;
-  }) => (
-    <div>
-      <Label htmlFor={id} className="mb-2 block">
-        {label}
-      </Label>
-      <div className="relative">
-        <TextInput
-          id={id}
-          type={showPassword ? 'text' : 'password'}
-          value={value}
-          onChange={onChange}
-          required
-          aria-describedby={`${id}-error`}
-        />
-        <button
-          type="button"
-          className="absolute inset-y-0 right-0 pr-3 flex items-center"
-          onClick={() => setShowPassword(!showPassword)}
-          aria-label={showPassword ? 'Hide password' : 'Show password'}
-        >
-          {showPassword ? (
-            <HiEyeOff className="h-5 w-5 text-gray-500" />
-          ) : (
-            <HiEye className="h-5 w-5 text-gray-500" />
-          )}
-        </button>
-      </div>
-    </div>
-  );
 
   return (
     <div style={gradientStyle} className="relative overflow-hidden h-screen">
@@ -139,11 +101,6 @@ const ForgotPassword: React.FC = () => {
               <FullLogo />
             </div>
             <div className="flex flex-col gap-2">
-              {errorMsg && (
-                <Alert color="failure" id="error-message">
-                  {errorMsg}
-                </Alert>
-              )}
               {successMsg && (
                 <Alert color="success" id="success-message">
                   {successMsg}
@@ -204,18 +161,50 @@ const ForgotPassword: React.FC = () => {
 
               {step === 3 && (
                 <div className="flex flex-col gap-4">
-                  <PasswordInput
-                    id="new-password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    label="New Password"
-                  />
-                  <PasswordInput
-                    id="confirm-password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    label="Confirm Password"
-                  />
+                  <div className="relative">
+                    <TextInput
+                      id="userpwd"
+                      type={showNewPassword ? 'text' : 'password'}
+                      sizing="md"
+                      placeholder="Enter New Password"
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? (
+                        <HiEyeOff className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <HiEye className="h-5 w-5 text-gray-500" />
+                      )}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <TextInput
+                      id="userpwd"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      sizing="md"
+                      required
+                      placeholder="Confirm Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <HiEyeOff className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <HiEye className="h-5 w-5 text-gray-500" />
+                      )}
+                    </button>
+                  </div>
                   <Button
                     className="mt-4 w-full bg-primary"
                     onClick={handleResetPassword}
@@ -226,7 +215,11 @@ const ForgotPassword: React.FC = () => {
                   </Button>
                 </div>
               )}
-
+              {errorMsg && (
+                <Alert color="failure" id="error-message">
+                  {errorMsg}
+                </Alert>
+              )}
               <div className="flex justify-center">
                 <Link to="/auth/login">
                   <p className="flex items-center text-primary text-sm text-center mt-5">

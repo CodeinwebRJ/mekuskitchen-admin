@@ -40,9 +40,7 @@ const AuthLogin = () => {
       }
       navigate('/');
     } catch (error: any) {
-      console.error(error);
-      const message = error.response?.data?.message || 'Login failed';
-      setErrorMsg(message);
+      setErrorMsg(error.response?.data?.errorData || 'Login failed');
     }
   };
 

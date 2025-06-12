@@ -14,7 +14,7 @@ const Page = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <h2 className="text-xl font-semibold text-blue-700 mb-4">Categories</h2>
 
       <div className="flex items-center gap-2 mb-6">

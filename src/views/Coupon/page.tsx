@@ -100,7 +100,7 @@ const Page: FC = () => {
   };
 
   return (
-    <div className="p-4">
+    <div>
       <div className="flex justify-between items-center mb-8">
         <span className="text-xl font-semibold text-blue-700">Coupons</span>
         <Button

@@ -132,7 +132,7 @@ const Page = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-6 p-4">
+    <div className="flex flex-col items-center gap-6">
       <div className="w-full">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-blue-700">Tax</h2>

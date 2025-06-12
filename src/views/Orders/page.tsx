@@ -3,7 +3,7 @@ import { getAllOrders } from 'src/AxiosConfig/AxiosConfig';
 import user1 from '/src/assets/images/profile/user-1.jpg';
 import dayjs from 'dayjs';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
-import { Button } from 'flowbite-react';
+import { Button, TextInput } from 'flowbite-react';
 
 // Define interfaces
 interface Combination {
@@ -86,42 +86,50 @@ const Page: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
+    <div>
       <h1 className="text-2xl font-bold mb-6 text-blue-700">Orders</h1>
-      <form onSubmit={handleFilterSubmit} className="flex gap-4 mb-6 justify-end items-end">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Start Date</label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="border rounded px-2 py-1"
-          />
+      <form
+        onSubmit={handleFilterSubmit}
+        className="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-end"
+      >
+        <div className="w-full sm:w-auto">
+          <TextInput placeholder='Search'/>
         </div>
+        <div className="flex gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Start Date</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">End Date</label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="border rounded px-2 py-1"
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700">End Date</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+          <Button type="submit" color="blue">
+            Filter
+          </Button>
+          <Button
+            type="button"
+            onClick={() => {
+              setStartDate('');
+              setEndDate('');
+              fetchOrders();
+            }}
+            color="gray"
+          >
+            Reset
+          </Button>
         </div>
-        <Button type="submit" color="blue">
-          Filter
-        </Button>
-        <Button
-          type="button"
-          onClick={() => {
-            setStartDate('');
-            setEndDate('');
-            fetchOrders();
-          }}
-          color="gray"
-        >
-          Reset
-        </Button>
       </form>
 
       <div className="overflow-x-auto">

@@ -102,6 +102,10 @@ export const getallTax = async (data?: any) => {
   );
 };
 
+export const getAllProduct = async (data: any) => {
+  return axiosInstance.post(`/api/v1/product`, data);
+};
+
 export const CreateTax = async (data: any) => {
   return axiosInstance.post('/api/v1/tax', data);
 };
@@ -123,5 +127,5 @@ export const SendOtp = async (data: any) => {
 };
 
 export const ResetPassword = async (data: any) => {
-  return axiosInstance.get(`/api/v1/order/admin/orders?email=${data}`);
+  return axiosInstance.post(`/api/v1/admin/forgot`, data);
 };
