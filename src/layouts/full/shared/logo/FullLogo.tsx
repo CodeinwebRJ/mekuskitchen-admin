@@ -1,9 +1,16 @@
-import Logo from "../../../../../public/logo.png";
-import { Link } from "react-router";
+import Logo from '../../../../../public/logo.png';
+import { Link } from 'react-router';
+
 const FullLogo = () => {
   return (
-    <Link to={"/"}>
-      <img src={Logo} alt="logo" className="block w-full h-20 bg-blue-700 px-2 py-2 rounded-sm" />
+    <Link to="/" className="block">
+      <div className="flex justify-center items-center">
+        <img
+          src={Logo}
+          alt="logo"
+          className="w-full max-w-[200px] h-auto max-h-20 object-contain rounded-sm bg-blue-700 p-3"
+        />
+      </div>
     </Link>
   );
 };

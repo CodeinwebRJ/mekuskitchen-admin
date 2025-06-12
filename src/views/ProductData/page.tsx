@@ -24,7 +24,6 @@ const Page = () => {
     setEndDate('');
   };
 
-  // Handle page change
   const handlePageChange = useCallback(
     (pageNumber: number) => {
       dispatch(setPage(pageNumber));
@@ -37,26 +36,25 @@ const Page = () => {
     console.log('Filtering with:', { startDate, endDate });
   };
 
-  console.log(loading);
-
   return (
-    <div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <h1 className="text-2xl font-bold mb-6 text-blue-700">Products</h1>
       <form
         onSubmit={handleFilter}
-        className="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-end"
+        className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6"
       >
-        <div className="w-full sm:w-auto">
-          <TextInput placeholder="Search" />
+        <div className="w-full lg:w-1/3">
+          <TextInput placeholder="Search" className="w-full" />
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 items-end">
+
+        <div className="flex flex-col sm:flex-row gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Start Date</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border rounded px-2 py-1 w-full sm:w-auto"
+              className="border rounded px-2 py-1 w-full"
             />
           </div>
           <div>
@@ -65,7 +63,7 @@ const Page = () => {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border rounded px-2 py-1 w-full sm:w-auto"
+              className="border rounded px-2 py-1 w-full"
             />
           </div>
           <Button type="submit" color="blue">
@@ -84,7 +82,7 @@ const Page = () => {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full rounded-md text-sm text-left text-gray-800 border border-gray-200">
+          <table className="min-w-full rounded-md text-sm text-left text-gray-800 border border-gray-200">
             <thead className="text-xs uppercase bg-white text-blue-800">
               <tr>
                 <th className="px-4 py-3">Index</th>
@@ -142,11 +140,13 @@ const Page = () => {
           </table>
 
           {products?.pages > 1 && (
-            <Pagination
-              currentPage={products.page}
-              totalPages={products.pages}
-              onPageChange={handlePageChange}
-            />
+            <div className="mt-6">
+              <Pagination
+                currentPage={products.page}
+                totalPages={products.pages}
+                onPageChange={handlePageChange}
+              />
+            </div>
           )}
         </div>
       )}
