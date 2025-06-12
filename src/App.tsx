@@ -3,7 +3,7 @@ import { Flowbite, ThemeModeScript } from 'flowbite-react';
 import customTheme from './utils/theme/custom-theme';
 import router from './routes/Router';
 import { useCallback, useEffect } from 'react';
-import { setCategoryList, setError } from './Store/Slices/Categories';
+import { setCategoryList, setError, setLoading } from './Store/Slices/Categories';
 import { getAllProduct, getCategory } from './AxiosConfig/AxiosConfig';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from './Store/Store';
@@ -16,8 +16,8 @@ function App() {
     try {
       setError(null);
       const res = await getCategory();
-      if (res.data?.data) {
-        dispatch(setCategoryList(res.data.data));
+      if (res?.data?.data) {
+        dispatch(setCategoryList(res?.data?.data));
       } else {
         throw new Error('Invalid response format');
       }
@@ -32,6 +32,7 @@ function App() {
   const fetchProducts = useCallback(async () => {
     try {
       setError(null);
+      dispatch(setLoading(true));
       const data = {
         page: filterData?.page,
         limit: filterData?.limit,
@@ -45,8 +46,8 @@ function App() {
         attributes: filterData?.attributes,
       };
       const res = await getAllProduct(data);
-      console.log(res.data.data);
-      dispatch(setProducts(res.data.data));
+      dispatch(setProducts(res?.data?.data));
+      dispatch(setLoading(false));
     } catch (error) {
       console.error('Error fetching categories:', error);
       setError('Failed to fetch categories. Please try again.');

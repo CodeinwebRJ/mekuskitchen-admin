@@ -9,16 +9,16 @@ import { MdDelete } from 'react-icons/md';
 interface RootState {
   product: {
     products: any;
+    loading: boolean;
   };
 }
 
 const Page = () => {
   const dispatch = useDispatch();
-  const { products } = useSelector((state: RootState) => state.product);
+  const { products, loading } = useSelector((state: RootState) => state.product);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
-  // Handle form reset
   const handleReset = () => {
     setStartDate('');
     setEndDate('');
@@ -36,6 +36,8 @@ const Page = () => {
     e.preventDefault();
     console.log('Filtering with:', { startDate, endDate });
   };
+
+  console.log(loading);
 
   return (
     <div>
@@ -75,72 +77,79 @@ const Page = () => {
         </div>
       </form>
 
-      <div className="overflow-x-auto">
-        <table className="w-full rounded-md text-sm text-left text-gray-800 border border-gray-200">
-          <thead className="text-xs uppercase bg-white text-blue-800">
-            <tr>
-              <th className="px-4 py-3">Index</th>
-              <th className="px-4 py-3">Image</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Price</th>
-              <th className="px-4 py-3">Stock</th>
-              <th className="px-4 py-3">Categories</th>
-              <th className="px-4 py-3">Brand</th>
-              <th className="px-4 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white">
-            {products.data?.length > 0 ? (
-              products.data.map((product: any, index: number) => (
-                <tr key={product._id} className="hover:bg-gray-50 transition">
-                  <td className="px-4 py-3">{index + 1}</td>
-                  <td className="px-4 py-3">
-                    <img
-                      src={product.images?.[0]?.url || '/default-product.jpg'}
-                      alt={product.name}
-                      className="w-14 h-14 object-cover rounded"
-                    />
-                  </td>
-                  <td className="px-4 py-3">{product.name?.toUpperCase()}</td>
-                  <td className="px-4 py-3">₹{product.price?.toFixed(2)}</td>
-                  <td className="px-4 py-3">{product.stock}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col text-sm gap-1">
-                      {product.category && <span>Category: {product.category}</span>}
-                      {product.subCategory && <span>SubCategory: {product.subCategory}</span>}
-                      {product.ProductCategory && (
-                        <span>ProductCategory: {product.ProductCategory}</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">{product.brand || '-'}</td>
-                  <td className="px-4 py-3 ">
-                    <div className="flex gap-4 items-center justify-end">
-                      <MdModeEdit className="cursor-pointer" size={20} />
-                      <MdDelete className="text-red-600 cursor-pointer" size={20} />
-                      <ToggleSwitch onChange={() => {}} checked={true} className="focus:ring-0" />
-                    </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-700"></div>
+          <span className="ml-4 text-gray-700">Loading products...</span>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full rounded-md text-sm text-left text-gray-800 border border-gray-200">
+            <thead className="text-xs uppercase bg-white text-blue-800">
+              <tr>
+                <th className="px-4 py-3">Index</th>
+                <th className="px-4 py-3">Image</th>
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Price</th>
+                <th className="px-4 py-3">Stock</th>
+                <th className="px-4 py-3">Categories</th>
+                <th className="px-4 py-3">Brand</th>
+                <th className="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white">
+              {products?.data?.length > 0 ? (
+                products?.data?.map((product: any, index: number) => (
+                  <tr key={product?._id} className="hover:bg-gray-50 transition">
+                    <td className="px-4 py-3">{index + 1}</td>
+                    <td className="px-4 py-3">
+                      <img
+                        src={product?.images?.[0]?.url || '/default-product.jpg'}
+                        alt={product?.name}
+                        className="w-14 h-14 object-cover rounded"
+                      />
+                    </td>
+                    <td className="px-4 py-3">{product?.name?.toUpperCase()}</td>
+                    <td className="px-4 py-3">₹{product?.price?.toFixed(2)}</td>
+                    <td className="px-4 py-3">{product?.stock}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col text-sm gap-1">
+                        {product?.category && <span>Category: {product?.category}</span>}
+                        {product?.subCategory && <span>SubCategory: {product?.subCategory}</span>}
+                        {product?.ProductCategory && (
+                          <span>ProductCategory: {product?.ProductCategory}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">{product.brand || '-'}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-4 items-center justify-end">
+                        <MdModeEdit className="cursor-pointer" size={20} />
+                        <MdDelete className="text-red-600 cursor-pointer" size={20} />
+                        <ToggleSwitch onChange={() => {}} checked={true} className="focus:ring-0" />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="px-4 py-3 text-center">
+                    No products found
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="px-4 py-3 text-center">
-                  No products found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
 
-        {products.pages > 1 && (
-          <Pagination
-            currentPage={products.page}
-            totalPages={products.pages}
-            onPageChange={handlePageChange}
-          />
-        )}
-      </div>
+          {products?.pages > 1 && (
+            <Pagination
+              currentPage={products.page}
+              totalPages={products.pages}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };

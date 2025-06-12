@@ -7,7 +7,7 @@ interface ProductState {
 }
 
 const initialState: ProductState = {
-  products: null,
+  products: [],
   loading: false,
   combinations: [],
 };
