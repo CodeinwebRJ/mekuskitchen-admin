@@ -13,7 +13,7 @@ interface RootState {
 }
 
 const Page = () => {
-  const { products, loading, page } = useSelector((state: RootState) => state.product);
+  const { products, loading } = useSelector((state: RootState) => state.product);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const dispatch = useDispatch();
@@ -167,8 +167,8 @@ const Page = () => {
           {products?.pages > 1 && (
             <div className="mt-6">
               <Pagination
-                currentPage={page}
-                totalPages={products.pages}
+                currentPage={products?.page || 1}
+                totalPages={products.pages || 1}
                 onPageChange={handlePageChange}
               />
             </div>

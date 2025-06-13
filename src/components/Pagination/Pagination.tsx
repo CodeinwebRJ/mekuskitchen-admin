@@ -26,6 +26,8 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     }
   };
 
+  console.log(currentPage)
+
   return (
     <div className="flex items-center justify-center gap-2 my-4">
       <button
@@ -41,7 +43,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           key={number}
           onClick={() => onPageChange(number)}
           className={`p-2 px-3 rounded-md ${
-            currentPage === number
+            Number(currentPage) === number
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
           } transition-colors`}
