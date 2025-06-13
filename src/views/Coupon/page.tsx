@@ -1,8 +1,9 @@
 import { Button, ToggleSwitch } from 'flowbite-react';
 import { useState, FC, useEffect, useCallback } from 'react';
-import { FiEdit, FiTrash } from 'react-icons/fi';
+import { FiTrash } from 'react-icons/fi';
 import CreateCoupons from './CreateCoupon';
 import { DeleteCoupons, EditCoupons, GetAllCoupons } from 'src/AxiosConfig/AxiosConfig';
+import { MdModeEdit } from 'react-icons/md';
 
 interface CouponFormData {
   _id?: string;
@@ -206,23 +207,15 @@ const Page: FC = () => {
                           className="focus:ring-0"
                         />
                       </td>
-                      <td className="px-6 py-4 flex gap-2 text-sm font-medium">
-                        <Button
-                          color="blue"
-                          className="text-white"
-                          title="Edit"
-                          onClick={() => handleEdit(coupon)}
-                        >
-                          <FiEdit size={18} />
-                        </Button>
-                        <Button
-                          color="blue"
-                          className="text-white"
-                          title="Delete"
-                          onClick={() => handleDelete(coupon._id)}
-                        >
-                          <FiTrash size={18} />
-                        </Button>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className='flex gap-4'>
+                          <div className="text-white" onClick={() => handleEdit(coupon)}>
+                            <MdModeEdit className="text-black cursor-pointer" size={18} />
+                          </div>
+                          <div className="text-white" onClick={() => handleDelete(coupon._id)}>
+                            <FiTrash className="text-red-600 cursor-pointer" size={18} />
+                          </div>
+                        </div>
                       </td>
                     </tr>
                   ))}

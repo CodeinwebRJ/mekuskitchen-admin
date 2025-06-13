@@ -92,8 +92,8 @@ const Page: React.FC = () => {
         onSubmit={handleFilterSubmit}
         className="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-end"
       >
-        <div className="w-full sm:w-auto">
-          <TextInput placeholder='Search'/>
+        <div className="w-full lg:w-1/3">
+          <TextInput placeholder="Search" />
         </div>
         <div className="flex gap-4 items-end">
           <div>

@@ -7,7 +7,7 @@ interface ProductState {
 }
 
 const initialState: ProductState = {
-  products: [],
+  products: null,
   loading: false,
   combinations: [],
 };
@@ -33,8 +33,20 @@ const productSlice = createSlice({
         });
       });
     },
+    updateProductStatus: (
+      state,
+      action: PayloadAction<{ productId: string; isActive: boolean }>,
+    ) => {
+      const { productId, isActive } = action.payload;
+      if (state.products.data) {
+        state.products.data = state.products.data.map((product: any) =>
+          product._id === productId ? { ...product, isActive } : product,
+        );
+      }
+    },
   },
 });
 
-export const { setProducts, setLoading, setCombinations } = productSlice.actions;
+export const { setProducts, setLoading, setCombinations, updateProductStatus } =
+  productSlice.actions;
 export default productSlice.reducer;

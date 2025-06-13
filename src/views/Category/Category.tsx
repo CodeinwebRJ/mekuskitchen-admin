@@ -1,6 +1,7 @@
 import { Button, TextInput, ToggleSwitch } from 'flowbite-react';
 import { useState, useCallback, FormEvent, useMemo } from 'react';
-import { FiEdit, FiTrash } from 'react-icons/fi';
+import { FiTrash } from 'react-icons/fi';
+import { MdModeEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { CreateCategory, DeleteCategory, UpdateCategory } from 'src/AxiosConfig/AxiosConfig'; // Fixed typo
 import { setCategoryList } from 'src/Store/Slices/Categories';
@@ -232,29 +233,27 @@ const Category = () => {
           ) : (
             <>
               <span className="text-gray-600 font-semibold flex-1">{cat.name}</span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
+                <div
+                  onClick={() => handleEditStart(cat._id, cat.name)}
+                  color="blue"
+                  aria-label={`Edit ${cat.name}`}
+                >
+                  <MdModeEdit className="text-black cursor-pointer" size={18} />
+                </div>
+                <div
+                  color="blue"
+                  onClick={() => handleDelete(cat)}
+                  aria-label={`Delete ${cat.name}`}
+                >
+                  <FiTrash className="text-red-600 cursor-pointer" size={18} />
+                </div>
                 <ToggleSwitch
                   checked={cat.isActive}
                   onChange={() => handleToggle(cat)}
                   className="focus:ring-0"
                   aria-label={`Toggle active status for ${cat.name}`}
                 />
-                <Button
-                  onClick={() => handleEditStart(cat._id, cat.name)}
-                  color="blue"
-                  aria-label={`Edit ${cat.name}`}
-                  disabled={loadingStates[`edit-${cat._id}`] || loadingStates[`delete-${cat._id}`]}
-                >
-                  <FiEdit size={18} />
-                </Button>
-                <Button
-                  color="blue"
-                  onClick={() => handleDelete(cat)}
-                  aria-label={`Delete ${cat.name}`}
-                  disabled={loadingStates[`edit-${cat._id}`] || loadingStates[`delete-${cat._id}`]}
-                >
-                  <FiTrash size={18} />
-                </Button>
               </div>
             </>
           )}

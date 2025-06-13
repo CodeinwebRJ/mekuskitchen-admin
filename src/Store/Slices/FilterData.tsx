@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   categories: [],
@@ -8,15 +8,15 @@ const initialState = {
   ratings: [],
   price: [0, 2000],
   attributes: {},
-  search: "",
-  sortBy: "",
-  page: "1",
-  limit: "10",
+  search: '',
+  sortBy: '',
+  page: '1',
+  limit: '10',
   grid: 3,
 };
 
 const filterDataSlice = createSlice({
-  name: "filterData",
+  name: 'filterData',
   initialState,
   reducers: {
     setCategories: (state, action) => {
@@ -50,6 +50,7 @@ const filterDataSlice = createSlice({
       state.grid = action.payload;
     },
     setPage: (state, action) => {
+      console.log(action.payload);
       state.page = action.payload;
     },
     setLimit: (state, action) => {

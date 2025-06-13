@@ -129,3 +129,8 @@ export const SendOtp = async (data: any) => {
 export const ResetPassword = async (data: any) => {
   return axiosInstance.post(`/api/v1/admin/forgot`, data);
 };
+
+export const EditProduct = async (payload: any) => {
+  const { id, data } = payload;
+  return axiosInstance.put(`/api/v1/product/category/${id}`, data);
+};

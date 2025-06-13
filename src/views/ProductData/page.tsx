@@ -5,19 +5,18 @@ import Pagination from 'src/components/Pagination/Pagination';
 import { setPage } from 'src/Store/Slices/FilterData';
 import { MdModeEdit } from 'react-icons/md';
 import { MdDelete } from 'react-icons/md';
+import { EditProduct } from 'src/AxiosConfig/AxiosConfig';
+import { updateProductStatus } from 'src/Store/Slices/ProductData';
 
 interface RootState {
-  product: {
-    products: any;
-    loading: boolean;
-  };
+  product: any;
 }
 
 const Page = () => {
-  const dispatch = useDispatch();
-  const { products, loading } = useSelector((state: RootState) => state.product);
+  const { products, loading, page } = useSelector((state: RootState) => state.product);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const dispatch = useDispatch();
 
   const handleReset = () => {
     setStartDate('');
@@ -36,8 +35,29 @@ const Page = () => {
     console.log('Filtering with:', { startDate, endDate });
   };
 
+  const handleToggle = useCallback(
+    async (productId: string, currentStatus: boolean) => {
+      try {
+        const newStatus = !currentStatus;
+        await EditProduct({
+          id: productId,
+          data: { isActive: newStatus },
+        });
+        dispatch(
+          updateProductStatus({
+            productId,
+            isActive: newStatus,
+          }),
+        );
+      } catch (error) {
+        console.error('Error updating product status:', error);
+      }
+    },
+    [dispatch],
+  );
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-blue-700">Products</h1>
       <form
         onSubmit={handleFilter}
@@ -47,7 +67,7 @@ const Page = () => {
           <TextInput placeholder="Search" className="w-full" />
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row items-end gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Start Date</label>
             <input
@@ -96,7 +116,7 @@ const Page = () => {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {products?.data?.length > 0 ? (
+              {products?.data?.length > 0 &&
                 products?.data?.map((product: any, index: number) => (
                   <tr key={product?._id} className="hover:bg-gray-50 transition">
                     <td className="px-4 py-3">{index + 1}</td>
@@ -122,16 +142,21 @@ const Page = () => {
                     <td className="px-4 py-3">{product.brand || '-'}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-4 items-center justify-end">
-                        <MdModeEdit className="cursor-pointer" size={20} />
+                        <MdModeEdit className="text-black cursor-pointer" size={20} />
                         <MdDelete className="text-red-600 cursor-pointer" size={20} />
-                        <ToggleSwitch onChange={() => {}} checked={true} className="focus:ring-0" />
+                        <ToggleSwitch
+                          onChange={() => handleToggle(product._id, product.isActive)}
+                          checked={product.isActive || false}
+                          className="focus:ring-0"
+                        />
                       </div>
                     </td>
                   </tr>
-                ))
-              ) : (
+                ))}
+
+              {products === null && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-3 text-center">
+                  <td colSpan={8} className="text-center py-4">
                     No products found
                   </td>
                 </tr>
@@ -142,7 +167,7 @@ const Page = () => {
           {products?.pages > 1 && (
             <div className="mt-6">
               <Pagination
-                currentPage={products.page}
+                currentPage={page}
                 totalPages={products.pages}
                 onPageChange={handlePageChange}
               />

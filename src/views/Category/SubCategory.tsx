@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, FormEvent } from 'react';
 import { Button, TextInput, ToggleSwitch, Select } from 'flowbite-react';
-import { FiEdit, FiTrash } from 'react-icons/fi';
+import { FiTrash } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCategoryList } from 'src/Store/Slices/Categories';
 import { RootState } from 'src/Store/Store';
@@ -9,6 +9,7 @@ import {
   UpdateSubCategory,
   DeleteSubCategory,
 } from 'src/AxiosConfig/AxiosConfig';
+import { MdModeEdit } from 'react-icons/md';
 
 interface SubSubCategoryType {
   _id: string;
@@ -272,28 +273,26 @@ const SubCategory = () => {
           ) : (
             <>
               <span className="text-gray-700 font-medium flex-1">{sub.name}</span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
+                <div
+                  onClick={() => handleEditStart(sub._id, sub.name)}
+                  color="blue"
+                  aria-label={`Edit ${sub.name}`}
+                >
+                  <MdModeEdit className="text-black cursor-pointer" size={18} />
+                </div>
+                <div
+                  onClick={() => handleDelete(selectedCategory, sub)}
+                  color="blue"
+                  aria-label={`Delete ${sub.name}`}
+                >
+                  <FiTrash className="text-red-600 cursor-pointer" size={18} />
+                </div>
                 <ToggleSwitch
                   checked={sub.isActive}
                   onChange={() => handleToggle(selectedCategory, sub)}
                   aria-label={`Toggle active status for ${sub.name}`}
                 />
-                <Button
-                  onClick={() => handleEditStart(sub._id, sub.name)}
-                  color="blue"
-                  aria-label={`Edit ${sub.name}`}
-                  disabled={loadingStates[`edit-${sub._id}`] || loadingStates[`delete-${sub._id}`]}
-                >
-                  <FiEdit size={18} />
-                </Button>
-                <Button
-                  onClick={() => handleDelete(selectedCategory, sub)}
-                  color="blue"
-                  aria-label={`Delete ${sub.name}`}
-                  disabled={loadingStates[`edit-${sub._id}`] || loadingStates[`delete-${sub._id}`]}
-                >
-                  <FiTrash size={18} />
-                </Button>
               </div>
             </>
           )}

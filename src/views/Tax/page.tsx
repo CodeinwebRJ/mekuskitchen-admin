@@ -1,7 +1,8 @@
 'use client';
 import { Button, TextInput, Label, Select } from 'flowbite-react';
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { FiEdit, FiTrash, FiPlus, FiX } from 'react-icons/fi';
+import { FiTrash, FiPlus, FiX } from 'react-icons/fi';
+import { MdModeEdit } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosConfig';
 import { RootState } from 'src/Store/Store';
@@ -238,23 +239,13 @@ const Page = () => {
                           {config.provinceName} ({config.provinceCode})
                         </span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Button
-                          color="blue"
-                          className="text-white"
-                          title="Edit"
-                          onClick={() => handleEdit(config)}
-                        >
-                          <FiEdit size={18} />
-                        </Button>
-                        <Button
-                          className="text-white"
-                          title="Delete"
-                          color="blue"
-                          onClick={() => handleDelete(config.provinceCode!)}
-                        >
-                          <FiTrash size={18} />
-                        </Button>
+                      <div className="flex items-center gap-4">
+                        <div onClick={() => handleEdit(config)}>
+                          <MdModeEdit className="text-black cursor-pointer" size={18} />
+                        </div>
+                        <div onClick={() => handleDelete(config.provinceCode!)}>
+                          <FiTrash className="text-red-600 cursor-pointer" size={18} />
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-2 items-center flex-wrap mt-2">

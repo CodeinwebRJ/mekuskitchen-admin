@@ -1,5 +1,6 @@
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
+// Define the props interface
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -7,77 +8,52 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const maxPagesToShow = 5;
+  const pageNumbers: number[] = [];
 
-    if (totalPages <= maxPagesToShow) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
 
-    const startPage = Math.max(2, currentPage - 2);
-    const endPage = Math.min(totalPages - 1, currentPage + 2);
-
-    pages.push(1);
-    if (startPage > 2) pages.push('...');
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    if (endPage < totalPages - 1) pages.push('...');
-    if (totalPages > 1) pages.push(totalPages); 
-
-    return pages;
-  };
-
-  const handlePrev = () => {
+  const handlePrev = (): void => {
     if (currentPage > 1) {
       onPageChange(currentPage - 1);
     }
   };
 
-  const handleNext = () => {
+  const handleNext = (): void => {
     if (currentPage < totalPages) {
       onPageChange(currentPage + 1);
     }
   };
 
   return (
-    <div className="flex items-center justify-center space-x-2 my-4">
+    <div className="flex items-center justify-center gap-2 my-4">
       <button
         onClick={handlePrev}
         disabled={currentPage === 1}
-        className="p-2 rounded-full text-blue-700 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label="Previous page"
+        className="p-2 rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
       >
         <FaArrowLeft />
       </button>
 
-      {getPageNumbers().map((number, index) =>
-        typeof number === 'string' ? (
-          <span key={`ellipsis-${index}`} className="px-3 py-2 text-blue-700">
-            {number}
-          </span>
-        ) : (
-          <button
-            key={number}
-            onClick={() => onPageChange(number)}
-            className={`px-3 py-2 rounded-md ${
-              currentPage === number ? 'bg-blue-700 text-white' : 'text-blue-700 hover:bg-blue-100'
-            }`}
-            aria-current={currentPage === number ? 'page' : undefined}
-          >
-            {number}
-          </button>
-        ),
-      )}
+      {pageNumbers.map((number) => (
+        <button
+          key={number}
+          onClick={() => onPageChange(number)}
+          className={`p-2 px-3 rounded-md ${
+            currentPage === number
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+          } transition-colors`}
+        >
+          {number}
+        </button>
+      ))}
 
       <button
         onClick={handleNext}
         disabled={currentPage === totalPages}
-        className="p-2 rounded-full text-blue-700 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label="Next page"
+        className="p-2 rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
       >
         <FaArrowRight />
       </button>
