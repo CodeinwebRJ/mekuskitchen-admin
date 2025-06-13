@@ -35,6 +35,7 @@ interface Order {
   id?: string;
   user: string;
   userImg: string;
+  orderId: string;
   Orderdate: string;
   orderStatus: string;
   status: string;
@@ -84,6 +85,8 @@ const Page: React.FC = () => {
       endDate: endDate || undefined,
     });
   };
+  
+  console.log(data);
 
   return (
     <div>
@@ -161,7 +164,7 @@ const Page: React.FC = () => {
                       />
                       <span>{order.user}</span>
                     </td>
-                    <td className="px-4 py-3">{order._id}</td>
+                    <td className="px-4 py-3">{order.orderId}</td>
                     <td className="px-4 py-3">
                       {dayjs(order.Orderdate).format('DD MMM YYYY, hh:mm A')}
                     </td>
