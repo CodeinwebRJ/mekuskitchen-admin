@@ -1,8 +1,8 @@
-import { Button, TextInput, ToggleSwitch } from 'flowbite-react';
+import { Label, TextInput, ToggleSwitch } from 'flowbite-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import Pagination from 'src/components/Pagination/Pagination';
-import { setPage } from 'src/Store/Slices/FilterData';
+import { setIsActive, setPage, setSearch } from 'src/Store/Slices/FilterData';
 import { MdModeEdit } from 'react-icons/md';
 import { MdDelete } from 'react-icons/md';
 import { EditProduct } from 'src/AxiosConfig/AxiosConfig';
@@ -10,18 +10,13 @@ import { updateProductStatus } from 'src/Store/Slices/ProductData';
 
 interface RootState {
   product: any;
+  filterData: any;
 }
 
 const Page = () => {
   const { products, loading } = useSelector((state: RootState) => state.product);
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
+  const { search, isActive } = useSelector((state: RootState) => state.filterData);
   const dispatch = useDispatch();
-
-  const handleReset = () => {
-    setStartDate('');
-    setEndDate('');
-  };
 
   const handlePageChange = useCallback(
     (pageNumber: number) => {
@@ -29,11 +24,6 @@ const Page = () => {
     },
     [dispatch],
   );
-
-  const handleFilter = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Filtering with:', { startDate, endDate });
-  };
 
   const handleToggle = useCallback(
     async (productId: string, currentStatus: boolean) => {
@@ -59,39 +49,20 @@ const Page = () => {
   return (
     <div className="max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-blue-700">Products</h1>
-      <form
-        onSubmit={handleFilter}
-        className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6"
-      >
+      <form className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
         <div className="w-full lg:w-1/3">
-          <TextInput placeholder="Search" className="w-full" />
+          <TextInput
+            value={search}
+            onChange={(e) => dispatch(setSearch(e.target.value))}
+            placeholder="Search"
+            className="w-full"
+          />
         </div>
-
-        <div className="flex flex-col sm:flex-row items-end gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Start Date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="border rounded px-2 py-1 w-full"
-            />
+        <div className="px-4">
+          <div className="flex gap-2">
+            <Label>Active</Label>
+            <ToggleSwitch onChange={() => dispatch(setIsActive(!isActive))} checked={isActive} />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="border rounded px-2 py-1 w-full"
-            />
-          </div>
-          <Button type="submit" color="blue">
-            Filter
-          </Button>
-          <Button type="button" onClick={handleReset} color="gray">
-            Reset
-          </Button>
         </div>
       </form>
 

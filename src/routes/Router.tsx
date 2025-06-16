@@ -10,6 +10,7 @@ import SimpleProduct from 'src/views/CreateProduct/SimpleProduct/SimpleProduct';
 import VariationsProduct from 'src/views/CreateProduct/VariationProduct/VariationsProduct';
 import ProtectedRoute from 'src/components/ProtectedRoute/ProtectedRoute';
 import ForgotPassword from 'src/views/auth/authforms/ForgotPassword';
+import Contact from 'src/views/Contact/page';
 import Productdata from 'src/views/ProductData/page';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
@@ -39,6 +40,7 @@ const Router = [
           </ProtectedRoute>
         ),
       },
+
       {
         path: '/variations-product',
         element: (
@@ -52,6 +54,14 @@ const Router = [
         element: (
           <ProtectedRoute>
             <Tiffin />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/quarys',
+        element: (
+          <ProtectedRoute>
+            <Contact />
           </ProtectedRoute>
         ),
       },

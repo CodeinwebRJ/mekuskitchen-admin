@@ -47,6 +47,7 @@ function App() {
         brands: filterData.Brands,
         ratings: filterData.ratings,
         attributes: filterData.attributes,
+        isActive: filterData.isActive,
       };
 
       const res = await getAllProduct(data);

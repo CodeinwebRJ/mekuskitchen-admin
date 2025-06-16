@@ -5,14 +5,13 @@ const initialState = {
   subCategories: [],
   productCategories: [],
   Brands: [],
-  ratings: [],
   price: [0, 2000],
   attributes: {},
   search: '',
   sortBy: '',
   page: '1',
   limit: '10',
-  grid: 3,
+  isActive: 'False',
 };
 
 const filterDataSlice = createSlice({
@@ -31,9 +30,6 @@ const filterDataSlice = createSlice({
     setBrands: (state, action) => {
       state.Brands = action.payload;
     },
-    setRatings: (state, action) => {
-      state.ratings = action.payload;
-    },
     setPrices: (state, action) => {
       state.price = action.payload;
     },
@@ -46,9 +42,6 @@ const filterDataSlice = createSlice({
     setAttributes: (state, action) => {
       state.attributes = action.payload;
     },
-    setGrid: (state, action) => {
-      state.grid = action.payload;
-    },
     setPage: (state, action) => {
       console.log(action.payload);
       state.page = action.payload;
@@ -56,14 +49,17 @@ const filterDataSlice = createSlice({
     setLimit: (state, action) => {
       state.limit = action.payload;
     },
+    setIsActive: (state, action) => {
+      state.isActive = action.payload;
+    },
     resetFilters: (state) => {
       state.categories = [];
       state.subCategories = [];
       state.productCategories = [];
       state.Brands = [];
-      state.ratings = [];
       state.price = [0, 2000];
       state.attributes = {};
+      state.isActive = 'true';
     },
   },
 });
@@ -73,11 +69,10 @@ export const {
   setSubCategories,
   setProductCategories,
   setBrands,
-  setRatings,
   setPrices,
+  setIsActive,
   setAttributes,
   setSearch,
-  setGrid,
   setPage,
   setLimit,
   resetFilters,
