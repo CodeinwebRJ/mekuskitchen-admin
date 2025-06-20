@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo, FormEvent } from 'react';
 import { Button, Select, TextInput, ToggleSwitch } from 'flowbite-react';
-import { FiTrash } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCategoryList } from 'src/Store/Slices/Categories';
 import { RootState } from 'src/Store/Store';
@@ -9,7 +8,7 @@ import {
   UpdateSubSubCategory,
   DeleteSubSubCategory,
 } from 'src/AxiosConfig/AxiosConfig';
-import { MdModeEdit } from 'react-icons/md';
+import { MdDelete, MdModeEdit } from 'react-icons/md';
 
 // Define constants
 const ERROR_MESSAGES = {
@@ -345,7 +344,7 @@ const ProductCategory = () => {
                   color="blue"
                   aria-label={`Delete ${ssub.name}`}
                 >
-                  <FiTrash className="text-red-600 cursor-pointer" size={18} />
+                  <MdDelete className="text-red-600 cursor-pointer" size={18} />
                 </div>
                 <ToggleSwitch
                   checked={ssub.isActive}

@@ -85,8 +85,6 @@ const Page: React.FC = () => {
       endDate: endDate || undefined,
     });
   };
-  
-  console.log(data);
 
   return (
     <div>
@@ -108,7 +106,6 @@ const Page: React.FC = () => {
               className="border rounded px-2 py-1"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700">End Date</label>
             <input
@@ -135,8 +132,8 @@ const Page: React.FC = () => {
         </div>
       </form>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left text-gray-800 border border-gray-200">
+      <div className="overflow-x-auto bg-white">
+        <table className="w-full text-sm text-left bg-white text-gray-800 border border-gray-200">
           <thead className="text-xs uppercase bg-gray-50 text-blue-800">
             <tr>
               <th className="px-4 py-3">User</th>

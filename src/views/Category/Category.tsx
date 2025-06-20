@@ -1,7 +1,6 @@
 import { Button, TextInput, ToggleSwitch } from 'flowbite-react';
 import { useState, useCallback, FormEvent, useMemo } from 'react';
-import { FiTrash } from 'react-icons/fi';
-import { MdModeEdit } from 'react-icons/md';
+import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { CreateCategory, DeleteCategory, UpdateCategory } from 'src/AxiosConfig/AxiosConfig'; // Fixed typo
 import { setCategoryList } from 'src/Store/Slices/Categories';
@@ -246,7 +245,7 @@ const Category = () => {
                   onClick={() => handleDelete(cat)}
                   aria-label={`Delete ${cat.name}`}
                 >
-                  <FiTrash className="text-red-600 cursor-pointer" size={18} />
+                  <MdDelete className="text-red-600 cursor-pointer" size={18} />
                 </div>
                 <ToggleSwitch
                   checked={cat.isActive}

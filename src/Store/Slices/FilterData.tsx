@@ -11,7 +11,7 @@ const initialState = {
   sortBy: '',
   page: '1',
   limit: '10',
-  isActive: 'False',
+  isActive: 'true',
 };
 
 const filterDataSlice = createSlice({

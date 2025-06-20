@@ -1,9 +1,8 @@
 import { Button, ToggleSwitch } from 'flowbite-react';
 import { useState, FC, useEffect, useCallback } from 'react';
-import { FiTrash } from 'react-icons/fi';
 import CreateCoupons from './CreateCoupon';
 import { DeleteCoupons, EditCoupons, GetAllCoupons } from 'src/AxiosConfig/AxiosConfig';
-import { MdModeEdit } from 'react-icons/md';
+import { MdDelete, MdModeEdit } from 'react-icons/md';
 
 interface CouponFormData {
   _id?: string;
@@ -213,7 +212,7 @@ const Page: FC = () => {
                             <MdModeEdit className="text-black cursor-pointer" size={18} />
                           </div>
                           <div className="text-white" onClick={() => handleDelete(coupon._id)}>
-                            <FiTrash className="text-red-600 cursor-pointer" size={18} />
+                            <MdDelete className="text-red-600 cursor-pointer" size={18} />
                           </div>
                         </div>
                       </td>

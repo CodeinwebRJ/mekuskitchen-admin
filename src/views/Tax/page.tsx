@@ -1,8 +1,8 @@
 'use client';
 import { Button, TextInput, Label, Select } from 'flowbite-react';
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { FiTrash, FiPlus, FiX } from 'react-icons/fi';
-import { MdModeEdit } from 'react-icons/md';
+import { FiPlus, FiX } from 'react-icons/fi';
+import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosConfig';
 import { RootState } from 'src/Store/Store';
@@ -244,7 +244,7 @@ const Page = () => {
                           <MdModeEdit className="text-black cursor-pointer" size={18} />
                         </div>
                         <div onClick={() => handleDelete(config.provinceCode!)}>
-                          <FiTrash className="text-red-600 cursor-pointer" size={18} />
+                          <MdDelete className="text-red-600 cursor-pointer" size={18} />
                         </div>
                       </div>
                     </div>

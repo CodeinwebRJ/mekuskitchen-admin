@@ -1,7 +1,7 @@
 import { Button, Card, Label, Select, TextInput } from 'flowbite-react';
 import React, { useState, FormEvent, useCallback } from 'react';
-import { RiDeleteBinLine } from 'react-icons/ri';
 import { BasicInfoProps, Combination, CombinationField, Variant, VariantField } from '../interface';
+import { MdDelete } from 'react-icons/md';
 
 interface NewField {
   name?: string;
@@ -427,15 +427,12 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                         <span>
                           {field.name} ({field.type})
                         </span>
-                        <Button
-                          type="button"
+                        <div
                           onClick={() => removeVariantField(field.name)}
-                          color="failure"
-                          size="xs"
-                          className="p-0"
+                          className="p-0 cursor-pointer"
                         >
-                          <RiDeleteBinLine />
-                        </Button>
+                          <MdDelete className="text-red-600" />
+                        </div>
                       </li>
                     ))}
                 </ul>
@@ -506,15 +503,12 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                       <span>
                         {field.name} ({field.type})
                       </span>
-                      <Button
-                        type="button"
+                      <div
                         onClick={() => removeCombinationField(field.name)}
-                        color="failure"
-                        size="xs"
-                        className="p-0"
+                        className="p-0 cursor-pointer"
                       >
-                        <RiDeleteBinLine />
-                      </Button>
+                        <MdDelete className="text-red-600" />
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -651,7 +645,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                       size="xs"
                                       className="absolute p-0 top-1 right-0 bg-red-500 hover:bg-red-600 text-white rounded"
                                     >
-                                      <RiDeleteBinLine />
+                                      <MdDelete className="text-red-600" />
                                     </Button>
                                   </div>
                                 );
@@ -824,15 +818,12 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                         </div>
                       </div>
                       <div className="flex justify-end mt-4">
-                        <Button
-                          type="button"
+                        <div
                           onClick={() => removeCombination(index, combIndex)}
-                          color="failure"
-                          size="sm"
-                          className="bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                          className="cursor-pointer"
                         >
-                          <RiDeleteBinLine size={18} />
-                        </Button>
+                          <MdDelete size={20} className="text-red-600" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -840,15 +831,9 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               </div>
               {index > 0 && (
                 <div className="flex justify-end mt-4">
-                  <Button
-                    type="button"
-                    onClick={() => removeVariant(index)}
-                    color="failure"
-                    size="sm"
-                    className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
-                  >
-                    <RiDeleteBinLine size={20} />
-                  </Button>
+                  <div onClick={() => removeVariant(index)} className="cursor-pointer ">
+                    <MdDelete size={20} className="text-red-600" />
+                  </div>
                 </div>
               )}
             </Card>

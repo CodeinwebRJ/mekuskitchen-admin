@@ -1,8 +1,9 @@
 import { Button, ToggleSwitch } from 'flowbite-react';
 import { useState, FC, useEffect, useCallback } from 'react';
-import { FiEdit, FiTrash } from 'react-icons/fi';
+import { FiEdit } from 'react-icons/fi';
 import CreateCoupons from './CreateCoupon';
 import { DeleteCoupons, EditCoupons, GetAllCoupons } from 'src/AxiosConfig/AxiosConfig';
+import { MdDelete } from 'react-icons/md';
 
 interface CouponFormData {
   _id?: string;
@@ -193,7 +194,7 @@ const Page: FC = () => {
                           title="Delete"
                           onClick={() => handleDelete(coupon._id)}
                         >
-                          <FiTrash size={18} />
+                          <MdDelete size={18} />
                         </Button>
                       </td>
                     </tr>

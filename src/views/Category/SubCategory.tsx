@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo, FormEvent } from 'react';
 import { Button, TextInput, ToggleSwitch, Select } from 'flowbite-react';
-import { FiTrash } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCategoryList } from 'src/Store/Slices/Categories';
 import { RootState } from 'src/Store/Store';
@@ -9,7 +8,7 @@ import {
   UpdateSubCategory,
   DeleteSubCategory,
 } from 'src/AxiosConfig/AxiosConfig';
-import { MdModeEdit } from 'react-icons/md';
+import { MdDelete, MdModeEdit } from 'react-icons/md';
 
 interface SubSubCategoryType {
   _id: string;
@@ -286,7 +285,7 @@ const SubCategory = () => {
                   color="blue"
                   aria-label={`Delete ${sub.name}`}
                 >
-                  <FiTrash className="text-red-600 cursor-pointer" size={18} />
+                  <MdDelete className="text-red-600 cursor-pointer" size={18} />
                 </div>
                 <ToggleSwitch
                   checked={sub.isActive}

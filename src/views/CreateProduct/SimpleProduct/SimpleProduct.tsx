@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { Button, TextInput } from 'flowbite-react';
 import BasicInfo from '../BasicInfo';
 import { CreateProduct, UploadImage } from 'src/AxiosConfig/AxiosConfig';
-import { RiDeleteBinLine } from 'react-icons/ri';
+import { MdDelete } from 'react-icons/md';
 
 interface Dimension {
   length: string;
@@ -45,6 +45,7 @@ interface Product {
   tags: string[];
   specifications: Record<string, string>;
   features: string[];
+  aboutItem: string[];
   skuFields: SKUField[];
   sku: SKU[];
 }
@@ -75,6 +76,7 @@ const SimpleProduct = () => {
     tags: [],
     specifications: {},
     features: [],
+    aboutItem: [],
     skuFields: [
       { name: 'Name', type: 'text', isDefault: true },
       { name: 'SKUname', type: 'text', isDefault: true },
@@ -85,6 +87,7 @@ const SimpleProduct = () => {
   });
 
   const [newFeature, setNewFeature] = useState<string>('');
+  const [aboutItem, setAboutItem] = useState<string>('');
   const [newTag, setNewTag] = useState<string>('');
   const [specKey, setSpecKey] = useState<string>('');
   const [specValue, setSpecValue] = useState<string>('');
@@ -120,8 +123,6 @@ const SimpleProduct = () => {
       const fileFieldNames = product.skuFields
         .filter((field) => field.type === 'image')
         .map((field) => field.name);
-
-      // Handle SKU images
       let skuImageUrls: string[] = [];
       if (fileFieldNames.length > 0 && product.sku[0]) {
         const skuImages = fileFieldNames
@@ -175,6 +176,24 @@ const SimpleProduct = () => {
     setNewFeature('');
     setError(null);
   }, [newFeature, validateInput]);
+
+  const addAboutItem = useCallback(() => {
+    if (!validateInput(aboutItem, 'aboutItem')) return;
+
+    setProduct((prev) => ({
+      ...prev,
+      aboutItem: [...prev.aboutItem, aboutItem.trim()],
+    }));
+    setAboutItem('');
+    setError(null);
+  }, [aboutItem, validateInput]);
+
+  const removeAboutItem = useCallback((index: number) => {
+    setProduct((prev) => ({
+      ...prev,
+      aboutItem: prev.aboutItem.filter((_, i: number) => i !== index),
+    }));
+  }, []);
 
   const removeFeature = useCallback((index: number) => {
     setProduct((prev) => ({
@@ -230,7 +249,6 @@ const SimpleProduct = () => {
       {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
       <BasicInfo product={product} setProduct={setProduct} />
 
-      {/* Tags */}
       <div className="mt-6">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">Features & Specifications</h3>
 
@@ -262,14 +280,13 @@ const SimpleProduct = () => {
                   onClick={() => removeTag(index)}
                   aria-label={`Remove tag: ${tag}`}
                 >
-                  <RiDeleteBinLine />
+                  <MdDelete size={20} className="text-red-600" />
                 </Button>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Features */}
         <div className="mb-6 mt-4">
           <h4 className="text-lg font-medium text-gray-700">Features</h4>
           <div className="flex gap-4 items-center">
@@ -282,7 +299,7 @@ const SimpleProduct = () => {
               maxLength={100}
             />
             <div className="w-full">
-              <Button color='blue' size="sm" type="button" onClick={addFeature}>
+              <Button color="blue" size="sm" type="button" onClick={addFeature}>
                 Add Feature
               </Button>
             </div>
@@ -297,14 +314,47 @@ const SimpleProduct = () => {
                   onClick={() => removeFeature(index)}
                   aria-label={`Remove feature: ${feature}`}
                 >
-                  <RiDeleteBinLine />
+                  <MdDelete size={20} className="text-red-600" />
                 </Button>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Specifications */}
+        <div className="mb-6 mt-4">
+          <h4 className="text-lg font-medium text-gray-700">About Product</h4>
+          <div className="flex gap-4 items-center">
+            <TextInput
+              type="text"
+              value={aboutItem}
+              onChange={(e) => setAboutItem(e.target.value)}
+              placeholder="Enter feature (e.g., Waterproof)"
+              className="w-full"
+              maxLength={100}
+            />
+            <div className="w-full">
+              <Button color="blue" size="sm" type="button" onClick={addAboutItem}>
+                Add AboutItem
+              </Button>
+            </div>
+          </div>
+          <ul className="flex flex-wrap gap-2">
+            {product.aboutItem.map((feature, index) => (
+              <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
+                <span className="text-gray-800">{feature}</span>
+                <Button
+                  color="failure"
+                  size="xs"
+                  onClick={() => removeAboutItem(index)}
+                  aria-label={`Remove feature: ${feature}`}
+                >
+                  <MdDelete size={20} className="text-red-600" />
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <div>
           <h4 className="text-lg font-medium text-gray-700 mb-2">Specifications</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -334,14 +384,13 @@ const SimpleProduct = () => {
                 <span>
                   <span className="font-medium text-gray-800">{key}:</span> {value}
                 </span>
-                <Button
+                <div
                   color="failure"
-                  size="xs"
                   onClick={() => removeSpecification(key)}
                   aria-label={`Remove specification: ${key}`}
                 >
-                  <RiDeleteBinLine />
-                </Button>
+                  <MdDelete size={20} className="text-red-600" />
+                </div>
               </div>
             ))}
           </div>
