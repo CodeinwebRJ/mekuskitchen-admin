@@ -9,14 +9,15 @@ import { RootState } from 'src/Store/Store';
 
 interface TaxEntry {
   category: string;
-  taxRate: string;
+  provinceTax: string;
+  federalTax: string;
 }
 
 interface TaxConfig {
   _id?: string;
   provinceName: string;
   provinceCode: string;
-  taxes: { category: string; taxRate: number }[];
+  taxes: { category: string; provinceTax: number; federalTax: number }[];
 }
 
 interface CategoryType {
@@ -29,7 +30,9 @@ const Page = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [provinceCode, setProvinceCode] = useState<string>('');
   const [provinceName, setProvinceName] = useState<string>('');
-  const [taxes, setTaxes] = useState<TaxEntry[]>([{ category: '', taxRate: '' }]);
+  const [taxes, setTaxes] = useState<TaxEntry[]>([
+    { category: '', provinceTax: '', federalTax: '' },
+  ]);
   const [taxConfigs, setTaxConfigs] = useState<TaxConfig[]>([]);
 
   const categoryList: CategoryType[] = useSelector(
@@ -51,7 +54,7 @@ const Page = () => {
   };
 
   const handleAddTaxField = () => {
-    setTaxes((prev) => [...prev, { category: '', taxRate: '' }]);
+    setTaxes((prev) => [...prev, { category: '', provinceTax: '', federalTax: '' }]);
   };
 
   const handleRemoveTaxField = (index: number) => {
@@ -68,7 +71,11 @@ const Page = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!provinceName || !provinceCode || taxes.some((t) => !t.category || !t.taxRate)) {
+    if (
+      !provinceName ||
+      !provinceCode ||
+      taxes.some((t) => !t.category || !t.provinceTax || !t.federalTax)
+    ) {
       return;
     }
 
@@ -77,7 +84,8 @@ const Page = () => {
       provinceCode,
       taxes: taxes.map((t) => ({
         category: categoryList.find((cat) => cat._id === t.category)?.name || t.category,
-        taxRate: parseFloat(t.taxRate),
+        provinceTax: parseFloat(t.provinceTax),
+        federalTax: parseFloat(t.federalTax),
       })),
     };
 
@@ -87,9 +95,10 @@ const Page = () => {
       } else {
         await CreateTax(payload);
       }
+
       setProvinceCode('');
       setProvinceName('');
-      setTaxes([{ category: '', taxRate: '' }]);
+      setTaxes([{ category: '', provinceTax: '', federalTax: '' }]);
       setShowForm(false);
       setEditId(null);
       await fetchTax();
@@ -105,7 +114,8 @@ const Page = () => {
     setTaxes(
       config.taxes.map((t) => ({
         category: categoryList.find((cat) => cat.name === t.category)?._id || '',
-        taxRate: t.taxRate.toString(),
+        provinceTax: t.provinceTax.toString(),
+        federalTax: t.federalTax.toString(),
       })),
     );
     setShowForm(true);
@@ -125,7 +135,7 @@ const Page = () => {
     setEditId(null);
     setProvinceCode('');
     setProvinceName('');
-    setTaxes([{ category: '', taxRate: '' }]);
+    setTaxes([{ category: '', provinceTax: '', federalTax: '' }]);
   };
 
   useEffect(() => {
@@ -166,41 +176,52 @@ const Page = () => {
             </div>
 
             <div>
-              <Label value="Taxes" />
               {taxes.map((tax, index) => (
                 <div key={index} className="flex items-center gap-4 mt-2">
-                  <Select
-                    required
-                    value={tax.category}
-                    onChange={(e) => handleTaxChange(index, 'category', e.target.value)}
-                  >
-                    <option value="">Select Category</option>
-                    {categoryList.map((cat) => (
-                      <option key={cat._id} value={cat._id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </Select>
-                  <TextInput
-                    placeholder="Tax Rate (%)"
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={tax.taxRate}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      handleTaxChange(index, 'taxRate', e.target.value)
-                    }
-                  />
-                  {taxes.length > 1 && (
-                    <Button
-                      color="blue"
-                      type="button"
-                      onClick={() => handleRemoveTaxField(index)}
-                      className="text-white"
+                  <div className="flex flex-col gap-2">
+                    <Label value="Select Category" />
+                    <Select
+                      required
+                      value={tax.category}
+                      onChange={(e) => handleTaxChange(index, 'category', e.target.value)}
                     >
-                      <FiX />
-                    </Button>
+                      <option value="">Select Category</option>
+                      {categoryList.map((cat) => (
+                        <option key={cat._id} value={cat._id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label value="Province Tax (%)" />
+                    <TextInput
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      required
+                      value={tax.provinceTax}
+                      onChange={(e) => handleTaxChange(index, 'provinceTax', e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label value="Federal Tax (%)" />
+                    <TextInput
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      required
+                      value={tax.federalTax}
+                      onChange={(e) => handleTaxChange(index, 'federalTax', e.target.value)}
+                    />
+                  </div>
+                  {taxes.length > 1 && (
+                    <div className="flex items-end pt-6">
+                      <FiX
+                        className="text-lg text-red-600 cursor-pointer"
+                        onClick={() => handleRemoveTaxField(index)}
+                      />
+                    </div>
                   )}
                 </div>
               ))}
@@ -254,7 +275,10 @@ const Page = () => {
                           key={index}
                           className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-1 rounded-md shadow-sm"
                         >
-                          {tax.category}: <span className="text-gray-900">{tax.taxRate}%</span>
+                          {tax.category}:
+                          <span className="text-gray-900">
+                            Province: {tax.provinceTax}%, Federal: {tax.federalTax}%
+                          </span>
                         </div>
                       ))}
                     </div>

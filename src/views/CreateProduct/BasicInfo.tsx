@@ -1,25 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Select, TextInput, Label, Textarea } from 'flowbite-react';
 import TableFileUploader from './Component/fileUploader';
 import { useSelector } from 'react-redux';
-
-// export interface Product {
-//   name: string;
-//   category: string;
-//   subCategory: string;
-//   subsubCategory: string;
-//   currency: string;
-//   price: string;
-//   sellingPrice: string;
-//   discount?: string;
-//   SKUName: string;
-//   stock: string;
-//   brand: string;
-//   shortDescription: string;
-//   description: string;
-//   images: ImageItem[];
-//   [key: string]: any;
-// }
+import { useLocation } from 'react-router';
 
 interface BasicInfoProps {
   product: any;
@@ -30,6 +13,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
   const category = useSelector((state: any) => state.category.categoryList);
   const [subCategory, setSubCategory] = useState<any[]>([]);
   const [subsubCategory, setSubSubCategory] = useState<any[]>([]);
+  const location = useLocation();
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -77,6 +61,26 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     const selectedSub = subCategory.find((sub: any) => sub.name === value);
     setSubSubCategory(selectedSub?.subSubCategories || []);
   };
+
+  const weightUnits = useMemo(
+    () => [
+      { value: '', label: 'Select Unit' },
+      { value: 'g', label: 'g' },
+      { value: 'kg', label: 'kg' },
+      { value: 'lb', label: 'lb' },
+      { value: 'oz', label: 'oz' },
+    ],
+    [],
+  );
+
+  const dimensionUnits = useMemo(
+    () => [
+      { value: '', label: 'Select Unit' },
+      { value: 'cm', label: 'cm' },
+      { value: 'inch', label: 'inch' },
+    ],
+    [],
+  );
 
   return (
     <div>
@@ -167,7 +171,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           </div>
 
           <div>
-            <Label value="Currency" className="block text-sm font-medium text-gray-700 mb-1" />
+            <Label value="Currency*" className="block text-sm font-medium text-gray-700 mb-1" />
             <Select
               id="currency"
               value={product.currency}
@@ -234,7 +238,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
 
           <div>
             <Label
-              value="Stock Quantity"
+              value="Stock Quantity*"
               className="block text-sm font-medium text-gray-700 mb-1"
             />
             <TextInput
@@ -262,9 +266,112 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           </div>
         </div>
 
+        {location.pathname === '/product' && (
+          <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <Label value="Weight Unit*" />
+                <Select
+                  id="weightUnit"
+                  value={product.weightUnit}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                  aria-required="true"
+                >
+                  {weightUnits.map((unit) => (
+                    <option key={unit.value} value={unit.value}>
+                      {unit.label}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <Label value="Weight*" />
+                <TextInput
+                  id="weight"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={product.weight}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter weight"
+                  className="w-full"
+                  aria-required="true"
+                />
+              </div>
+              <div>
+                <Label value="Dimension Unit*" />
+                <Select
+                  id="dimensionUnit"
+                  value={product.dimensions.dimensionUnit}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                  aria-required="true"
+                >
+                  {dimensionUnits.map((unit) => (
+                    <option key={unit.value} value={unit.value}>
+                      {unit.label}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <Label value="Length*" />
+                <TextInput
+                  id="length"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={product.dimensions.length}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter length"
+                  className="w-full"
+                  aria-required="true"
+                />
+              </div>
+              <div>
+                <Label value="Width*" />
+                <TextInput
+                  id="width"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={product.dimensions.width}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter width"
+                  className="w-full"
+                  aria-required="true"
+                />
+              </div>
+              <div>
+                <Label value="Height*" />
+                <TextInput
+                  id="height"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={product.dimensions.height}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter height"
+                  className="w-full"
+                  aria-required="true"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         <div>
           <Label
-            value="Short Description"
+            value="Short Description*"
             className="block text-sm font-medium text-gray-700 mb-1"
           />
           <Textarea
