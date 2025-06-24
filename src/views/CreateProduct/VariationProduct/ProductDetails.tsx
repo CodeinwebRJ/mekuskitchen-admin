@@ -280,7 +280,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 aria-label="Add new tag"
               />
               <div className="w-full">
-                <Button color='blue' size="xs" type="button" onClick={addTag}>
+                <Button color="blue" size="xs" type="button" onClick={addTag}>
                   Add Tag
                 </Button>
               </div>
@@ -313,7 +313,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 className="w-full"
               />
               <div className="w-full">
-                <Button color='blue' size="xs" type="button" onClick={addFeature}>
+                <Button color="blue" size="xs" type="button" onClick={addFeature}>
                   Add Feature
                 </Button>
               </div>
@@ -359,9 +359,9 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                       <span className="font-medium text-gray-800">{key} :</span>{' '}
                       <span className="font-medium text-gray-800">{value}</span>
                     </span>
-                    <Button color="failure" size="xs" onClick={() => removeSpecification(key)}>
-                      <RiDeleteBinLine />
-                    </Button>
+                    <div className="cursor-pointer" onClick={() => removeSpecification(key)}>
+                      <RiDeleteBinLine className="text-red-600" />
+                    </div>
                   </div>
                 ),
               )}

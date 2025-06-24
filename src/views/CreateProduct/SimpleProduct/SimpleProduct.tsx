@@ -43,6 +43,7 @@ interface Product {
   weightUnit: string;
   dimensions: Dimension;
   tags: string[];
+  isTaxFree: boolean;
   specifications: Record<string, string>;
   features: string[];
   aboutItem: string[];
@@ -51,6 +52,7 @@ interface Product {
 }
 
 const SimpleProduct = () => {
+ 
   const [product, setProduct] = useState<Product>({
     name: '',
     price: '',
@@ -66,6 +68,7 @@ const SimpleProduct = () => {
     SKUName: '',
     brand: '',
     weight: '',
+    isTaxFree: false,
     weightUnit: '',
     dimensions: {
       length: '',
@@ -85,7 +88,6 @@ const SimpleProduct = () => {
     ],
     sku: [{ Name: '', Stock: 0, Price: 0, SKUname: '' }],
   });
-
   const [newFeature, setNewFeature] = useState<string>('');
   const [aboutItem, setAboutItem] = useState<string>('');
   const [newTag, setNewTag] = useState<string>('');
@@ -244,6 +246,8 @@ const SimpleProduct = () => {
     setError(null);
   }, [specKey, specValue, product.specifications, validateInput]);
 
+  console.log(product);
+
   return (
     <div className="mx-auto p-6 bg-white rounded-xl shadow">
       {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
@@ -274,14 +278,13 @@ const SimpleProduct = () => {
             {product.tags.map((tag, index) => (
               <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
                 <span className="text-gray-800">{tag}</span>
-                <Button
-                  color="failure"
-                  size="xs"
+                <div
+                  className="cursor-pointer"
                   onClick={() => removeTag(index)}
                   aria-label={`Remove tag: ${tag}`}
                 >
                   <MdDelete size={20} className="text-red-600" />
-                </Button>
+                </div>
               </li>
             ))}
           </ul>
@@ -289,7 +292,7 @@ const SimpleProduct = () => {
 
         <div className="mb-6 mt-4">
           <h4 className="text-lg font-medium text-gray-700">Features</h4>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center mb-4">
             <TextInput
               type="text"
               value={newFeature}
@@ -308,14 +311,13 @@ const SimpleProduct = () => {
             {product.features.map((feature, index) => (
               <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
                 <span className="text-gray-800">{feature}</span>
-                <Button
-                  color="failure"
-                  size="xs"
+                <div
+                  className="cursor-pointer"
                   onClick={() => removeFeature(index)}
                   aria-label={`Remove feature: ${feature}`}
                 >
                   <MdDelete size={20} className="text-red-600" />
-                </Button>
+                </div>
               </li>
             ))}
           </ul>
@@ -323,7 +325,7 @@ const SimpleProduct = () => {
 
         <div className="mb-6 mt-4">
           <h4 className="text-lg font-medium text-gray-700">About Product</h4>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center mb-4">
             <TextInput
               type="text"
               value={aboutItem}
@@ -342,14 +344,13 @@ const SimpleProduct = () => {
             {product.aboutItem.map((feature, index) => (
               <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
                 <span className="text-gray-800">{feature}</span>
-                <Button
-                  color="failure"
-                  size="xs"
+                <div
+                  className="cursor-pointer"
                   onClick={() => removeAboutItem(index)}
                   aria-label={`Remove feature: ${feature}`}
                 >
                   <MdDelete size={20} className="text-red-600" />
-                </Button>
+                </div>
               </li>
             ))}
           </ul>

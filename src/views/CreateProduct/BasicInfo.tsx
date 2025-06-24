@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Select, TextInput, Label, Textarea } from 'flowbite-react';
+import { Select, TextInput, Label, Textarea, Checkbox } from 'flowbite-react';
 import TableFileUploader from './Component/fileUploader';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -17,10 +17,31 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-      const { id, value } = e.target;
+      const { id, value, type } = e.target;
+
+      if (!id) return;
+
+      const inputValue: string | boolean =
+        type === 'checkbox' && 'checked' in e.target
+          ? (e.target as HTMLInputElement).checked
+          : value;
+
+      if (['length', 'width', 'height', 'dimensionUnit'].includes(id)) {
+        setProduct((prev: any) => ({
+          ...prev,
+          dimensions: {
+            ...prev.dimensions,
+            [id]: inputValue,
+          },
+        }));
+        return;
+      }
 
       setProduct((prev: any) => {
-        const updatedProduct = { ...prev, [id]: value };
+        const updatedProduct: typeof prev = {
+          ...prev,
+          [id]: inputValue,
+        };
 
         const price = parseFloat(updatedProduct.price);
         const sellingPrice = parseFloat(updatedProduct.sellingPrice);
@@ -368,6 +389,14 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             </div>
           </div>
         )}
+
+        <div className="flex items-center gap-2 px-1">
+          <div>
+            <Checkbox id="isTaxFree" checked={product.isTaxFree} onChange={handleInputChange} />
+          </div>
+
+          <Label value={'Tax Free'} />
+        </div>
 
         <div>
           <Label
