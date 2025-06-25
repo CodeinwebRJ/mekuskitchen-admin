@@ -43,7 +43,6 @@ const filterDataSlice = createSlice({
       state.attributes = action.payload;
     },
     setPage: (state, action) => {
-      console.log(action.payload);
       state.page = action.payload;
     },
     setLimit: (state, action) => {

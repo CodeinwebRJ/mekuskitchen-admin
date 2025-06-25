@@ -121,7 +121,6 @@ const SimpleProduct = () => {
   const handleSubmit = async (): Promise<void> => {
     try {
       setError(null);
-
       const fileFieldNames = product.skuFields
         .filter((field) => field.type === 'image')
         .map((field) => field.name);
@@ -139,7 +138,7 @@ const SimpleProduct = () => {
 
       const uploadedProductImages = await UploadImage(product.images);
       const formattedImages =
-        uploadedProductImages.data.data.images?.map((img: { url: string }, index: number) => ({
+        uploadedProductImages?.data?.data?.images?.map((img: { url: string }, index: number) => ({
           url: img.url,
           isPrimary: index === 0,
         })) || [];
