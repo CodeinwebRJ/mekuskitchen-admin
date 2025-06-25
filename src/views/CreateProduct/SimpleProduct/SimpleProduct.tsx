@@ -52,7 +52,6 @@ interface Product {
 }
 
 const SimpleProduct = () => {
- 
   const [product, setProduct] = useState<Product>({
     name: '',
     price: '',
@@ -121,43 +120,23 @@ const SimpleProduct = () => {
   const handleSubmit = async (): Promise<void> => {
     try {
       setError(null);
-      const fileFieldNames = product.skuFields
-        .filter((field) => field.type === 'image')
-        .map((field) => field.name);
-      let skuImageUrls: string[] = [];
-      if (fileFieldNames.length > 0 && product.sku[0]) {
-        const skuImages = fileFieldNames
-          .map((fieldName) => product.sku[0][fieldName])
-          .filter((img): img is File => img instanceof File);
 
-        if (skuImages.length > 0) {
-          const imageRes = await UploadImage(skuImages);
-          skuImageUrls = imageRes.data.data.images?.map((img: { url: string }) => img.url) || [];
-        }
-      }
+      const imageFiles: File[] = product.images.map((img: any) =>
+        img?.file instanceof File ? img.file : img,
+      );
 
-      const uploadedProductImages = await UploadImage(product.images);
+      const uploadedProductImages = await UploadImage(imageFiles);
+
       const formattedImages =
         uploadedProductImages?.data?.data?.images?.map((img: { url: string }, index: number) => ({
           url: img.url,
           isPrimary: index === 0,
         })) || [];
 
-      const updatedSku = product.sku?.map((skuItem) => {
-        const updatedFields = { ...skuItem };
-        fileFieldNames.forEach((fieldName, index) => {
-          if (skuImageUrls[index]) {
-            updatedFields[fieldName] = skuImageUrls[index];
-          }
-        });
-        return updatedFields;
-      });
-
       const data = {
         ...product,
         images: formattedImages,
-        skuImages: skuImageUrls,
-        sku: updatedSku,
+        sku: undefined,
       };
 
       await CreateProduct(data);
