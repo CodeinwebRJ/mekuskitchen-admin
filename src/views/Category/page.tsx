@@ -14,31 +14,31 @@ const Page = () => {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold text-blue-700 mb-4">Categories</h2>
+    <div className="px-4 sm:px-6 md:px-8">
+      <h2 className="text-lg sm:text-xl font-semibold text-primary mb-4">Categories</h2>
 
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-6">
         <Button
           onClick={() => handleViewChange('category')}
           size="md"
-          color={activeView === 'category' ? 'blue' : 'gray'}
-          className="rounded"
+          color={activeView === 'category' ? 'primary' : 'gray'}
+          className="rounded w-full sm:w-auto"
         >
           Category
         </Button>
         <Button
           onClick={() => handleViewChange('subcategory')}
           size="md"
-          color={activeView === 'subcategory' ? 'blue' : 'gray'}
-          className="rounded"
+          color={activeView === 'subcategory' ? 'primary' : 'gray'}
+          className="rounded w-full sm:w-auto"
         >
           SubCategory
         </Button>
         <Button
           onClick={() => handleViewChange('productcategory')}
           size="md"
-          color={activeView === 'productcategory' ? 'blue' : 'gray'}
-          className="rounded"
+          color={activeView === 'productcategory' ? 'primary' : 'gray'}
+          className="rounded w-full sm:w-auto"
         >
           Product Category
         </Button>

@@ -1,7 +1,7 @@
 import { Label, Select, TextInput, Button, Alert } from 'flowbite-react';
 import { useCallback, useState, useMemo } from 'react';
-import { RiDeleteBinLine } from 'react-icons/ri';
 import { BasicInfoProps } from '../interface';
+import { MdDelete } from 'react-icons/md';
 
 const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
   const [newFeature, setNewFeature] = useState('');
@@ -153,19 +153,25 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
   );
 
   return (
-    <div className="mx-auto p-6 bg-white rounded-xl shadow space-y-8">
-      <h2 className="text-3xl font-bold text-gray-900">Product Information</h2>
+    <div className="mx-auto p-4 sm:p-6 bg-white rounded-xl shadow space-y-6 sm:space-y-8">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Product Information</h2>
+
       {error && (
         <Alert color="failure" onDismiss={() => setError(null)}>
           {error}
         </Alert>
       )}
-      <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+
+      <form className="space-y-6 sm:space-y-8" onSubmit={(e) => e.preventDefault()}>
+        {/* Weight & Dimensions */}
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Weight & Dimensions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
+            Weight & Dimensions
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             <div>
-              <Label value="Weight Unit" />
+              <Label value="Weight Unit*" />
               <Select
                 id="weightUnit"
                 value={product.weightUnit}
@@ -182,7 +188,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               </Select>
             </div>
             <div>
-              <Label value="Weight" />
+              <Label value="Weight*" />
               <TextInput
                 id="weight"
                 type="number"
@@ -215,7 +221,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mt-4">
             <div>
               <Label value="Length" />
               <TextInput
@@ -265,37 +271,40 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Features & Specifications</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
+            Features & Specifications
+          </h3>
 
           <div className="mb-6">
-            <h4 className="text-lg font-medium text-gray-700 mb-2">Tags</h4>
-            <div className="flex gap-4 items-center mb-4">
+            <h4 className="text-base font-medium text-gray-700 mb-2">Tags</h4>
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
               <TextInput
                 type="text"
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 placeholder="Enter tag (e.g., Electronics)"
-                className="w-full"
+                className="w-full sm:w-1/2"
                 maxLength={100}
                 aria-label="Add new tag"
               />
-              <div className="w-full">
-                <Button color="blue" size="xs" type="button" onClick={addTag}>
-                  Add Tag
-                </Button>
-              </div>
+              <Button color="blue" size="sm" type="button" onClick={addTag}>
+                Add Tag
+              </Button>
             </div>
-            <ul className="flex flex-wrap gap-4">
+            <ul className="flex flex-wrap gap-2">
               {product.tags.map((tag: any, index: number) => (
-                <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
-                  <span className="text-gray-800">{tag}</span>
+                <li
+                  key={index}
+                  className="flex items-center gap-2 bg-gray-100 rounded-md px-2 py-1"
+                >
+                  <span className="text-gray-800 text-sm">{tag}</span>
                   <Button
                     color="failure"
                     size="xs"
                     onClick={() => removeTag(index)}
                     aria-label={`Remove tag: ${tag}`}
                   >
-                    <RiDeleteBinLine />
+                    <MdDelete />
                   </Button>
                 </li>
               ))}
@@ -303,27 +312,28 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           </div>
 
           <div className="mb-6">
-            <h4 className="text-lg font-medium text-gray-700 mb-2">Features</h4>
-            <div className="flex gap-4 items-center mb-4">
+            <h4 className="text-base font-medium text-gray-700 mb-2">Features</h4>
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
               <TextInput
                 type="text"
                 value={newFeature}
                 onChange={(e) => setNewFeature(e.target.value)}
                 placeholder="Enter feature (e.g., Waterproof)"
-                className="w-full"
+                className="w-full sm:w-1/2"
               />
-              <div className="w-full">
-                <Button color="blue" size="xs" type="button" onClick={addFeature}>
-                  Add Feature
-                </Button>
-              </div>
+              <Button color="blue" size="sm" type="button" onClick={addFeature}>
+                Add Feature
+              </Button>
             </div>
-            <ul className="flex flex-wrap gap-4">
+            <ul className="flex flex-wrap gap-2">
               {product.features.map((feature: any, index: number) => (
-                <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
-                  <span className="text-gray-800">{feature}</span>
+                <li
+                  key={index}
+                  className="flex items-center gap-2 bg-gray-100 rounded-md px-2 py-1"
+                >
+                  <span className="text-gray-800 text-sm">{feature}</span>
                   <Button color="failure" size="xs" onClick={() => removeFeature(index)}>
-                    <RiDeleteBinLine />
+                    <MdDelete />
                   </Button>
                 </li>
               ))}
@@ -331,8 +341,8 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           </div>
 
           <div>
-            <h4 className="text-lg font-medium text-gray-700">Specifications</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 items-center">
+            <h4 className="text-base font-medium text-gray-700 mb-2">Specifications</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <TextInput
                 type="text"
                 value={specKey}
@@ -345,22 +355,19 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 onChange={(e) => setSpecValue(e.target.value)}
                 placeholder="Specification Value"
               />
-              <div className="w-full">
-                <Button color="blue" type="button" size="xs" onClick={addSpecification}>
-                  Add Specification
-                </Button>
-              </div>
+              <Button color="blue" type="button" size="sm" onClick={addSpecification}>
+                Add Specification
+              </Button>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-2">
               {(Object.entries(product.specifications) as [string, string][]).map(
                 ([key, value]) => (
-                  <div key={key} className="flex gap-4 items-center border rounded-md p-2">
-                    <span>
-                      <span className="font-medium text-gray-800">{key} :</span>{' '}
-                      <span className="font-medium text-gray-800">{value}</span>
+                  <div key={key} className="flex gap-2 items-center border rounded-md px-2 py-1">
+                    <span className="text-sm text-gray-800">
+                      <strong>{key}:</strong> {value}
                     </span>
                     <div className="cursor-pointer" onClick={() => removeSpecification(key)}>
-                      <RiDeleteBinLine className="text-red-600" />
+                      <MdDelete className="text-red-600" />
                     </div>
                   </div>
                 ),

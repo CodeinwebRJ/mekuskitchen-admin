@@ -200,8 +200,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               className="w-full"
             >
               <option value="">Select Currency</option>
-              <option value="usd">$ - USD</option>
-              <option value="inr">₹ - INR</option>
+              <option value="CAD">$ - CAD</option>
             </Select>
           </div>
           <div>
@@ -259,7 +258,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
 
           <div>
             <Label
-              value="Stock Quantity*"
+              value="Stock Quantity"
               className="block text-sm font-medium text-gray-700 mb-1"
             />
             <TextInput
@@ -323,7 +322,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 />
               </div>
               <div>
-                <Label value="Dimension Unit*" />
+                <Label value="Dimension Unit" />
                 <Select
                   id="dimensionUnit"
                   value={product.dimensions.dimensionUnit}
@@ -342,7 +341,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <Label value="Length*" />
+                <Label value="Length" />
                 <TextInput
                   id="length"
                   type="number"
@@ -357,7 +356,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 />
               </div>
               <div>
-                <Label value="Width*" />
+                <Label value="Width" />
                 <TextInput
                   id="width"
                   type="number"
@@ -372,7 +371,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 />
               </div>
               <div>
-                <Label value="Height*" />
+                <Label value="Height" />
                 <TextInput
                   id="height"
                   type="number"

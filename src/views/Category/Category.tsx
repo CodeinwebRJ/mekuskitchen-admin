@@ -46,7 +46,6 @@ const Category = () => {
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<string | null>(null);
 
-  // Validate category name
   const validateCategoryName = (name: string): string | null => {
     if (name.trim().length < 3) return ERROR_MESSAGES.INVALID;
     if (categoryList.some((cat) => cat.name.toLowerCase() === name.trim().toLowerCase())) {
@@ -55,12 +54,10 @@ const Category = () => {
     return null;
   };
 
-  // Set loading state for specific action
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Handle form submission for creating a category
   const handleCategorySubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
@@ -272,28 +269,33 @@ const Category = () => {
   );
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">Main Category</h2>
+    <div className="flex flex-col items-center gap-6 px-4 sm:px-6 md:px-8">
+      <div className="w-full max-w-4xl">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-700">Main Category</h2>
           <Button
-            color="blue"
+            color="primary"
             size="sm"
             onClick={() => setShowCategoryForm(!showCategoryForm)}
             disabled={loadingStates.create}
+            className="w-full sm:w-auto"
           >
             {showCategoryForm ? 'Cancel' : 'Create New Category'}
           </Button>
         </div>
 
-        {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md text-sm sm:text-base">
+            {error}
+          </div>
+        )}
 
         {showCategoryForm ? (
           <form
             onSubmit={handleCategorySubmit}
-            className="w-1/2 flex flex-col gap-5 bg-white shadow-md rounded-lg p-6"
+            className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 flex flex-col gap-5 bg-white shadow-md rounded-lg p-4 sm:p-6"
           >
-            <h2 className="text-xl font-semibold text-gray-700">Create Category</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-700">Create Category</h2>
             <TextInput
               value={categoryInput}
               onChange={(e) => setCategoryInput(e.target.value)}
@@ -302,12 +304,18 @@ const Category = () => {
               disabled={loadingStates.create}
               aria-label="Category name"
             />
-            <Button color="blue" type="submit" size="sm" disabled={loadingStates.create}>
+            <Button
+              color="primary"
+              type="submit"
+              size="sm"
+              disabled={loadingStates.create}
+              className="w-full sm:w-auto"
+            >
               {loadingStates.create ? 'Creating...' : 'Create Category'}
             </Button>
           </form>
         ) : categoryList.length === 0 ? (
-          <p className="text-gray-500">No categories available.</p>
+          <p className="text-gray-500 text-sm sm:text-base">No categories available.</p>
         ) : (
           <ul className="bg-white shadow-md rounded-md divide-y">{categoryListRender}</ul>
         )}

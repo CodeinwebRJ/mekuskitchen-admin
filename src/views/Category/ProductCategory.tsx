@@ -441,11 +441,10 @@ const ProductCategory = () => {
               value={subSubCategoryName}
               onChange={(e) => setSubSubCategoryName(e.target.value)}
               placeholder="Enter product category name"
-              required
               disabled={loadingStates.create}
               aria-label="Product category name"
             />
-            <Button type="submit" size="sm" disabled={loadingStates.create}>
+            <Button color="blue" size="sm" disabled={loadingStates.create}>
               {loadingStates.create ? 'Creating...' : 'Create'}
             </Button>
           </form>

@@ -355,14 +355,15 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
   };
 
   return (
-    <div className="container mx-auto p-6 bg-white rounded-xl shadow">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Create Product</h1>
-      <form className="space-y-4">
-        <div className="flex items-start gap-4">
-          <Card className="w-full p-2">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">Variant Fields</h2>
-            <div className="flex gap-4 items-center">
-              <div>
+    <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 bg-white rounded-xl shadow">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">Create Product</h1>
+      <form className="space-y-3 sm:space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start gap-4">
+          <Card className="w-full p-2 sm:p-4 space-y-4">
+            <h2 className="text-xl font-semibold text-gray-700">Variant Fields</h2>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+              {/* Field Name */}
+              <div className="w-full sm:w-1/2 md:w-1/3">
                 <Label value="Field Name" className="text-sm font-medium text-gray-700" />
                 <TextInput
                   id="variant-field-name"
@@ -370,16 +371,18 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={newVariantField.name}
                   onChange={(e) => handleNewVariantFieldChange('name', e.target.value)}
                   placeholder="e.g., Color"
-                  className="!rounded-none"
+                  className="w-full"
                 />
               </div>
-              <div>
+
+              {/* Field Type */}
+              <div className="w-full sm:w-1/2 md:w-1/3">
                 <Label value="Field Type" className="text-sm font-medium text-gray-700" />
                 <Select
                   id="variant-field-type"
                   value={newVariantField.type}
                   onChange={(e) => handleNewVariantFieldChange('type', e.target.value)}
-                  className="mt-1"
+                  className="w-full"
                 >
                   <option value="text">Text</option>
                   <option value="number">Number</option>
@@ -391,8 +394,10 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   </option>
                 </Select>
               </div>
+
+              {/* Options - shown only for "select" type */}
               {newVariantField.type === 'select' && (
-                <div>
+                <div className="w-full md:w-1/3">
                   <Label
                     value="Options (comma-separated)"
                     className="text-sm font-medium text-gray-700"
@@ -403,33 +408,43 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                     value={newVariantField.options}
                     onChange={(e) => handleNewVariantFieldChange('options', e.target.value)}
                     placeholder="e.g., Red, Blue, Green"
-                    className="mt-1"
+                    className="w-full"
                   />
                 </div>
               )}
-              <div className="flex items-end mt-5">
-                <Button color="blue" type="button" size="sm" onClick={addVariantField}>
+
+              {/* Add Button */}
+              <div className="w-full sm:w-auto flex items-end">
+                <Button
+                  color="blue"
+                  type="button"
+                  size="sm"
+                  onClick={addVariantField}
+                  className="w-full sm:w-auto"
+                >
                   Add Variant Field
                 </Button>
               </div>
             </div>
+
+            {/* List of Variant Fields */}
             {product.skuFields.filter((field: any) => !field.isDefault).length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Variant Fields</h3>
-                <ul className="flex gap-4 flex-wrap">
+                <ul className="flex flex-col sm:flex-row flex-wrap gap-2">
                   {product.skuFields
                     .filter((field: any) => !field.isDefault)
                     .map((field: any) => (
                       <li
                         key={field.name}
-                        className="flex gap-4 items-center justify-between p-2 rounded-md transition-colors bg-blue-50 duration-300 text-black"
+                        className="flex items-center justify-between gap-4 p-2 rounded-md bg-blue-50 text-sm text-gray-800 w-full sm:w-auto"
                       >
                         <span>
                           {field.name} ({field.type})
                         </span>
                         <div
                           onClick={() => removeVariantField(field.name)}
-                          className="p-0 cursor-pointer"
+                          className="cursor-pointer"
                         >
                           <MdDelete className="text-red-600" />
                         </div>
@@ -440,10 +455,11 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             )}
           </Card>
 
-          <Card className="w-full p-2">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">Combination Fields</h2>
-            <div className="flex gap-4 items-center">
-              <div>
+          <Card className="w-full p-2 sm:p-4 space-y-4">
+            <h2 className="text-xl font-semibold text-gray-700">Combination Fields</h2>
+
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+              <div className="w-full sm:w-1/2 md:w-1/3">
                 <Label value="Field Name" className="text-sm font-medium text-gray-700" />
                 <TextInput
                   id="combination-field-name"
@@ -451,16 +467,18 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={newCombinationField.name}
                   onChange={(e) => handleNewCombinationFieldChange('name', e.target.value)}
                   placeholder="e.g., Storage"
-                  className="!rounded-none"
+                  className="w-full"
                 />
               </div>
-              <div>
+
+              {/* Field Type */}
+              <div className="w-full sm:w-1/2 md:w-1/3">
                 <Label value="Field Type" className="text-sm font-medium text-gray-700" />
                 <Select
                   id="combination-field-type"
                   value={newCombinationField.type}
                   onChange={(e) => handleNewCombinationFieldChange('type', e.target.value)}
-                  className="mt-1"
+                  className="w-full"
                 >
                   <option value="text">Text</option>
                   <option value="number">Number</option>
@@ -468,8 +486,10 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   <option value="checkbox">Checkbox</option>
                 </Select>
               </div>
+
+              {/* Options (if select) */}
               {newCombinationField.type === 'select' && (
-                <div>
+                <div className="w-full md:w-1/3">
                   <Label
                     value="Options (comma-separated)"
                     className="text-sm font-medium text-gray-700"
@@ -480,12 +500,20 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                     value={newCombinationField.options}
                     onChange={(e) => handleNewCombinationFieldChange('options', e.target.value)}
                     placeholder="e.g., 64GB, 128GB, 256GB"
-                    className="mt-1"
+                    className="w-full"
                   />
                 </div>
               )}
-              <div className="flex items-end mt-5">
-                <Button color="blue" type="button" size="sm" onClick={addCombinationField}>
+
+              {/* Add Button */}
+              <div className="w-full sm:w-auto flex items-end">
+                <Button
+                  color="blue"
+                  type="button"
+                  size="sm"
+                  onClick={addCombinationField}
+                  className="w-full sm:w-auto"
+                >
                   Add Combination
                 </Button>
               </div>
@@ -494,18 +522,18 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             {product.combinationFields.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Combination Fields</h3>
-                <ul className="flex gap-4 flex-wrap">
+                <ul className="flex flex-col sm:flex-row flex-wrap gap-2">
                   {product.combinationFields.map((field: any) => (
                     <li
                       key={field.name}
-                      className="flex gap-4 items-center justify-between p-2 rounded-md transition-colors bg-blue-50 duration-300 text-black"
+                      className="flex items-center justify-between gap-4 p-2 rounded-md bg-blue-50 text-sm text-gray-800 w-full sm:w-auto"
                     >
                       <span>
                         {field.name} ({field.type})
                       </span>
                       <div
                         onClick={() => removeCombinationField(field.name)}
-                        className="p-0 cursor-pointer"
+                        className="cursor-pointer"
                       >
                         <MdDelete className="text-red-600" />
                       </div>
@@ -518,19 +546,26 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Variants</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Variants</h2>
           {product.sku?.map((variant: any, index: number) => (
-            <Card key={index} className="p-4 mb-6 bg-white border rounded-lg duration-300">
-              <h3 className="text-lg font-semibold text-gray-700 mb-4">Variant {index + 1}</h3>
-              <div className="flex justify-between items-end">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card
+              key={index}
+              className="px-3 py-3 sm:px-4 sm:py-4 mb-4 sm:mb-6 bg-white border rounded-lg duration-300"
+            >
+              <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
+                Variant {index + 1}
+              </h3>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {product.skuFields.map((field: any) => (
-                    <div key={field.name} className="flex flex-col">
+                    <div key={field.name} className="flex flex-col space-y-2 sm:space-y-3 w-full">
                       <Label
                         htmlFor={`${field.name}-${index}`}
                         value={field.name}
-                        className="text-sm font-semibold text-gray-800 mb-2"
+                        className="text-sm font-semibold text-gray-800"
                       />
+
+                      {/* Text Field */}
                       {field.type === 'text' && (
                         <TextInput
                           id={`${field.name}-${index}`}
@@ -538,9 +573,11 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                           value={(variant[field.name] as string) || ''}
                           onChange={(e) => handleVariantChange(index, field.name, e.target.value)}
                           placeholder={`Enter ${field.name}`}
-                          className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                          className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                         />
                       )}
+
+                      {/* Number Field (ReadOnly) */}
                       {field.type === 'number' && (
                         <TextInput
                           id={`${field.name}-${index}`}
@@ -550,15 +587,17 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                           placeholder={`Enter ${field.name}`}
                           readOnly
                           step={field.name === 'Price' ? '0.01' : '1'}
-                          className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                          className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                         />
                       )}
+
+                      {/* Select Field */}
                       {field.type === 'select' && (
                         <Select
                           id={`${field.name}-${index}`}
                           value={(variant[field.name] as string) || ''}
                           onChange={(e) => handleVariantChange(index, field.name, e.target.value)}
-                          className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                          className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                         >
                           <option value="">Select {field.name}</option>
                           {field.options?.map((option: any) => (
@@ -568,8 +607,10 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                           ))}
                         </Select>
                       )}
+
+                      {/* Checkbox Field */}
                       {field.type === 'checkbox' && (
-                        <div className="flex items-center mt-3">
+                        <div className="flex items-center gap-2 mt-1">
                           <input
                             type="checkbox"
                             id={`${field.name}-${index}`}
@@ -581,14 +622,16 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                           />
                           <label
                             htmlFor={`${field.name}-${index}`}
-                            className="ml-3 text-sm font-medium text-gray-700"
+                            className="text-sm text-gray-700"
                           >
                             {field.name}
                           </label>
                         </div>
                       )}
+
+                      {/* Color Field */}
                       {field.type === 'color' && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                           <input
                             type="color"
                             id={`${field.name}-${index}`}
@@ -611,10 +654,12 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                               }
                             }}
                             placeholder="#RRGGBB"
-                            className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors w-24"
+                            className="w-28 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                           />
                         </div>
                       )}
+
+                      {/* Image Upload Field */}
                       {field.type === 'image' && (
                         <div className="flex flex-col gap-2">
                           {(variant[field.name] as (string | File)[])?.length > 0 && (
@@ -658,42 +703,45 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                             accept="image/*"
                             multiple
                             onChange={(e) => handleImageUpload(index, field.name, e)}
-                            className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                            className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                           />
                         </div>
                       )}
                     </div>
                   ))}
                 </div>
-                <div className="w-1/3 flex justify-end">
+                <div className="w-full sm:w-1/3 flex justify-end">
                   <Button
                     color="blue"
                     type="button"
                     onClick={() => addCombination(index)}
                     size="sm"
-                    className="mb-1"
+                    className="mb-1 text-sm sm:text-base"
                   >
-                    Add Combination
+                    <span className="text-xs sm:text-sm">Add Combination</span>
                   </Button>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-md font-semibold text-gray-700 mb-2">Combinations</h4>
+                <h4 className="text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">
+                  Combinations
+                </h4>
                 {variant.combinations.map((combination: any, combIndex: number) => (
                   <div
                     key={combIndex}
-                    className="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200"
+                    className="mt-2 sm:mt-3 px-2 py-2 sm:px-3 sm:py-3 bg-gray-50 rounded-md border border-gray-200"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {product.combinationFields.map((field: any) => (
-                          <div key={field.name} className="flex flex-col">
+                          <div key={field.name} className="flex flex-col w-full">
                             <Label
                               htmlFor={`${field.name}-${index}-${combIndex}`}
                               value={field.name}
-                              className="text-sm font-semibold text-gray-800 mb-2"
+                              className="text-sm sm:text-base font-semibold text-gray-800 mb-1 sm:mb-2"
                             />
+
                             {field.type === 'text' && (
                               <TextInput
                                 id={`${field.name}-${index}-${combIndex}`}
@@ -708,9 +756,10 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                   )
                                 }
                                 placeholder={`Enter ${field.name}`}
-                                className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                               />
                             )}
+
                             {field.type === 'number' && (
                               <TextInput
                                 id={`${field.name}-${index}-${combIndex}`}
@@ -727,9 +776,10 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                 placeholder={`Enter ${field.name}`}
                                 min="0"
                                 step="1"
-                                className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                               />
                             )}
+
                             {field.type === 'select' && (
                               <Select
                                 id={`${field.name}-${index}-${combIndex}`}
@@ -742,7 +792,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                     e.target.value,
                                   )
                                 }
-                                className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                               >
                                 <option value="">Select {field.name}</option>
                                 {field.options?.map((option: any) => (
@@ -752,8 +802,9 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                 ))}
                               </Select>
                             )}
+
                             {field.type === 'checkbox' && (
-                              <div className="flex items-center mt-3">
+                              <div className="flex items-center mt-2">
                                 <input
                                   type="checkbox"
                                   id={`${field.name}-${index}-${combIndex}`}
@@ -778,11 +829,13 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                             )}
                           </div>
                         ))}
-                        <div className="flex flex-col">
+
+                        {/* Stock Field */}
+                        <div className="flex flex-col w-full">
                           <Label
                             htmlFor={`Stock-${index}-${combIndex}`}
                             value="Stock"
-                            className="text-sm font-semibold text-gray-800 mb-2"
+                            className="text-sm sm:text-base font-semibold text-gray-800 mb-1 sm:mb-2"
                           />
                           <TextInput
                             id={`Stock-${index}-${combIndex}`}
@@ -794,14 +847,16 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                             placeholder="Enter Stock"
                             min="0"
                             step="1"
-                            className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                            className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                           />
                         </div>
-                        <div className="flex flex-col">
+
+                        {/* Price Field */}
+                        <div className="flex flex-col w-full">
                           <Label
                             htmlFor={`Price-${index}-${combIndex}`}
                             value="Price"
-                            className="text-sm font-semibold text-gray-800 mb-2"
+                            className="text-sm sm:text-base font-semibold text-gray-800 mb-1 sm:mb-2"
                           />
                           <TextInput
                             id={`Price-${index}-${combIndex}`}
@@ -813,16 +868,17 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                             placeholder="Enter Price"
                             min="0"
                             step="0.01"
-                            className="mt-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                            className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                           />
                         </div>
                       </div>
-                      <div className="flex justify-end mt-4">
+
+                      <div className="flex justify-end mt-3 sm:mt-4">
                         <div
                           onClick={() => removeCombination(index, combIndex)}
                           className="cursor-pointer"
                         >
-                          <MdDelete size={20} className="text-red-600" />
+                          <MdDelete className="text-red-600 text-lg sm:text-xl" />
                         </div>
                       </div>
                     </div>
@@ -830,9 +886,9 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 ))}
               </div>
               {index > 0 && (
-                <div className="flex justify-end mt-4">
-                  <div onClick={() => removeVariant(index)} className="cursor-pointer ">
-                    <MdDelete size={20} className="text-red-600" />
+                <div className="flex justify-end mt-3 sm:mt-4">
+                  <div onClick={() => removeVariant(index)} className="cursor-pointer">
+                    <MdDelete className="text-red-600 text-lg sm:text-xl" />
                   </div>
                 </div>
               )}
@@ -842,7 +898,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             color="blue"
             type="button"
             onClick={addVariant}
-            className="mt-4 transition-transform transform hover:scale-105"
+            className="mt-3 sm:mt-4 text-sm sm:text-base"
           >
             Add Variant
           </Button>

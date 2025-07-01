@@ -1,4 +1,4 @@
-import Logo from '../../../../../public/logo-black.png';
+import Logo from '../../../../../public/logo.png';
 import { Link } from 'react-router';
 
 const FullLogo = () => {

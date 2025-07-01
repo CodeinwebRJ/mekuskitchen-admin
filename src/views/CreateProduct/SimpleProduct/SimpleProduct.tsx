@@ -11,20 +11,6 @@ interface Dimension {
   dimensionUnit: string;
 }
 
-interface SKUField {
-  name: string;
-  type: string;
-  isDefault: boolean;
-}
-
-interface SKU {
-  [key: string]: string | number | File | undefined;
-  Name: string;
-  Stock: number;
-  Price: number;
-  SKUname: string;
-}
-
 interface Product {
   name: string;
   price: string;
@@ -47,8 +33,7 @@ interface Product {
   specifications: Record<string, string>;
   features: string[];
   aboutItem: string[];
-  skuFields: SKUField[];
-  sku: SKU[];
+  sku: [];
 }
 
 const SimpleProduct = () => {
@@ -79,13 +64,7 @@ const SimpleProduct = () => {
     specifications: {},
     features: [],
     aboutItem: [],
-    skuFields: [
-      { name: 'Name', type: 'text', isDefault: true },
-      { name: 'SKUname', type: 'text', isDefault: true },
-      { name: 'Stock', type: 'number', isDefault: true },
-      { name: 'Price', type: 'number', isDefault: true },
-    ],
-    sku: [{ Name: '', Stock: 0, Price: 0, SKUname: '' }],
+    sku: [],
   });
   const [newFeature, setNewFeature] = useState<string>('');
   const [aboutItem, setAboutItem] = useState<string>('');
@@ -120,13 +99,10 @@ const SimpleProduct = () => {
   const handleSubmit = async (): Promise<void> => {
     try {
       setError(null);
-
       const imageFiles: File[] = product.images.map((img: any) =>
         img?.file instanceof File ? img.file : img,
       );
-
       const uploadedProductImages = await UploadImage(imageFiles);
-
       const formattedImages =
         uploadedProductImages?.data?.data?.images?.map((img: { url: string }, index: number) => ({
           url: img.url,
@@ -136,7 +112,6 @@ const SimpleProduct = () => {
       const data = {
         ...product,
         images: formattedImages,
-        sku: undefined,
       };
 
       await CreateProduct(data);
@@ -224,8 +199,6 @@ const SimpleProduct = () => {
     setError(null);
   }, [specKey, specValue, product.specifications, validateInput]);
 
-  console.log(product);
-
   return (
     <div className="mx-auto p-6 bg-white rounded-xl shadow">
       {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
@@ -247,7 +220,7 @@ const SimpleProduct = () => {
               aria-label="Add new tag"
             />
             <div className="w-full">
-              <Button color="blue" size="sm" type="button" onClick={addTag}>
+              <Button color="primary" size="sm" type="button" onClick={addTag}>
                 Add Tag
               </Button>
             </div>
@@ -280,7 +253,7 @@ const SimpleProduct = () => {
               maxLength={100}
             />
             <div className="w-full">
-              <Button color="blue" size="sm" type="button" onClick={addFeature}>
+              <Button color="primary" size="sm" type="button" onClick={addFeature}>
                 Add Feature
               </Button>
             </div>
@@ -313,7 +286,7 @@ const SimpleProduct = () => {
               maxLength={100}
             />
             <div className="w-full">
-              <Button color="blue" size="sm" type="button" onClick={addAboutItem}>
+              <Button color="primary" size="sm" type="button" onClick={addAboutItem}>
                 Add AboutItem
               </Button>
             </div>
@@ -352,7 +325,7 @@ const SimpleProduct = () => {
               maxLength={100}
             />
             <div className="w-full">
-              <Button color="blue" size="sm" onClick={addSpecification}>
+              <Button color="primary" size="sm" onClick={addSpecification}>
                 Add Specification
               </Button>
             </div>
@@ -377,7 +350,7 @@ const SimpleProduct = () => {
       </div>
 
       <div className="mt-6 flex justify-end">
-        <Button color="blue" onClick={handleSubmit} size="lg">
+        <Button color="primary" onClick={handleSubmit} size="lg">
           Submit
         </Button>
       </div>

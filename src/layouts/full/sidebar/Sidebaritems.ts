@@ -31,6 +31,7 @@ const getIconByName = (name: string): string => {
     Register: 'solar:shield-user-outline',
     Icons: 'solar:smile-circle-outline',
     'Sample Page': 'solar:notes-minimalistic-outline',
+    'Manage Quarys': 'solar:chat-round-line-duotone',
   };
 
   return iconMap[name] || 'solar:question-circle-linear';
@@ -91,7 +92,7 @@ const SidebarContent: MenuItem[] = [
       },
       {
         name: 'Manage Quarys',
-        icon: getIconByName('Tax'),
+        icon: getIconByName('Manage Quarys'),
         id: 'util-tax',
         url: '/quarys',
       },
