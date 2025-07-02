@@ -586,7 +586,6 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                           onChange={(e) => handleVariantChange(index, field.name, e.target.value)}
                           placeholder={`Enter ${field.name}`}
                           readOnly
-                          step={field.name === 'Price' ? '0.01' : '1'}
                           className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                         />
                       )}
@@ -775,7 +774,6 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                 }
                                 placeholder={`Enter ${field.name}`}
                                 min="0"
-                                step="1"
                                 className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                               />
                             )}
@@ -846,7 +844,6 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                             }
                             placeholder="Enter Stock"
                             min="0"
-                            step="1"
                             className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                           />
                         </div>
@@ -867,7 +864,6 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                             }
                             placeholder="Enter Price"
                             min="0"
-                            step="0.01"
                             className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                           />
                         </div>

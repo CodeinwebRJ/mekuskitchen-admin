@@ -43,13 +43,13 @@ export const CreateProduct = async (data: any) => {
 };
 
 export const UploadImage = async (files: any) => {
-  console.log(files)
+  console.log(files);
   const formData = new FormData();
   files?.forEach((file: any) => {
     formData.append('images', file);
   });
 
-  console.log(formData)
+  console.log(formData);
   return axiosInstance.post('/api/v1/C/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -129,10 +129,14 @@ export const SendOtp = async (data: any) => {
 };
 
 export const ResetPassword = async (data: any) => {
-  return axiosInstance.post(`/api/v1/admin/forgot`, data);
+  return axiosInstance.post("/api/v1/admin/forgot", data);
 };
 
 export const EditProduct = async (payload: any) => {
   const { id, data } = payload;
   return axiosInstance.put(`/api/v1/product/category/${id}`, data);
+};
+
+export const getAllQuarys = async () => {
+  return axiosInstance.get('/api/v1/contact/');
 };

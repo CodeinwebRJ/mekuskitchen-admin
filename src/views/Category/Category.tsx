@@ -269,8 +269,8 @@ const Category = () => {
   );
 
   return (
-    <div className="flex flex-col items-center gap-6 px-4 sm:px-6 md:px-8">
-      <div className="w-full max-w-4xl">
+    <div className="flex flex-col items-center ">
+      <div className="w-full">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-700">Main Category</h2>
           <Button

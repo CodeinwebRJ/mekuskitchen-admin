@@ -17,8 +17,8 @@ const SidebarLayout = () => {
         <SimpleBar className="h-[calc(100vh_-_230px)]">
           <Sidebar.Items className="px-5">
             <Sidebar.ItemGroup className="sidebar-nav">
-              {SidebarContent.map((item) => (
-                <div className="caption" key={item.heading}>
+              {SidebarContent.map((item, index) => (
+                <div className="caption" key={index}>
                   <h5 className="text-link dark:text-white/70 caption font-semibold leading-6 tracking-widest text-xs pb-2 uppercase">
                     {item.heading}
                   </h5>

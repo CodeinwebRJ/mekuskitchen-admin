@@ -314,43 +314,48 @@ const SubCategory = () => {
   return (
     <div className="flex flex-col items-center gap-6 w-full">
       <div className="w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">Sub Categories</h2>
-          <Button
-            color="blue"
-            size="sm"
-            onClick={() => setShowForm(!showForm)}
-            disabled={loadingStates.create || categoryList.length === 0 || !selectedCategory}
-          >
-            {showForm ? 'Cancel' : 'Create New SubCategory'}
-          </Button>
-        </div>
-
-        {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
-
         <div className="mb-4">
-          <Select
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            value={selectedCategory}
-            className="w-1/3"
-            disabled={loadingStates.create || categoryList.length === 0}
-            aria-label="Select category"
-          >
-            <option value="">Select Category</option>
-            {categoryList.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </Select>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-700">Sub Categories</h2>
+            <Button
+              color="primary"
+              size="sm"
+              onClick={() => setShowForm(!showForm)}
+              disabled={loadingStates.create || categoryList.length === 0 || !selectedCategory}
+              className="w-full sm:w-auto"
+            >
+              {showForm ? 'Cancel' : 'Create New SubCategory'}
+            </Button>
+          </div>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>
+          )}
+
+          <div className="mb-4">
+            <Select
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={selectedCategory}
+              className="w-full sm:w-1/2"
+              disabled={loadingStates.create || categoryList.length === 0}
+              aria-label="Select category"
+            >
+              <option value="">Select Category</option>
+              {categoryList.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </Select>
+          </div>
         </div>
 
         {showForm && (
           <form
             onSubmit={handleAddSubCategory}
-            className="w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-6"
+            className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6"
           >
-            <h3 className="text-lg font-semibold text-gray-600">Create SubCategory</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-600">Create SubCategory</h3>
             <TextInput
               value={subCategoryName}
               onChange={(e) => setSubCategoryName(e.target.value)}
@@ -359,7 +364,13 @@ const SubCategory = () => {
               disabled={loadingStates.create}
               aria-label="Subcategory name"
             />
-            <Button color="blue" type="submit" size="sm" disabled={loadingStates.create}>
+            <Button
+              color="primary"
+              type="submit"
+              size="sm"
+              disabled={loadingStates.create}
+              className="w-full sm:w-auto"
+            >
               {loadingStates.create ? 'Creating...' : 'Create SubCategory'}
             </Button>
           </form>

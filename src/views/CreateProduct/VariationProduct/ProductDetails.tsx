@@ -193,7 +193,6 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 id="weight"
                 type="number"
                 min="0"
-                step="0.01"
                 value={product.weight}
                 onChange={handleInputChange}
                 required
@@ -228,7 +227,6 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 id="length"
                 type="number"
                 min="0"
-                step="0.01"
                 value={product.dimensions.length}
                 onChange={handleInputChange}
                 required
@@ -243,7 +241,6 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 id="width"
                 type="number"
                 min="0"
-                step="0.01"
                 value={product.dimensions.width}
                 onChange={handleInputChange}
                 required
@@ -258,7 +255,6 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 id="height"
                 type="number"
                 min="0"
-                step="0.01"
                 value={product.dimensions.height}
                 onChange={handleInputChange}
                 required

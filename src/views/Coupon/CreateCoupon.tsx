@@ -186,10 +186,10 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
   };
 
   return (
-    <div className="bg-white shadow-md rounded-md p-6">
-      <h3 className="text-lg font-semibold text-gray-700">Create New Coupon</h3>
+    <div className="bg-white shadow-md rounded-md p-4 sm:p-6">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-4">Create New Coupon</h3>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="code" value="Coupon Code" />
             <TextInput
@@ -217,15 +217,13 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="discountValue" value="Discount Value" />
             <TextInput
               id="discountValue"
               name="discountValue"
               type="number"
-              min="0"
-              step="0.01"
               value={formData.discountValue}
               onChange={handleInputChange}
               placeholder="e.g., 25"
@@ -238,8 +236,6 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               id="minOrderAmount"
               name="minOrderAmount"
               type="number"
-              min="0"
-              step="0.01"
               value={formData.minOrderAmount}
               onChange={handleInputChange}
               placeholder="e.g., 500"
@@ -248,7 +244,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="startAt" value="Start Date" />
             <TextInput
@@ -273,7 +269,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="usageLimit" value="Usage Limit" />
             <TextInput
@@ -288,7 +284,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="image" value="Image URL" />
+            <Label htmlFor="image" value="Image" />
             <input
               type="file"
               id="image"
@@ -304,7 +300,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <MultiSelect
             id="category"
             label="Category"
@@ -323,7 +319,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <MultiSelect
             id="productCategory"
             label="Product Category"
@@ -332,13 +328,13 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
             onChange={(selected) => handleMultiSelectChange(selected, 'productCategory')}
             required
           />
-          <div className="flex items-center gap-4 mt-6 px-4">
+          <div className="flex items-start sm:items-center gap-3 mt-2 sm:mt-6">
             <Checkbox id="isActive" checked={formData.isActive} onChange={handleCheckboxChange} />
             <Label htmlFor="isActive" value="Is Active" />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="termsAndConditions" value="Terms and Conditions" />
             <Textarea
@@ -365,11 +361,11 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
-          <Button color="gray" onClick={() => setShowForm(false)}>
+        <div className="flex flex-col sm:flex-row justify-end gap-3 mt-4">
+          <Button color="gray" onClick={() => setShowForm(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button color="blue" type="submit">
+          <Button color="blue" type="submit" className="w-full sm:w-auto">
             Submit
           </Button>
         </div>

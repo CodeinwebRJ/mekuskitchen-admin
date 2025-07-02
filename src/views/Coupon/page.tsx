@@ -100,12 +100,12 @@ const Page: FC = () => {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <span className="text-xl font-semibold text-blue-700">Coupons</span>
+    <div className="w-full">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
+        <span className="text-lg sm:text-xl font-semibold text-blue-700">Coupons</span>
         <Button
           size="sm"
-          color="blue"
+          color="primary"
           onClick={() => {
             setShowForm(!showForm);
             if (showForm) {
@@ -128,12 +128,13 @@ const Page: FC = () => {
               });
             }
           }}
+          className="w-full sm:w-auto"
         >
           {showForm ? 'Cancel' : 'Create Coupon'}
         </Button>
       </div>
 
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {error && <div className="text-red-500 mb-4 text-sm">{error}</div>}
 
       {showForm ? (
         <CreateCoupons
@@ -150,70 +151,58 @@ const Page: FC = () => {
             <div>Loading...</div>
           ) : (
             <div className="bg-white shadow-md rounded-md overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full text-sm text-left text-gray-700">
+                <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Index
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Image
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Code
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Discount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="px-4 py-3">Index</th>
+                    <th className="px-4 py-3">Image</th>
+                    <th className="px-4 py-3">Code</th>
+                    <th className="px-4 py-3">Discount</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {data?.map((coupon, index) => (
                     <tr key={coupon._id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-4 py-3 whitespace-nowrap">{index + 1}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {coupon.image ? (
                           <img
-                            src={coupon?.image}
+                            src={coupon.image}
                             alt={coupon.code}
-                            className="h-12 w-12 object-cover rounded"
+                            className="h-10 w-10 object-cover rounded"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = '/fallback-image.jpg';
                             }}
                           />
                         ) : (
-                          'No Image'
+                          <span className="text-xs text-gray-400">No Image</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {coupon.code}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-4 py-3 whitespace-nowrap">{coupon.code}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {coupon.discountValue} {coupon.discountType === 'percentage' ? '%' : '$'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <ToggleSwitch
                           onChange={(checked) => handleToggleChange(coupon._id, checked)}
                           checked={coupon.isActive}
                           className="focus:ring-0"
                         />
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className='flex gap-4'>
-                          <div className="text-white" onClick={() => handleEdit(coupon)}>
-                            <MdModeEdit className="text-black cursor-pointer" size={18} />
-                          </div>
-                          <div className="text-white" onClick={() => handleDelete(coupon._id)}>
-                            <MdDelete className="text-red-600 cursor-pointer" size={18} />
-                          </div>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex gap-3">
+                          <MdModeEdit
+                            size={18}
+                            className="text-primary cursor-pointer"
+                            onClick={() => handleEdit(coupon)}
+                          />
+                          <MdDelete
+                            size={18}
+                            className="text-red-600 cursor-pointer"
+                            onClick={() => handleDelete(coupon._id)}
+                          />
                         </div>
                       </td>
                     </tr>

@@ -1,7 +1,7 @@
 'use client';
 import { Button, TextInput, Label, Select } from 'flowbite-react';
-import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { FiPlus, FiX } from 'react-icons/fi';
+import { useState, FormEvent, useEffect, useCallback } from 'react';
+import { FiPlus } from 'react-icons/fi';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosConfig';
@@ -20,37 +20,58 @@ interface TaxConfig {
   taxes: { category: string; provinceTax: number; federalTax: number }[];
 }
 
-interface CategoryType {
-  _id: string;
-  name: string;
-}
+const validateTaxForm = (
+  provinceName: string,
+  provinceCode: string,
+  taxes: TaxEntry[],
+): { [key: string]: string } => {
+  const errors: { [key: string]: string } = {};
+
+  if (!provinceName.trim()) errors.provinceName = 'Province Name is required.';
+  if (!provinceCode.trim()) errors.provinceCode = 'Province Code is required.';
+
+  taxes.forEach((tax, index) => {
+    if (!tax.category) errors[`category-${index}`] = 'Category is required.';
+    if (!tax.provinceTax) errors[`provinceTax-${index}`] = 'Province Tax is required.';
+    if (!tax.federalTax) errors[`federalTax-${index}`] = 'Federal Tax is required.';
+  });
+
+  return errors;
+};
 
 const Page = () => {
-  const [showForm, setShowForm] = useState<boolean>(false);
+  const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [provinceCode, setProvinceCode] = useState<string>('');
-  const [provinceName, setProvinceName] = useState<string>('');
+  const [provinceCode, setProvinceCode] = useState('');
+  const [provinceName, setProvinceName] = useState('');
   const [taxes, setTaxes] = useState<TaxEntry[]>([
     { category: '', provinceTax: '', federalTax: '' },
   ]);
   const [taxConfigs, setTaxConfigs] = useState<TaxConfig[]>([]);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const categoryList: CategoryType[] = useSelector(
-    (state: RootState) => state.category.categoryList,
-  );
+  const categoryList = useSelector((state: RootState) => state.category.categoryList);
 
-  const fetchTax = async () => {
+  const fetchTax = useCallback(async () => {
     try {
-      const data = {
-        provinceCode: '',
-        category: '',
-      };
-      const response = await getallTax(data);
+      const response = await getallTax({ provinceCode: '', category: '' });
       setTaxConfigs(response.data.data);
     } catch (error) {
-      console.log(error);
       console.error('Fetch Tax Error:', error);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchTax();
+  }, [fetchTax]);
+
+  const resetForm = () => {
+    setProvinceCode('');
+    setProvinceName('');
+    setTaxes([{ category: '', provinceTax: '', federalTax: '' }]);
+    setErrors({});
+    setEditId(null);
+    setShowForm(false);
   };
 
   const handleAddTaxField = () => {
@@ -67,18 +88,24 @@ const Page = () => {
       updated[index][field] = value;
       return updated;
     });
+
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[`${field}-${index}`];
+      return newErrors;
+    });
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (
-      !provinceName ||
-      !provinceCode ||
-      taxes.some((t) => !t.category || !t.provinceTax || !t.federalTax)
-    ) {
+
+    const newErrors = validateTaxForm(provinceName, provinceCode, taxes);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
+    setErrors({});
     const payload: TaxConfig = {
       provinceName,
       provinceCode,
@@ -95,12 +122,7 @@ const Page = () => {
       } else {
         await CreateTax(payload);
       }
-
-      setProvinceCode('');
-      setProvinceName('');
-      setTaxes([{ category: '', provinceTax: '', federalTax: '' }]);
-      setShowForm(false);
-      setEditId(null);
+      resetForm();
       await fetchTax();
     } catch (error) {
       console.error(`${editId ? 'Update' : 'Create'} Tax Error:`, error);
@@ -108,7 +130,7 @@ const Page = () => {
   };
 
   const handleEdit = (config: TaxConfig) => {
-    setEditId(config?._id ?? null);
+    setEditId(config._id ?? null);
     setProvinceName(config.provinceName);
     setProvinceCode(config.provinceCode);
     setTaxes(
@@ -121,33 +143,21 @@ const Page = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (name: string) => {
+  const handleDelete = async (provinceCode: string) => {
     try {
-      await DeleteTax(name);
+      await DeleteTax(provinceCode);
       fetchTax();
     } catch (error) {
       console.error('Delete Tax Error:', error);
     }
   };
 
-  const handleCancel = () => {
-    setShowForm(false);
-    setEditId(null);
-    setProvinceCode('');
-    setProvinceName('');
-    setTaxes([{ category: '', provinceTax: '', federalTax: '' }]);
-  };
-
-  useEffect(() => {
-    fetchTax();
-  }, []);
-
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center gap-6 px-4">
       <div className="w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-blue-700">Tax</h2>
-          <Button size="sm" color="blue" onClick={() => setShowForm((prev) => !prev)}>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+          <h2 className="text-xl font-semibold text-primary">Tax</h2>
+          <Button size="sm" color="primary" onClick={() => setShowForm((prev) => !prev)}>
             {showForm ? 'Cancel' : 'Create Tax'}
           </Button>
         </div>
@@ -159,31 +169,44 @@ const Page = () => {
                 <Label htmlFor="provinceName" value="Province Name" />
                 <TextInput
                   id="provinceName"
-                  required
                   value={provinceName}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setProvinceName(e.target.value)}
+                  onChange={(e) => {
+                    setProvinceName(e.target.value);
+                    setErrors((prev) => ({ ...prev, provinceName: '' }));
+                  }}
                 />
+                {errors.provinceName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.provinceName}</p>
+                )}
               </div>
               <div>
                 <Label htmlFor="provinceCode" value="Province Code" />
                 <TextInput
                   id="provinceCode"
-                  required
                   value={provinceCode}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setProvinceCode(e.target.value)}
+                  onChange={(e) => {
+                    setProvinceCode(e.target.value);
+                    setErrors((prev) => ({ ...prev, provinceCode: '' }));
+                  }}
                 />
+                {errors.provinceCode && (
+                  <p className="text-red-500 text-sm mt-1">{errors.provinceCode}</p>
+                )}
               </div>
             </div>
 
-            <div>
+            <div className="space-y-4">
               {taxes.map((tax, index) => (
-                <div key={index} className="flex items-center gap-4 mt-2">
-                  <div className="flex flex-col gap-2">
+                <div
+                  key={index}
+                  className="flex flex-col lg:flex-row lg:items-start gap-4 border p-3 rounded-md"
+                >
+                  <div className="flex-1">
                     <Label value="Select Category" />
                     <Select
-                      required
                       value={tax.category}
                       onChange={(e) => handleTaxChange(index, 'category', e.target.value)}
+                      className="w-full"
                     >
                       <option value="">Select Category</option>
                       {categoryList.map((cat) => (
@@ -192,32 +215,35 @@ const Page = () => {
                         </option>
                       ))}
                     </Select>
+                    {errors[`category-${index}`] && (
+                      <p className="text-red-500 text-sm mt-1">{errors[`category-${index}`]}</p>
+                    )}
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex-1">
                     <Label value="Province Tax (%)" />
                     <TextInput
                       type="number"
-                      min="0"
-                      step="0.01"
-                      required
                       value={tax.provinceTax}
                       onChange={(e) => handleTaxChange(index, 'provinceTax', e.target.value)}
                     />
+                    {errors[`provinceTax-${index}`] && (
+                      <p className="text-red-500 text-sm mt-1">{errors[`provinceTax-${index}`]}</p>
+                    )}
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex-1">
                     <Label value="Federal Tax (%)" />
                     <TextInput
                       type="number"
-                      min="0"
-                      step="0.01"
-                      required
                       value={tax.federalTax}
                       onChange={(e) => handleTaxChange(index, 'federalTax', e.target.value)}
                     />
+                    {errors[`federalTax-${index}`] && (
+                      <p className="text-red-500 text-sm mt-1">{errors[`federalTax-${index}`]}</p>
+                    )}
                   </div>
                   {taxes.length > 1 && (
-                    <div className="flex items-end pt-6">
-                      <FiX
+                    <div className="flex justify-end lg:pt-6">
+                      <MdDelete
                         className="text-lg text-red-600 cursor-pointer"
                         onClick={() => handleRemoveTaxField(index)}
                       />
@@ -225,57 +251,54 @@ const Page = () => {
                   )}
                 </div>
               ))}
-              <Button
-                type="button"
-                size="xs"
-                color="gray"
-                className="mt-2"
-                onClick={handleAddTaxField}
-              >
+
+              <Button type="button" size="xs" color="gray" onClick={handleAddTaxField}>
                 <FiPlus className="mr-1" />
                 Add Tax
               </Button>
             </div>
 
-            <div className="flex justify-end gap-2">
-              <Button type="button" color="gray" onClick={handleCancel}>
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <Button type="button" color="gray" onClick={resetForm}>
                 Cancel
               </Button>
-              <Button color="blue" type="submit">
+              <Button color="primary" type="submit">
                 {editId ? 'Update' : 'Create'}
               </Button>
             </div>
           </form>
         ) : (
           <div className="w-full">
-            {taxConfigs?.length === 0 ? (
+            {taxConfigs.length === 0 ? (
               <p className="text-gray-500">No tax configurations found.</p>
             ) : (
-              <ul className="bg-white shadow-md rounded-md">
-                {taxConfigs?.map((config) => (
-                  <li key={config._id} className="flex flex-col p-4 border-b last:border-b-0">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className="text-gray-600 font-semibold">
-                          {config.provinceName} ({config.provinceCode})
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div onClick={() => handleEdit(config)}>
-                          <MdModeEdit className="text-black cursor-pointer" size={18} />
-                        </div>
-                        <div onClick={() => handleDelete(config.provinceCode!)}>
-                          <MdDelete className="text-red-600 cursor-pointer" size={18} />
-                        </div>
+              <ul className="bg-white shadow-md rounded-md divide-y">
+                {taxConfigs.map((config) => (
+                  <li key={config._id} className="flex flex-col p-4 gap-2">
+                    <div className="flex flex-col sm:flex-row justify-between gap-2">
+                      <span className="text-gray-600 font-semibold">
+                        {config.provinceName} ({config.provinceCode})
+                      </span>
+                      <div className="flex gap-4">
+                        <MdModeEdit
+                          className="text-black cursor-pointer"
+                          size={18}
+                          onClick={() => handleEdit(config)}
+                        />
+                        <MdDelete
+                          className="text-red-600 cursor-pointer"
+                          size={18}
+                          onClick={() => handleDelete(config.provinceCode)}
+                        />
                       </div>
                     </div>
-                    <div className="flex gap-2 items-center flex-wrap mt-2">
+                    <div className="flex flex-wrap gap-2">
                       {config.taxes.map((tax, index) => (
                         <div
                           key={index}
                           className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-1 rounded-md shadow-sm"
                         >
-                          {tax.category}:
+                          {tax.category}:{' '}
                           <span className="text-gray-900">
                             Province: {tax.provinceTax}%, Federal: {tax.federalTax}%
                           </span>

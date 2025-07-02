@@ -58,7 +58,7 @@ const Router = [
         ),
       },
       {
-        path: '/quarys',
+        path: '/quarry',
         element: (
           <ProtectedRoute>
             <Contact />
