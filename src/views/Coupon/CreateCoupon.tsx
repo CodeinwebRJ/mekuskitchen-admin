@@ -41,11 +41,17 @@ interface CouponFormData {
   usageLimit: string;
   image: string;
   isActive: boolean;
+  allProducts: boolean;
+  isMultiple: boolean;
   termsAndConditions: string;
   description: string;
   category: string[];
   subCategory: string[];
-  productCategory: string[];
+  ProductCategory: string[];
+}
+
+interface PreventScrollEvent extends React.WheelEvent<HTMLInputElement> {
+  target: HTMLInputElement;
 }
 
 interface CreateCouponsProps {
@@ -55,6 +61,18 @@ interface CreateCouponsProps {
   onSuccess?: any;
   setIsEdit: any;
   isEdit: boolean;
+}
+
+interface CouponFormErrors {
+  code?: string;
+  discountValue?: string;
+  minOrderAmount?: string;
+  usageLimit?: string;
+  startAt?: string;
+  expiresAt?: string;
+  termsAndConditions?: string;
+  description?: string;
+  category?: string;
 }
 
 export const CreateCoupons: React.FC<CreateCouponsProps> = ({
@@ -68,32 +86,81 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
   const categories = useSelector((state: RootState) => state.category.categoryList);
   const [subCategories, setSubCategories] = useState<SubCategoryType[]>([]);
   const [subSubCategories, setSubSubCategories] = useState<SubSubCategoryType[]>([]);
+  const [formErrors, setFormErrors] = useState<CouponFormErrors>({});
+
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.code || formData.code.trim() === '') {
+      newErrors.code = 'Coupon code is required';
+    }
+
+    if (!formData.discountValue || Number(formData.discountValue) <= 0) {
+      newErrors.discountValue = 'Enter a valid discount value';
+    }
+
+    if (!formData.minOrderAmount || Number(formData.minOrderAmount) <= 0) {
+      newErrors.minOrderAmount = 'Enter a valid minimum order amount';
+    }
+
+    if (!formData.usageLimit || Number(formData.usageLimit) <= 0) {
+      newErrors.usageLimit = 'Enter a valid usage limit';
+    }
+
+    if (!formData.startAt) {
+      newErrors.startAt = 'Start date is required';
+    }
+
+    if (!formData.expiresAt) {
+      newErrors.expiresAt = 'Expiration date is required';
+    }
+
+    if (formData.startAt && formData.expiresAt) {
+      const start = new Date(formData.startAt);
+      const end = new Date(formData.expiresAt);
+      if (end < start) {
+        newErrors.expiresAt = 'Expiration date must be after the start date';
+      }
+    }
+
+    if (!formData.allProducts && (!formData.category || formData.category.length === 0)) {
+      newErrors.category = 'At least one category is required';
+    }
+
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
+
     setFormData((prev: any) => ({
       ...prev,
       [name]: value,
     }));
-  };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = e.target;
-    setFormData((prev: any) => ({
-      ...prev,
-      isActive: checked,
-    }));
+    setFormErrors((prevErrors) => {
+      const updatedErrors = { ...prevErrors };
+      delete updatedErrors[name as keyof CouponFormErrors];
+      return updatedErrors;
+    });
   };
 
   const handleMultiSelectChange = (selected: string[], field: keyof CouponFormData) => {
     setFormData((prev: any) => ({
       ...prev,
       [field]: selected,
-      ...(field === 'category' && { subCategory: [], productCategory: [] }),
-      ...(field === 'subCategory' && { productCategory: [] }),
+      ...(field === 'category' && { subCategory: [], ProductCategory: [] }),
+      ...(field === 'subCategory' && { ProductCategory: [] }),
     }));
+
+    setFormErrors((prevErrors) => {
+      const updatedErrors = { ...prevErrors };
+      delete updatedErrors[field as keyof CouponFormErrors];
+      return updatedErrors;
+    });
 
     if (field === 'category') {
       const selectedCategories = categories.filter((cat) => selected.includes(cat.name));
@@ -109,6 +176,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!validateForm()) return;
     try {
       const requiredNumbers = ['discountValue', 'minOrderAmount', 'usageLimit'];
       for (const field of requiredNumbers) {
@@ -128,35 +196,39 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
         const uploadResult = await UploadImage([formData.image]);
         uploadedImageUrl = uploadResult?.data?.data?.images[0]?.url || '';
       }
+      const payload = {
+        ...formData,
+        category: formData.allProducts ? [] : formData.category,
+        subCategory: formData.allProducts ? [] : formData.subCategory,
+        ProductCategory: formData.allProducts ? [] : formData.ProductCategory,
+      };
 
       const data = new FormData();
-      data.append('code', formData.code);
-      data.append('discountType', formData.discountType);
-      data.append('discountValue', formData.discountValue);
-      data.append('minOrderAmount', formData.minOrderAmount);
-      data.append('startAt', new Date(formData.startAt).toISOString());
-      data.append('expiresAt', new Date(formData.expiresAt).toISOString());
-      data.append('usageLimit', formData.usageLimit);
-      data.append('isActive', String(formData.isActive));
-      data.append('termsAndConditions', formData.termsAndConditions);
-      data.append('description', formData.description);
+      data.append('code', payload.code);
+      data.append('discountType', payload.discountType);
+      data.append('discountValue', payload.discountValue);
+      data.append('minOrderAmount', payload.minOrderAmount);
+      data.append('startAt', new Date(payload.startAt).toISOString());
+      data.append('expiresAt', new Date(payload.expiresAt).toISOString());
+      data.append('usageLimit', payload.usageLimit);
+      data.append('isActive', String(payload.isActive));
+      data.append('allProducts', String(payload.allProducts));
+      data.append('isMultiple', String(payload.isMultiple));
+      data.append('termsAndConditions', payload.termsAndConditions);
+      data.append('description', payload.description);
       data.append(
         'image',
-        uploadedImageUrl || (typeof formData.image === 'string' ? formData.image : ''),
+        uploadedImageUrl || (typeof payload.image === 'string' ? payload.image : ''),
       );
 
-      ['category', 'subCategory', 'productCategory'].forEach((key) => {
-        formData[key]?.forEach((val: string) => {
+      ['category', 'subCategory', 'ProductCategory'].forEach((key) => {
+        payload[key as keyof CouponFormData]?.forEach((val: string) => {
           data.append(`${key}[]`, val);
         });
       });
 
       if (isEdit && formData._id) {
-        const Editdata = {
-          couponId: formData._id,
-          ...data,
-        };
-        await EditCoupons(Editdata);
+        await EditCoupons({ couponId: formData._id, ...payload });
       } else {
         await CreateCoupon(data);
       }
@@ -172,17 +244,24 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
         usageLimit: '',
         image: '',
         isActive: true,
+        allProducts: false,
+        isMultiple: false,
         termsAndConditions: '',
         description: '',
         category: [],
         subCategory: [],
-        productCategory: [],
+        ProductCategory: [],
       });
       setIsEdit(false);
       setShowForm(false);
     } catch (error) {
       console.error('Coupon submission failed:', error);
     }
+  };
+
+  const preventScroll = (e: PreventScrollEvent) => {
+    e.target.blur();
+    e.preventDefault();
   };
 
   return (
@@ -198,8 +277,8 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               value={formData.code}
               onChange={handleInputChange}
               placeholder="e.g., SAVE10"
-              required
             />
+            {formErrors.code && <p className="text-red-500">{formErrors.code}</p>}
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="discountType" value="Discount Type" />
@@ -209,7 +288,6 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               value={formData.discountType}
               onChange={handleInputChange}
               className="border rounded-md p-2"
-              required
             >
               <option value="percentage">Percentage</option>
               <option value="fixed">Fixed Amount</option>
@@ -224,11 +302,12 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               id="discountValue"
               name="discountValue"
               type="number"
+              onWheel={preventScroll}
               value={formData.discountValue}
               onChange={handleInputChange}
               placeholder="e.g., 25"
-              required
             />
+            {formErrors.discountValue && <p className="text-red-500">{formErrors.discountValue}</p>}
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="minOrderAmount" value="Minimum Order Amount" />
@@ -236,11 +315,14 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               id="minOrderAmount"
               name="minOrderAmount"
               type="number"
+              onWheel={preventScroll}
               value={formData.minOrderAmount}
               onChange={handleInputChange}
               placeholder="e.g., 500"
-              required
             />
+            {formErrors.minOrderAmount && (
+              <p className="text-red-500">{formErrors.minOrderAmount}</p>
+            )}
           </div>
         </div>
 
@@ -253,8 +335,8 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               type="date"
               value={formData.startAt}
               onChange={handleInputChange}
-              required
             />
+            {formErrors.startAt && <p className="text-red-500">{formErrors.startAt}</p>}
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="expiresAt" value="Expiration Date" />
@@ -264,8 +346,8 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               type="date"
               value={formData.expiresAt}
               onChange={handleInputChange}
-              required
             />
+            {formErrors.expiresAt && <p className="text-red-500">{formErrors.expiresAt}</p>}
           </div>
         </div>
 
@@ -278,10 +360,11 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               type="number"
               min="1"
               value={formData.usageLimit}
+              onWheel={preventScroll}
               onChange={handleInputChange}
               placeholder="e.g., 100"
-              required
             />
+            {formErrors.usageLimit && <p className="text-red-500">{formErrors.usageLimit}</p>}
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="image" value="Image" />
@@ -301,36 +384,90 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <MultiSelect
-            id="category"
-            label="Category"
-            options={categories.map((cat: CategoryType) => cat.name)}
-            selectedValues={formData.category}
-            onChange={(selected) => handleMultiSelectChange(selected, 'category')}
-            required
-          />
+          <div>
+            <MultiSelect
+              id="category"
+              label="Category"
+              options={categories.map((cat: CategoryType) => cat.name)}
+              disabled={formData?.allProducts === true ? true : false}
+              selectedValues={formData.category}
+              onChange={(selected) => handleMultiSelectChange(selected, 'category')}
+            />
+            {formErrors.category && <p className="text-red-500">{formErrors.category}</p>}
+          </div>
+
           <MultiSelect
             id="subCategory"
             label="Sub Category"
+            disabled={formData?.allProducts === true ? true : false}
             options={subCategories.map((sub: SubCategoryType) => sub.name)}
             selectedValues={formData.subCategory}
             onChange={(selected) => handleMultiSelectChange(selected, 'subCategory')}
-            required
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <MultiSelect
-            id="productCategory"
+            id="ProductCategory"
             label="Product Category"
+            disabled={formData?.allProducts === true ? true : false}
             options={subSubCategories.map((subSub: SubSubCategoryType) => subSub.name)}
-            selectedValues={formData.productCategory}
-            onChange={(selected) => handleMultiSelectChange(selected, 'productCategory')}
-            required
+            selectedValues={formData.ProductCategory}
+            onChange={(selected) => handleMultiSelectChange(selected, 'ProductCategory')}
           />
-          <div className="flex items-start sm:items-center gap-3 mt-2 sm:mt-6">
-            <Checkbox id="isActive" checked={formData.isActive} onChange={handleCheckboxChange} />
-            <Label htmlFor="isActive" value="Is Active" />
+          <div className="flex flex-col sm:flex-row gap-10 items-start sm:items-center mt-2 sm:mt-6">
+            <div className="flex items-start sm:items-center gap-3">
+              <Checkbox
+                id="isActive"
+                name="isActive"
+                checked={formData.isActive}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    isActive: e.target.checked,
+                  }))
+                }
+              />
+              <Label htmlFor="isActive" value="Is Active" />
+            </div>
+            <div className="flex items-start sm:items-center gap-3">
+              <Checkbox
+                id="isMultiple"
+                name="isMultiple"
+                checked={formData.isMultiple}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    isMultiple: e.target.checked,
+                  }))
+                }
+              />
+              <Label htmlFor="isMultiple" value="Is Multiple" />
+            </div>
+            <div className="flex items-start sm:items-center gap-3">
+              <Checkbox
+                id="allProducts"
+                name="allProducts"
+                checked={formData.allProducts}
+                onChange={(e) => {
+                  const isChecked = e.target.checked;
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    allProducts: isChecked,
+                    ...(isChecked && {
+                      category: [],
+                      subCategory: [],
+                      ProductCategory: [],
+                    }),
+                  }));
+                  if (isChecked) {
+                    setSubCategories([]);
+                    setSubSubCategories([]);
+                  }
+                }}
+              />
+              <Label htmlFor="allProducts" value="All Products" />
+            </div>
           </div>
         </div>
 
@@ -344,7 +481,6 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               onChange={handleInputChange}
               placeholder="e.g., Valid only on selected items."
               rows={4}
-              required
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -356,7 +492,6 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               onChange={handleInputChange}
               placeholder="e.g., Save 25% on orders above ₹500 this May!"
               rows={4}
-              required
             />
           </div>
         </div>
@@ -365,7 +500,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           <Button color="gray" onClick={() => setShowForm(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button color="blue" type="submit" className="w-full sm:w-auto">
+          <Button color="primary" type="submit" className="w-full sm:w-auto">
             Submit
           </Button>
         </div>

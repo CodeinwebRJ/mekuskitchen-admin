@@ -15,11 +15,13 @@ interface CouponFormData {
   usageLimit: string;
   image: string;
   isActive: boolean;
+  allProducts: boolean;
+  isMultiple: boolean;
   termsAndConditions: string;
   description: string;
   category: string[];
   subCategory: string[];
-  productCategory: string[];
+  ProductCategory: string[];
 }
 
 const Page: FC = () => {
@@ -35,11 +37,13 @@ const Page: FC = () => {
     usageLimit: '',
     image: '',
     isActive: true,
+    allProducts: false,
+    isMultiple: false,
     termsAndConditions: '',
     description: '',
     category: [],
     subCategory: [],
-    productCategory: [],
+    ProductCategory: [],
   });
   const [data, setData] = useState<CouponFormData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -80,6 +84,7 @@ const Page: FC = () => {
   };
 
   const handleEdit = (coupon: CouponFormData) => {
+    console.log(coupon);
     setFormData({ ...coupon });
     setIsEdit(true);
     setShowForm(true);
@@ -120,11 +125,13 @@ const Page: FC = () => {
                 usageLimit: '',
                 image: '',
                 isActive: true,
+                allProducts: false,
+                isMultiple: false,
                 termsAndConditions: '',
                 description: '',
                 category: [],
                 subCategory: [],
-                productCategory: [],
+                ProductCategory: [],
               });
             }
           }}

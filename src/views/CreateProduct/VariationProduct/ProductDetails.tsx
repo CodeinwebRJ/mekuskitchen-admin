@@ -3,9 +3,10 @@ import { useCallback, useState, useMemo } from 'react';
 import { BasicInfoProps } from '../interface';
 import { MdDelete } from 'react-icons/md';
 
-const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
+const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }) => {
   const [newFeature, setNewFeature] = useState('');
   const [newTag, setNewTag] = useState('');
+  const [aboutItem, setAboutItem] = useState<string>('');
   const [specKey, setSpecKey] = useState('');
   const [specValue, setSpecValue] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +73,24 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     },
     [setProduct],
   );
+
+  const addAboutItem = useCallback(() => {
+    if (!validateInput(aboutItem, 'aboutItem')) return;
+
+    setProduct((prev: any) => ({
+      ...prev,
+      aboutItem: [...prev.aboutItem, aboutItem.trim()],
+    }));
+    setAboutItem('');
+    setError(null);
+  }, [aboutItem, validateInput]);
+
+  const removeAboutItem = useCallback((index: number) => {
+    setProduct((prev: any) => ({
+      ...prev,
+      aboutItem: prev.aboutItem.filter((_: any, i: number) => i !== index),
+    }));
+  }, []);
 
   const addTag = useCallback(() => {
     if (!validateInput(newTag, 'tag')) return;
@@ -186,6 +205,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   </option>
                 ))}
               </Select>
+              {errors.weightUnit && <p className="text-red-500">{errors.weightUnit}</p>}
             </div>
             <div>
               <Label value="Weight*" />
@@ -200,6 +220,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 className="w-full"
                 aria-required="true"
               />
+              {errors.weight && <p className="text-red-500">{errors.weight}</p>}
             </div>
             <div>
               <Label value="Dimension Unit" />
@@ -283,7 +304,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 maxLength={100}
                 aria-label="Add new tag"
               />
-              <Button color="blue" size="sm" type="button" onClick={addTag}>
+              <Button color="primary" size="sm" type="button" onClick={addTag}>
                 Add Tag
               </Button>
             </div>
@@ -307,6 +328,39 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             </ul>
           </div>
 
+          <div className="mb-6 mt-4">
+            <h4 className="text-lg font-medium text-gray-700">About Product</h4>
+            <div className="flex gap-4 items-center mb-4">
+              <TextInput
+                type="text"
+                value={aboutItem}
+                onChange={(e) => setAboutItem(e.target.value)}
+                placeholder="Enter feature (e.g., Waterproof)"
+                className="w-full"
+                maxLength={100}
+              />
+              <div className="w-full">
+                <Button color="primary" size="sm" type="button" onClick={addAboutItem}>
+                  Add AboutItem
+                </Button>
+              </div>
+            </div>
+            <ul className="flex flex-wrap gap-2">
+              {product.aboutItem.map((feature: any, index: number) => (
+                <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
+                  <span className="text-gray-800">{feature}</span>
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => removeAboutItem(index)}
+                    aria-label={`Remove feature: ${feature}`}
+                  >
+                    <MdDelete size={20} className="text-red-600" />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div className="mb-6">
             <h4 className="text-base font-medium text-gray-700 mb-2">Features</h4>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
@@ -317,7 +371,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 placeholder="Enter feature (e.g., Waterproof)"
                 className="w-full sm:w-1/2"
               />
-              <Button color="blue" size="sm" type="button" onClick={addFeature}>
+              <Button color="primary" size="sm" type="button" onClick={addFeature}>
                 Add Feature
               </Button>
             </div>
@@ -351,7 +405,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 onChange={(e) => setSpecValue(e.target.value)}
                 placeholder="Specification Value"
               />
-              <Button color="blue" type="button" size="sm" onClick={addSpecification}>
+              <Button color="primary" type="button" size="sm" onClick={addSpecification}>
                 Add Specification
               </Button>
             </div>

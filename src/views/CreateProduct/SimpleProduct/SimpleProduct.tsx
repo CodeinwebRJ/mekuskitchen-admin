@@ -72,6 +72,7 @@ const SimpleProduct = () => {
   const [specKey, setSpecKey] = useState<string>('');
   const [specValue, setSpecValue] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const validateInput = useCallback((value: string, field: string): boolean => {
     if (!value.trim()) {
@@ -85,6 +86,36 @@ const SimpleProduct = () => {
     return true;
   }, []);
 
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!product.images || product.images.length === 0) {
+      newErrors.images = 'Product images are required';
+    }
+    if (!product.name || product.name.trim() === '') newErrors.name = 'Product name is required';
+    if (!product.category) newErrors.category = 'Category is required';
+    if (!product.subCategory) newErrors.subCategory = 'Subcategory is required';
+    if (!product.subsubCategory) newErrors.subsubCategory = 'Sub-subcategory is required';
+    if (!product.currency) newErrors.currency = 'Currency is required';
+    if (!product.price) newErrors.price = 'price is required';
+    if (!product.sellingPrice) newErrors.sellingPrice = 'selling price is required';
+    if (product.price > product.sellingPrice)
+      newErrors.sellingPrice = 'Selling price must be greater than price';
+    if (!product.SKUName || product.SKUName.trim() === '')
+      newErrors.SKUName = 'SKU Name is required';
+    if (!product.shortDescription || product.shortDescription.trim() === '')
+      newErrors.shortDescription = 'Short description is required';
+    if (!product.description || product.description.trim() === '')
+      newErrors.description = 'Description is required';
+    if (location.pathname === '/product') {
+      if (!product.weight) newErrors.weight = 'Weight is required';
+      if (!product.weightUnit) newErrors.weightUnit = 'Weight unit is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const removeSpecification = useCallback((key: string) => {
     setProduct((prev) => {
       const newSpecs = { ...prev.specifications };
@@ -97,6 +128,7 @@ const SimpleProduct = () => {
   }, []);
 
   const handleSubmit = async (): Promise<void> => {
+    if (!validateForm()) return;
     try {
       setError(null);
       const imageFiles: File[] = product.images.map((img: any) =>
@@ -202,7 +234,7 @@ const SimpleProduct = () => {
   return (
     <div className="mx-auto p-6 bg-white rounded-xl shadow">
       {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
-      <BasicInfo product={product} setProduct={setProduct} />
+      <BasicInfo product={product} setProduct={setProduct} errors={errors} />
 
       <div className="mt-6">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">Features & Specifications</h3>

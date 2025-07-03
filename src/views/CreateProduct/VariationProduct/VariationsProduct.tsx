@@ -22,6 +22,7 @@ const VariationsProduct = () => {
     discount: '',
     SKUName: '',
     subCategory: '',
+
     subsubCategory: '',
     brand: '',
     weight: '',
@@ -35,6 +36,7 @@ const VariationsProduct = () => {
     tags: [],
     specifications: {},
     features: [],
+    aboutItem: [],
     skuFields: [
       { name: 'Name', type: 'text', isDefault: true },
       { name: 'SKUname', type: 'text', isDefault: true },
@@ -44,24 +46,71 @@ const VariationsProduct = () => {
     combinationFields: [],
     sku: [{ Name: '', Stock: 0, Price: 0, SKUname: '', combinations: [] }],
   });
-
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const steps = [1, 2, 3];
+
+  const validateStep = (step: number): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (step === 1) {
+      if (!product.images || product.images.length === 0) {
+        newErrors.images = 'Product images are required';
+      }
+      if (!product.name || product.name.trim() === '') newErrors.name = 'Product name is required';
+      if (!product.category) newErrors.category = 'Category is required';
+      if (!product.subCategory) newErrors.subCategory = 'Subcategory is required';
+      if (!product.subsubCategory) newErrors.subsubCategory = 'Sub-subcategory is required';
+      if (!product.currency) newErrors.currency = 'Currency is required';
+      if (!product.price) newErrors.price = 'Price is required';
+      if (!product.sellingPrice) newErrors.sellingPrice = 'Selling price is required';
+      if (product.price > product.sellingPrice)
+        newErrors.sellingPrice = 'Selling price must be greater than price';
+      if (!product.SKUName || product.SKUName.trim() === '')
+        newErrors.SKUName = 'SKU Name is required';
+      if (!product.shortDescription || product.shortDescription.trim() === '')
+        newErrors.shortDescription = 'Short description is required';
+      if (!product.description || product.description.trim() === '')
+        newErrors.description = 'Description is required';
+    }
+
+    if (step === 2) {
+      if (!product.sku || product.sku.length === 0) {
+        newErrors.sku = 'At least one SKU is required';
+      } else {
+        product.sku.forEach((skuItem: any, index: number) => {
+          if (!skuItem.Name) newErrors[`sku-${index}-Name`] = 'SKU name is required';
+          if (!skuItem.Stock || skuItem.Stock < 0)
+            newErrors[`sku-${index}-Stock`] = 'Valid stock is required';
+        });
+      }
+    }
+
+    if (step === 3) {
+      if (!product.weight) newErrors.weight = 'Weight is required';
+      if (!product.weightUnit) newErrors.weightUnit = 'Weight unit is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const renderStepContent = (step: number) => {
     switch (step) {
       case 1:
-        return <BasicInfo product={product} setProduct={setProduct} />;
+        return <BasicInfo errors={errors} product={product} setProduct={setProduct} />;
       case 2:
-        return <SKU product={product} setProduct={setProduct} />;
+        return <SKU errors={errors} product={product} setProduct={setProduct} />;
       case 3:
-        return <ProductDetail product={product} setProduct={setProduct} />;
+        return <ProductDetail errors={errors} product={product} setProduct={setProduct} />;
       default:
         return null;
     }
   };
 
   const handleNext = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+    if (validateStep(currentStep)) {
+      setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+    }
   };
 
   const handleBack = () => {
@@ -69,6 +118,7 @@ const VariationsProduct = () => {
   };
 
   const handleSubmit = async () => {
+    if (!validateStep(currentStep)) return;
     try {
       const fileFieldNames = product.skuFields
         .filter((field) => field.type === 'image')
@@ -143,10 +193,7 @@ const VariationsProduct = () => {
         <Button onClick={handleBack} disabled={currentStep === 1} color="gray">
           Back
         </Button>
-        <Button
-          onClick={currentStep === steps.length ? handleSubmit : handleNext}
-          color='blue'
-        >
+        <Button onClick={currentStep === steps.length ? handleSubmit : handleNext} color="primary">
           {currentStep === steps.length ? 'Submit' : 'Next'}
         </Button>
       </div>

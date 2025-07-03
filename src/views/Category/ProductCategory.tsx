@@ -12,7 +12,7 @@ import { MdDelete, MdModeEdit } from 'react-icons/md';
 
 // Define constants
 const ERROR_MESSAGES = {
-  CREATE: 'Failed to create product category. Please try again.',
+  CREATE: '',
   UPDATE: 'Failed to update product category. Please try again.',
   DELETE: 'Failed to delete product category. Please try again.',
   DUPLICATE: 'Product category name already exists in this subcategory.',
@@ -31,7 +31,7 @@ const ProductCategory = () => {
   const [editSubSubCategoryId, setEditSubSubCategoryId] = useState<string | null>(null);
   const [editSubSubCategoryName, setEditSubSubCategoryName] = useState('');
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ create?: string; edit?: string; delete?: string }>({});
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }));
@@ -71,11 +71,11 @@ const ProductCategory = () => {
       e.preventDefault();
       const trimmedName = subSubCategoryName.trim();
       if (!selectedCategory) {
-        setError(ERROR_MESSAGES.NO_CATEGORY);
+        setError((prev) => ({ ...prev, create: 'Please select a category.' }));
         return;
       }
       if (!selectedSubCategory) {
-        setError(ERROR_MESSAGES.NO_SUBCATEGORY);
+        setError((prev) => ({ ...prev, create: 'Please select a category.' }));
         return;
       }
       const validationError = validateSubSubCategoryName(
@@ -84,12 +84,11 @@ const ProductCategory = () => {
         selectedSubCategory,
       );
       if (validationError) {
-        setError(validationError);
+        setError((prev) => ({ ...prev, create: validationError }));
         return;
       }
 
       setLoading('create', true);
-      setError(null);
       try {
         const data = {
           name: trimmedName,
@@ -122,7 +121,10 @@ const ProductCategory = () => {
         setShowForm(false);
       } catch (error: any) {
         console.error('Failed to create sub-subcategory:', error);
-        setError(error.response?.status === 409 ? ERROR_MESSAGES.DUPLICATE : ERROR_MESSAGES.CREATE);
+        setError((prev) => ({
+          ...prev,
+          create: 'Failed to create product category. Please try again.',
+        }));
       } finally {
         setLoading('create', false);
       }
@@ -133,7 +135,6 @@ const ProductCategory = () => {
   const handleEditStart = useCallback((ssub: SubSubCategoryType) => {
     setEditSubSubCategoryId(ssub._id);
     setEditSubSubCategoryName(ssub.name);
-    setError(null);
   }, []);
 
   const handleEditSubmit = useCallback(
@@ -147,12 +148,14 @@ const ProductCategory = () => {
 
       const validationError = validateSubSubCategoryName(trimmedName, catId, subCatId);
       if (validationError) {
-        setError(validationError);
+        setError((prev) => ({
+          ...prev,
+          edit: validationError,
+        }));
         return;
       }
 
       setLoading(`edit-${subSubCategory._id}`, true);
-      setError(null);
       try {
         const data = {
           categoryId: catId,
@@ -194,7 +197,10 @@ const ProductCategory = () => {
         setEditSubSubCategoryName('');
       } catch (error: any) {
         console.error('Failed to update sub-subcategory:', error);
-        setError(error.response?.status === 409 ? ERROR_MESSAGES.DUPLICATE : ERROR_MESSAGES.UPDATE);
+        setError((prev) => ({
+          ...prev,
+          edit: 'Failed to create product category. Please try again.',
+        }));
       } finally {
         setLoading(`edit-${subSubCategory._id}`, false);
       }
@@ -205,7 +211,6 @@ const ProductCategory = () => {
   const handleToggle = useCallback(
     async (catId: string, subCatId: string, subSubCategory: SubSubCategoryType) => {
       setLoading(`toggle-${subSubCategory._id}`, true);
-      setError(null);
       try {
         const data = {
           categoryId: catId,
@@ -241,7 +246,10 @@ const ProductCategory = () => {
         );
       } catch (error: any) {
         console.error('Failed to toggle sub-subcategory:', error);
-        setError(ERROR_MESSAGES.UPDATE);
+        setError((prev) => ({
+          ...prev,
+          edit: 'Failed to toggle product category. Please try again.',
+        }));
       } finally {
         setLoading(`toggle-${subSubCategory._id}`, false);
       }
@@ -252,7 +260,6 @@ const ProductCategory = () => {
   const handleDelete = useCallback(
     async (catId: string, subCatId: string, subSubCategory: SubSubCategoryType) => {
       setLoading(`delete-${subSubCategory._id}`, true);
-      setError(null);
       try {
         const data = {
           categoryId: catId,
@@ -283,7 +290,10 @@ const ProductCategory = () => {
         );
       } catch (error: any) {
         console.error('Failed to delete sub-subcategory:', error);
-        setError(ERROR_MESSAGES.DELETE);
+        setError((prev) => ({
+          ...prev,
+          delete: 'Failed to delete product category. Please try again.',
+        }));
       } finally {
         setLoading(`delete-${subSubCategory._id}`, false);
       }
@@ -294,7 +304,6 @@ const ProductCategory = () => {
   const handleEditCancel = useCallback(() => {
     setEditSubSubCategoryId(null);
     setEditSubSubCategoryName('');
-    setError(null);
   }, []);
 
   const subSubCategoryListRender = useMemo(
@@ -315,7 +324,7 @@ const ProductCategory = () => {
                 disabled={loadingStates[`edit-${ssub._id}`]}
                 aria-label={`Edit name for ${ssub.name}`}
               />
-              <Button type="submit" size="sm" color="blue">
+              <Button type="submit" size="sm" color="primary">
                 {loadingStates[`edit-${ssub._id}`] ? 'Saving...' : 'Save'}
               </Button>
               <Button
@@ -334,14 +343,14 @@ const ProductCategory = () => {
               <div className="flex items-center gap-4">
                 <div
                   onClick={() => handleEditStart(ssub)}
-                  color="blue"
+                  color="primary"
                   aria-label={`Edit ${ssub.name}`}
                 >
                   <MdModeEdit className="text-black cursor-pointer" size={18} />
                 </div>
                 <div
                   onClick={() => handleDelete(selectedCategory, selectedSubCategory, ssub)}
-                  color="blue"
+                  color="primary"
                   aria-label={`Delete ${ssub.name}`}
                 >
                   <MdDelete className="text-red-600 cursor-pointer" size={18} />
@@ -388,9 +397,8 @@ const ProductCategory = () => {
             </Button>
           </div>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>
-          )}
+          {error.edit && <div className="text-red-600">{error.edit}</div>}
+          {error.delete && <div className="text-red-600">{error.delete}</div>}
 
           <div className="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Select
@@ -444,16 +452,20 @@ const ProductCategory = () => {
             <h3 className="text-base sm:text-lg font-semibold text-gray-600">
               Create Product Category
             </h3>
-            <TextInput
-              value={subSubCategoryName}
-              onChange={(e) => setSubSubCategoryName(e.target.value)}
-              placeholder="Enter product category name"
-              disabled={loadingStates.create}
-              aria-label="Product category name"
-            />
+            <div>
+              <TextInput
+                value={subSubCategoryName}
+                onChange={(e) => setSubSubCategoryName(e.target.value)}
+                placeholder="Enter product category name"
+                disabled={loadingStates.create}
+                aria-label="Product category name"
+              />
+              {error.create && <div className="text-red-600">{error.create}</div>}
+            </div>
             <Button
               color="primary"
               size="sm"
+              type="submit"
               disabled={loadingStates.create}
               className="w-full sm:w-auto"
             >

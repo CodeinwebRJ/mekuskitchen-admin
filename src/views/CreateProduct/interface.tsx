@@ -62,6 +62,7 @@ export interface ProductSchema {
   tags: string[];
   specifications: Record<string, any>;
   features: string[];
+  aboutItem: string[];
   skuFields: VariantField[];
   combinationFields: CombinationField[];
   sku?: any;
@@ -70,4 +71,5 @@ export interface ProductSchema {
 export interface BasicInfoProps {
   product: any;
   setProduct: any;
+  errors: any;
 }

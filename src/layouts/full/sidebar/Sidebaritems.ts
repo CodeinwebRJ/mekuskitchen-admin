@@ -91,7 +91,7 @@ const SidebarContent: MenuItem[] = [
         url: '/tax',
       },
       {
-        name: 'Manage Quarys',
+        name: 'Manage Quarry',
         icon: getIconByName('Manage Quarry'),
         id: 'util-tax',
         url: '/quarry',

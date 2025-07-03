@@ -6,16 +6,6 @@ import { CreateCategory, DeleteCategory, UpdateCategory } from 'src/AxiosConfig/
 import { setCategoryList } from 'src/Store/Slices/Categories';
 import { RootState } from 'src/Store/Store';
 
-// Define constants
-const ERROR_MESSAGES = {
-  CREATE: 'Failed to create category. Please try again.',
-  UPDATE: 'Failed to update category. Please try again.',
-  DELETE: 'Failed to delete category. Please try again.',
-  DUPLICATE: 'Category name already exists.',
-  INVALID: 'Category name must be at least 3 characters long.',
-};
-
-// Define interfaces (already provided, but included for clarity)
 interface SubSubCategoryType {
   _id: string;
   name: string;
@@ -44,32 +34,30 @@ const Category = () => {
   const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
   const [editCategoryName, setEditCategoryName] = useState('');
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
-  const [error, setError] = useState<string | null>(null);
-
-  const validateCategoryName = (name: string): string | null => {
-    if (name.trim().length < 3) return ERROR_MESSAGES.INVALID;
-    if (categoryList.some((cat) => cat.name.toLowerCase() === name.trim().toLowerCase())) {
-      return ERROR_MESSAGES.DUPLICATE;
-    }
-    return null;
-  };
+  const [error, setError] = useState<{ create?: string; edit?: string; delete?: string }>({});
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const validateCategory = (name: string): string | null => {
+    if (!name || name.trim() === '') return 'Category name is required';
+    return null;
   };
 
   const handleCategorySubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
       const trimmedInput = categoryInput.trim();
-      const validationError = validateCategoryName(trimmedInput);
+      const validationError = validateCategory(trimmedInput);
+
       if (validationError) {
-        setError(validationError);
+        setError((prev) => ({ ...prev, create: validationError }));
         return;
       }
 
       setLoading('create', true);
-      setError(null);
+      setError({});
       try {
         const data = { name: trimmedInput };
         const res = await CreateCategory(data);
@@ -80,7 +68,7 @@ const Category = () => {
         setShowCategoryForm(false);
       } catch (error: any) {
         console.error('Failed to create category:', error);
-        setError(error.response?.status === 409 ? ERROR_MESSAGES.DUPLICATE : ERROR_MESSAGES.CREATE);
+        setError((prev) => ({ ...prev, create: 'Failed to create category. Please try again.' }));
       } finally {
         setLoading('create', false);
       }
@@ -88,11 +76,10 @@ const Category = () => {
     [categoryInput, categoryList, dispatch],
   );
 
-  // Handle toggle category active status
   const handleToggle = useCallback(
     async (category: CategoryType) => {
       setLoading(`toggle-${category._id}`, true);
-      setError(null);
+      setError({});
       try {
         const data = {
           categoryId: category._id,
@@ -110,7 +97,6 @@ const Category = () => {
         );
       } catch (error: any) {
         console.error('Failed to toggle category:', error);
-        setError(ERROR_MESSAGES.UPDATE);
       } finally {
         setLoading(`toggle-${category._id}`, false);
       }
@@ -121,13 +107,13 @@ const Category = () => {
   const handleDelete = useCallback(
     async (category: CategoryType) => {
       setLoading(`delete-${category._id}`, true);
-      setError(null);
+      setError({});
       try {
         await DeleteCategory({ categoryId: category._id });
         dispatch(setCategoryList(categoryList.filter((cat) => cat._id !== category._id)));
       } catch (error: any) {
         console.error('Failed to delete category:', error);
-        setError(ERROR_MESSAGES.DELETE);
+        setError((prev) => ({ ...prev, create: 'Failed to delete category.' }));
       } finally {
         setLoading(`delete-${category._id}`, false);
       }
@@ -138,26 +124,28 @@ const Category = () => {
   const handleEditStart = useCallback((id: string, name: string) => {
     setEditCategoryId(id);
     setEditCategoryName(name);
-    setError(null);
+    setError({});
   }, []);
 
   const handleEditSubmit = useCallback(
     async (e: FormEvent, category: CategoryType) => {
       e.preventDefault();
       const trimmedName = editCategoryName.trim();
+      const validationError = validateCategory(trimmedName);
+
+      if (validationError) {
+        setError((prev) => ({ ...prev, edit: validationError }));
+        return;
+      }
+
       if (trimmedName === category.name) {
         setEditCategoryId(null);
         return;
       }
 
-      const validationError = validateCategoryName(trimmedName);
-      if (validationError) {
-        setError(validationError);
-        return;
-      }
-
       setLoading(`edit-${category._id}`, true);
-      setError(null);
+      setError((prev) => ({ ...prev, edit: '' }));
+
       try {
         const data = {
           categoryId: category._id,
@@ -177,7 +165,10 @@ const Category = () => {
         setEditCategoryName('');
       } catch (error: any) {
         console.error('Failed to update category:', error);
-        setError(error.response?.status === 409 ? ERROR_MESSAGES.DUPLICATE : ERROR_MESSAGES.UPDATE);
+        setError((prev) => ({
+          ...prev,
+          edit: 'Something went wrong, Please try again.',
+        }));
       } finally {
         setLoading(`edit-${category._id}`, false);
       }
@@ -188,7 +179,7 @@ const Category = () => {
   const handleEditCancel = useCallback(() => {
     setEditCategoryId(null);
     setEditCategoryName('');
-    setError(null);
+    setError({});
   }, []);
 
   const categoryListRender = useMemo(
@@ -210,7 +201,7 @@ const Category = () => {
                 aria-label={`Edit name for ${cat.name}`}
               />
               <Button
-                color="blue"
+                color="primary"
                 type="submit"
                 size="sm"
                 disabled={loadingStates[`edit-${cat._id}`]}
@@ -232,13 +223,13 @@ const Category = () => {
               <div className="flex items-center gap-4">
                 <div
                   onClick={() => handleEditStart(cat._id, cat.name)}
-                  color="blue"
+                  color="primary"
                   aria-label={`Edit ${cat.name}`}
                 >
                   <MdModeEdit className="text-black cursor-pointer" size={18} />
                 </div>
                 <div
-                  color="blue"
+                  color="primary"
                   onClick={() => handleDelete(cat)}
                   aria-label={`Delete ${cat.name}`}
                 >
@@ -284,11 +275,8 @@ const Category = () => {
           </Button>
         </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md text-sm sm:text-base">
-            {error}
-          </div>
-        )}
+        {error.delete && <div className="text-red-600">{error.delete}</div>}
+        {error.edit && <div className="text-red-600">{error.edit}</div>}
 
         {showCategoryForm ? (
           <form
@@ -296,14 +284,16 @@ const Category = () => {
             className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 flex flex-col gap-5 bg-white shadow-md rounded-lg p-4 sm:p-6"
           >
             <h2 className="text-lg sm:text-xl font-semibold text-gray-700">Create Category</h2>
-            <TextInput
-              value={categoryInput}
-              onChange={(e) => setCategoryInput(e.target.value)}
-              placeholder="Enter category name"
-              required
-              disabled={loadingStates.create}
-              aria-label="Category name"
-            />
+            <div>
+              <TextInput
+                value={categoryInput}
+                onChange={(e) => setCategoryInput(e.target.value)}
+                placeholder="Enter category name"
+                disabled={loadingStates.create}
+                aria-label="Category name"
+              />
+              {error.create && <div className="text-red-600">{error.create}</div>}
+            </div>
             <Button
               color="primary"
               type="submit"

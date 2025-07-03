@@ -152,6 +152,15 @@ const Page = () => {
     }
   };
 
+  interface PreventScrollEvent extends React.WheelEvent<HTMLInputElement> {
+    target: HTMLInputElement;
+  }
+
+  const preventScroll = (e: PreventScrollEvent) => {
+    e.target.blur();
+    e.preventDefault();
+  };
+
   return (
     <div className="flex flex-col items-center gap-6 px-4">
       <div className="w-full">
@@ -223,6 +232,7 @@ const Page = () => {
                     <Label value="Province Tax (%)" />
                     <TextInput
                       type="number"
+                      onWheel={preventScroll}
                       value={tax.provinceTax}
                       onChange={(e) => handleTaxChange(index, 'provinceTax', e.target.value)}
                     />
@@ -234,6 +244,7 @@ const Page = () => {
                     <Label value="Federal Tax (%)" />
                     <TextInput
                       type="number"
+                      onWheel={preventScroll}
                       value={tax.federalTax}
                       onChange={(e) => handleTaxChange(index, 'federalTax', e.target.value)}
                     />

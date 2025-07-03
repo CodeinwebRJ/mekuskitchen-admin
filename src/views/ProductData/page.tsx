@@ -48,7 +48,7 @@ const Page = () => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-blue-700">Products</h1>
+      <h1 className="text-2xl font-bold mb-6 text-primary">Products</h1>
       <form className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
         <div className="w-full lg:w-1/3">
           <TextInput

@@ -7,9 +7,10 @@ import { useLocation } from 'react-router';
 interface BasicInfoProps {
   product: any;
   setProduct: any;
+  errors: any;
 }
 
-const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
+const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) => {
   const category = useSelector((state: any) => state.category.categoryList);
   const [subCategory, setSubCategory] = useState<any[]>([]);
   const [subsubCategory, setSubSubCategory] = useState<any[]>([]);
@@ -103,16 +104,25 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     [],
   );
 
+  interface PreventScrollEvent extends React.WheelEvent<HTMLInputElement> {
+    target: HTMLInputElement;
+  }
+
+  const preventScroll = (e: PreventScrollEvent) => {
+    e.target.blur();
+    e.preventDefault();
+  };
+
   return (
     <div>
-      <h3 className="text-2xl font-bold text-blue-700 mb-6">Product Information</h3>
-
+      <h3 className="text-2xl font-bold text-primary mb-6">Product Information</h3>
       <form className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
           <div>
             <Label value="Upload Product Images" className="text-sm font-medium text-gray-700" />
-            <div className="bg-gray-50 mt-2">
+            <div>
               <TableFileUploader images={product.images} setProduct={setProduct} />
+              {errors.images && <span className="text-red-500">{errors.images}</span>}
             </div>
           </div>
 
@@ -132,6 +142,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 className="w-full"
                 color={product.name ? 'success' : 'gray'}
               />
+              {errors.name && <span className="text-red-500">{errors.name}</span>}
             </div>
 
             <div>
@@ -150,6 +161,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   </option>
                 ))}
               </Select>
+              {errors.category && <span className="text-red-500">{errors.category}</span>}
             </div>
           </div>
         </div>
@@ -170,6 +182,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 </option>
               ))}
             </Select>
+            {errors.subCategory && <span className="text-red-500">{errors.subCategory}</span>}
           </div>
           <div>
             <Label
@@ -189,6 +202,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 </option>
               ))}
             </Select>
+            {errors.subsubCategory && <span className="text-red-500">{errors.subsubCategory}</span>}
           </div>
 
           <div>
@@ -202,18 +216,21 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               <option value="">Select Currency</option>
               <option value="CAD">$ - CAD</option>
             </Select>
+            {errors.currency && <span className="text-red-500">{errors.currency}</span>}
           </div>
           <div>
             <Label value="Price*" className="block text-sm font-medium text-gray-700 mb-1" />
             <TextInput
               id="price"
               type="number"
+              onWheel={preventScroll}
               value={product.price}
               onChange={handleInputChange}
               required
               placeholder="Enter price"
               className="w-full"
             />
+            {errors.price && <span className="text-red-500">{errors.price}</span>}
           </div>
 
           <div>
@@ -225,11 +242,13 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               id="sellingPrice"
               type="number"
               value={product.sellingPrice}
+              onWheel={preventScroll}
               onChange={handleInputChange}
               required
               placeholder="Enter selling price"
               className="w-full"
             />
+            {errors.sellingPrice && <span className="text-red-500">{errors.sellingPrice}</span>}
           </div>
 
           <div>
@@ -237,6 +256,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             <TextInput
               id="discount"
               type="number"
+              onWheel={preventScroll}
               value={product.discount || '0'}
               readOnly
               className="w-full bg-gray-100 cursor-not-allowed"
@@ -254,6 +274,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               placeholder="Enter SKU Name"
               className="w-full"
             />
+            {errors.SKUName && <span className="text-red-500">{errors.SKUName}</span>}
           </div>
 
           <div>
@@ -264,6 +285,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             <TextInput
               id="stock"
               type="number"
+              onWheel={preventScroll}
               value={product.stock}
               onChange={handleInputChange}
               required
@@ -305,6 +327,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                     </option>
                   ))}
                 </Select>
+                {errors.weightUnit && <span className="text-red-500">{errors.weightUnit}</span>}
               </div>
               <div>
                 <Label value="Weight*" />
@@ -315,10 +338,12 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={product.weight}
                   onChange={handleInputChange}
                   required
+                  onWheel={preventScroll}
                   placeholder="Enter weight"
                   className="w-full"
                   aria-required="true"
                 />
+                {errors.weight && <span className="text-red-500">{errors.weight}</span>}
               </div>
               <div>
                 <Label value="Dimension Unit" />
@@ -348,6 +373,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={product.dimensions.length}
                   onChange={handleInputChange}
                   required
+                  onWheel={preventScroll}
                   placeholder="Enter length"
                   className="w-full"
                   aria-required="true"
@@ -362,6 +388,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={product.dimensions.width}
                   onChange={handleInputChange}
                   required
+                  onWheel={preventScroll}
                   placeholder="Enter width"
                   className="w-full"
                   aria-required="true"
@@ -376,6 +403,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={product.dimensions.height}
                   onChange={handleInputChange}
                   required
+                  onWheel={preventScroll}
                   placeholder="Enter height"
                   className="w-full"
                   aria-required="true"
@@ -390,7 +418,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             <Checkbox id="isTaxFree" checked={product.isTaxFree} onChange={handleInputChange} />
           </div>
 
-          <Label value={'Tax Free'} />
+          <Label value={'Is Tax Free'} />
         </div>
 
         <div>
@@ -404,7 +432,6 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             rows={2}
             onChange={handleInputChange}
             placeholder="Short Description"
-            required
           />
         </div>
 
@@ -416,7 +443,6 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             rows={4}
             onChange={handleInputChange}
             placeholder="Description"
-            required
           />
         </div>
       </form>

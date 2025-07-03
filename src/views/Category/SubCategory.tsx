@@ -23,16 +23,6 @@ interface SubCategoryType {
   isActive: boolean;
 }
 
-// Define constants
-const ERROR_MESSAGES = {
-  CREATE: 'Failed to create subcategory. Please try again.',
-  UPDATE: 'Failed to update subcategory. Please try again.',
-  DELETE: 'Failed to delete subcategory. Please try again.',
-  DUPLICATE: 'Subcategory name already exists in this category.',
-  INVALID: 'Subcategory name must be at least 3 characters long.',
-  NO_CATEGORY: 'Please select a category.',
-};
-
 const SubCategory = () => {
   const dispatch = useDispatch();
   const categoryList = useSelector((state: RootState) => state.category.categoryList);
@@ -42,20 +32,21 @@ const SubCategory = () => {
   const [editSubCategoryId, setEditSubCategoryId] = useState<string | null>(null);
   const [editSubCategoryName, setEditSubCategoryName] = useState('');
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ create?: string; edit?: string; delete?: string }>({});
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }));
   };
 
-  const validateSubCategoryName = (name: string, categoryId: string): string | null => {
-    if (name.trim().length < 3) return ERROR_MESSAGES.INVALID;
+  const validateSubCategory = (name: string, categoryId: string): string | null => {
+    if (!categoryId) return 'Please select a category.';
+    if (!name || name.trim().length < 3)
+      return 'Subcategory name must be at least 3 characters long.';
     const category = categoryList.find((cat) => cat._id === categoryId);
-    if (
-      category?.subCategories.some((sub) => sub.name.toLowerCase() === name.trim().toLowerCase())
-    ) {
-      return ERROR_MESSAGES.DUPLICATE;
-    }
+    const duplicate = category?.subCategories.some(
+      (sub) => sub.name.toLowerCase() === name.trim().toLowerCase(),
+    );
+    if (duplicate) return 'Subcategory name already exists in this category.';
     return null;
   };
 
@@ -63,18 +54,16 @@ const SubCategory = () => {
     async (e: FormEvent) => {
       e.preventDefault();
       const trimmedName = subCategoryName.trim();
-      if (!selectedCategory) {
-        setError(ERROR_MESSAGES.NO_CATEGORY);
-        return;
-      }
-      const validationError = validateSubCategoryName(trimmedName, selectedCategory);
+
+      const validationError = validateSubCategory(trimmedName, selectedCategory);
       if (validationError) {
-        setError(validationError);
+        setError((prev) => ({ ...prev, create: validationError }));
         return;
       }
 
       setLoading('create', true);
-      setError(null);
+      setError({}); // reset all
+
       try {
         const data = { name: trimmedName, categoryId: selectedCategory };
         const res = await CreateSubCategory(data);
@@ -89,11 +78,15 @@ const SubCategory = () => {
             ),
           ),
         );
+
         setSubCategoryName('');
         setShowForm(false);
       } catch (error: any) {
         console.error('Failed to create subcategory:', error);
-        setError(error.response?.status === 409 ? ERROR_MESSAGES.DUPLICATE : ERROR_MESSAGES.CREATE);
+        setError((prev) => ({
+          ...prev,
+          create: 'Failed to create subcategory. Please try again.',
+        }));
       } finally {
         setLoading('create', false);
       }
@@ -104,7 +97,6 @@ const SubCategory = () => {
   const handleToggle = useCallback(
     async (catId: string, subCategory: SubCategoryType) => {
       setLoading(`toggle-${subCategory._id}`, true);
-      setError(null);
       try {
         const data = {
           categoryId: catId,
@@ -132,7 +124,10 @@ const SubCategory = () => {
         );
       } catch (error: any) {
         console.error('Failed to toggle subcategory:', error);
-        setError(ERROR_MESSAGES.UPDATE);
+        setError((prev) => ({
+          ...prev,
+          edit: 'Failed to toggle subcategory. Please try again.',
+        }));
       } finally {
         setLoading(`toggle-${subCategory._id}`, false);
       }
@@ -143,7 +138,6 @@ const SubCategory = () => {
   const handleEditStart = useCallback((subCatId: string, name: string) => {
     setEditSubCategoryId(subCatId);
     setEditSubCategoryName(name);
-    setError(null);
   }, []);
 
   const handleEditSubmit = useCallback(
@@ -154,15 +148,16 @@ const SubCategory = () => {
         setEditSubCategoryId(null);
         return;
       }
+      setError((prev) => ({ ...prev, edit: undefined }));
 
-      const validationError = validateSubCategoryName(trimmedName, catId);
+      const validationError = validateSubCategory(trimmedName, catId);
       if (validationError) {
-        setError(validationError);
+        setError((prev) => ({ ...prev, edit: validationError }));
         return;
       }
 
       setLoading(`edit-${subCategory._id}`, true);
-      setError(null);
+
       try {
         const data = {
           categoryId: catId,
@@ -180,7 +175,11 @@ const SubCategory = () => {
                     ...cat,
                     subCategories: cat.subCategories.map((sub) =>
                       sub._id === subCategory._id
-                        ? { ...sub, name: res.data.data.name, isActive: res.data.data.isActive }
+                        ? {
+                            ...sub,
+                            name: res.data.data.name,
+                            isActive: res.data.data.isActive,
+                          }
                         : sub,
                     ),
                   }
@@ -188,11 +187,15 @@ const SubCategory = () => {
             ),
           ),
         );
+
         setEditSubCategoryId(null);
         setEditSubCategoryName('');
       } catch (error: any) {
         console.error('Failed to update subcategory:', error);
-        setError(error.response?.status === 409 ? ERROR_MESSAGES.DUPLICATE : ERROR_MESSAGES.UPDATE);
+        setError((prev) => ({
+          ...prev,
+          edit: 'Failed to update subcategory. Please try again.',
+        }));
       } finally {
         setLoading(`edit-${subCategory._id}`, false);
       }
@@ -203,13 +206,11 @@ const SubCategory = () => {
   const handleEditCancel = useCallback(() => {
     setEditSubCategoryId(null);
     setEditSubCategoryName('');
-    setError(null);
   }, []);
 
   const handleDelete = useCallback(
     async (catId: string, subCategory: SubCategoryType) => {
       setLoading(`delete-${subCategory._id}`, true);
-      setError(null);
       try {
         await DeleteSubCategory({ categoryId: catId, subCategoryId: subCategory._id });
         dispatch(
@@ -226,7 +227,10 @@ const SubCategory = () => {
         );
       } catch (error: any) {
         console.error('Failed to delete subcategory:', error);
-        setError(ERROR_MESSAGES.DELETE);
+        setError((prev) => ({
+          ...prev,
+          delete: 'Failed to delete subcategory. Please try again.',
+        }));
       } finally {
         setLoading(`delete-${subCategory._id}`, false);
       }
@@ -257,7 +261,7 @@ const SubCategory = () => {
                 disabled={loadingStates[`edit-${sub._id}`]}
                 aria-label={`Edit name for ${sub.name}`}
               />
-              <Button color="blue" type="submit" size="sm">
+              <Button color="primary" type="submit" size="sm">
                 {loadingStates[`edit-${sub._id}`] ? 'Saving...' : 'Save'}
               </Button>
               <Button
@@ -275,14 +279,14 @@ const SubCategory = () => {
               <div className="flex items-center gap-4">
                 <div
                   onClick={() => handleEditStart(sub._id, sub.name)}
-                  color="blue"
+                  color="primary"
                   aria-label={`Edit ${sub.name}`}
                 >
                   <MdModeEdit className="text-black cursor-pointer" size={18} />
                 </div>
                 <div
                   onClick={() => handleDelete(selectedCategory, sub)}
-                  color="blue"
+                  color="primary"
                   aria-label={`Delete ${sub.name}`}
                 >
                   <MdDelete className="text-red-600 cursor-pointer" size={18} />
@@ -327,28 +331,27 @@ const SubCategory = () => {
               {showForm ? 'Cancel' : 'Create New SubCategory'}
             </Button>
           </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>
-          )}
-
-          <div className="mb-4">
-            <Select
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              value={selectedCategory}
-              className="w-full sm:w-1/2"
-              disabled={loadingStates.create || categoryList.length === 0}
-              aria-label="Select category"
-            >
-              <option value="">Select Category</option>
-              {categoryList.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
-                </option>
-              ))}
-            </Select>
-          </div>
         </div>
+
+        <div className="mb-4">
+          <Select
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            value={selectedCategory}
+            className="w-full sm:w-1/2"
+            disabled={loadingStates.create || categoryList.length === 0}
+            aria-label="Select category"
+          >
+            <option value="">Select Category</option>
+            {categoryList.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        {error.edit && <p className="text-red-500">{error.edit}</p>}
+        {error.delete && <p className="text-red-500">{error.delete}</p>}
 
         {showForm && (
           <form
@@ -356,14 +359,16 @@ const SubCategory = () => {
             className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6"
           >
             <h3 className="text-base sm:text-lg font-semibold text-gray-600">Create SubCategory</h3>
-            <TextInput
-              value={subCategoryName}
-              onChange={(e) => setSubCategoryName(e.target.value)}
-              placeholder="Enter subcategory name"
-              required
-              disabled={loadingStates.create}
-              aria-label="Subcategory name"
-            />
+            <div>
+              <TextInput
+                value={subCategoryName}
+                onChange={(e) => setSubCategoryName(e.target.value)}
+                placeholder="Enter subcategory name"
+                disabled={loadingStates.create}
+                aria-label="Subcategory name"
+              />
+              {error.create && <p className="text-red-500">{error.create}</p>}
+            </div>
             <Button
               color="primary"
               type="submit"
