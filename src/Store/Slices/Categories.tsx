@@ -28,7 +28,6 @@ interface CategoryState {
   error: string | null;
 }
 
-// Initial state
 const initialState: CategoryState = {
   categoryList: [],
   loading: false,
@@ -42,7 +41,7 @@ const categorySlice = createSlice({
     setCategoryList(state, action: PayloadAction<CategoryType[]>) {
       state.categoryList = action.payload;
     },
-    setLoading(state, action: PayloadAction<boolean>) {
+    setCategoryLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
     setError(state, action: PayloadAction<string | null>) {
@@ -54,6 +53,6 @@ const categorySlice = createSlice({
   },
 });
 
-export const { setCategoryList, setLoading, setError, clearError } = categorySlice.actions;
+export const { setCategoryList, setCategoryLoading, setError, clearError } = categorySlice.actions;
 
 export default categorySlice.reducer;

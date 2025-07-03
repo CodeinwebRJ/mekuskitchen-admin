@@ -69,7 +69,6 @@ const Page = () => {
       {loading ? (
         <div className="flex justify-center items-center py-10">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-700"></div>
-          <span className="ml-4 text-gray-700">Loading products...</span>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -134,16 +133,15 @@ const Page = () => {
               )}
             </tbody>
           </table>
-
-          {products?.pages > 1 && (
-            <div className="mt-6">
-              <Pagination
-                currentPage={products?.page || 1}
-                totalPages={products.pages || 1}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          )}
+        </div>
+      )}
+      {products?.pages > 1 && (
+        <div className="mt-6">
+          <Pagination
+            currentPage={products?.page || 1}
+            totalPages={products.pages || 1}
+            onPageChange={handlePageChange}
+          />
         </div>
       )}
     </div>

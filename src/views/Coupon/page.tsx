@@ -3,6 +3,7 @@ import { useState, FC, useEffect, useCallback } from 'react';
 import CreateCoupons from './CreateCoupon';
 import { DeleteCoupons, EditCoupons, GetAllCoupons } from 'src/AxiosConfig/AxiosConfig';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
+import { format } from 'date-fns';
 
 interface CouponFormData {
   _id?: string;
@@ -84,8 +85,11 @@ const Page: FC = () => {
   };
 
   const handleEdit = (coupon: CouponFormData) => {
-    console.log(coupon);
-    setFormData({ ...coupon });
+    setFormData({
+      ...coupon,
+      startAt: coupon.startAt ? format(new Date(coupon.startAt), 'yyyy-MM-dd') : '',
+      expiresAt: coupon.expiresAt ? format(new Date(coupon.expiresAt), 'yyyy-MM-dd') : '',
+    });
     setIsEdit(true);
     setShowForm(true);
   };
@@ -155,7 +159,9 @@ const Page: FC = () => {
       ) : (
         <div className="divide-y">
           {loading ? (
-            <div>Loading...</div>
+            <div className="flex justify-center items-center py-10">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-700"></div>
+            </div>
           ) : (
             <div className="bg-white shadow-md rounded-md overflow-x-auto">
               <table className="min-w-full text-sm text-left text-gray-700">
@@ -164,6 +170,8 @@ const Page: FC = () => {
                     <th className="px-4 py-3">Index</th>
                     <th className="px-4 py-3">Image</th>
                     <th className="px-4 py-3">Code</th>
+                    <th className="px-4 py-3">Start Date</th>
+                    <th className="px-4 py-3">End Date</th>
                     <th className="px-4 py-3">Discount</th>
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Actions</th>
@@ -188,6 +196,15 @@ const Page: FC = () => {
                         )}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">{coupon.code}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {coupon.startAt ? format(new Date(coupon.startAt), 'dd/MM/yyyy') : 'N/A'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {' '}
+                        {coupon.expiresAt
+                          ? format(new Date(coupon.expiresAt), 'dd/MM/yyyy')
+                          : 'N/A'}
+                      </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {coupon.discountValue} {coupon.discountType === 'percentage' ? '%' : '$'}
                       </td>

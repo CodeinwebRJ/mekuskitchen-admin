@@ -12,6 +12,7 @@ const AuthLogin = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [formErrors, setFormErrors] = useState<{ uniqueId?: string; password?: string }>({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -26,9 +27,19 @@ const AuthLogin = () => {
     }
   }, []);
 
+  const validateForm = () => {
+    const errors: { uniqueId?: string; password?: string } = {};
+    if (!uniqueId.trim()) errors.uniqueId = 'Unique ID is required';
+    if (!password.trim()) errors.password = 'Password is required';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMsg('');
+
+    if (!validateForm()) return;
 
     try {
       const response = await Login({ uniqueId, password });
@@ -54,11 +65,12 @@ const AuthLogin = () => {
           id="uniqueId"
           type="text"
           sizing="md"
-          required
           value={uniqueId}
           onChange={(e) => setUniqueId(e.target.value)}
         />
+        {formErrors.uniqueId && <p className="text-red-600">{formErrors.uniqueId}</p>}
       </div>
+
       <div className="mb-4">
         <div className="mb-2 block">
           <Label value="Password" />
@@ -68,7 +80,6 @@ const AuthLogin = () => {
             id="userpwd"
             type={showPassword ? 'text' : 'password'}
             sizing="md"
-            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -78,13 +89,15 @@ const AuthLogin = () => {
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <HiEyeOff className="h-5 w-5 text-gray-500" />
-            ) : (
               <HiEye className="h-5 w-5 text-gray-500" />
+            ) : (
+              <HiEyeOff className="h-5 w-5 text-gray-500" />
             )}
           </button>
         </div>
+        {formErrors.password && <p className="text-red-600">{formErrors.password}</p>}
       </div>
+
       <div className="flex justify-between my-5">
         <div className="flex items-center gap-2">
           <Checkbox
@@ -101,7 +114,8 @@ const AuthLogin = () => {
           Forgot Password?
         </Link>
       </div>
-      {errorMsg && <p className="text-red-600 text-sm mb-3">{errorMsg}</p>}
+      {errorMsg && <p className="text-red-600 mb-5">{errorMsg}</p>}
+
       <Button type="submit" className="w-full bg-primary text-white rounded-xl">
         Sign in
       </Button>

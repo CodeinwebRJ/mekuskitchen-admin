@@ -5,11 +5,8 @@ import router from './routes/Router';
 import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from './Store/Store';
-
-import { setCategoryList, setError, setLoading } from './Store/Slices/Categories';
-
-import { setProducts } from './Store/Slices/ProductData';
-
+import { setCategoryList, setCategoryLoading, setError } from './Store/Slices/Categories';
+import { setLoading, setProducts } from './Store/Slices/ProductData';
 import { getAllProduct, getCategory } from './AxiosConfig/AxiosConfig';
 
 function App() {
@@ -19,6 +16,7 @@ function App() {
   const fetchCategories = useCallback(async () => {
     try {
       dispatch(setError(null));
+      dispatch(setCategoryLoading(true));
       const res = await getCategory();
       if (res?.data?.data) {
         dispatch(setCategoryList(res.data.data));
@@ -28,6 +26,8 @@ function App() {
     } catch (error) {
       console.error('Error fetching categories:', error);
       dispatch(setError('Failed to fetch categories. Please try again.'));
+    } finally {
+      dispatch(setCategoryLoading(false));
     }
   }, [dispatch]);
 
