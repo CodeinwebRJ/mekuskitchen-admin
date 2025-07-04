@@ -1,6 +1,9 @@
+import { TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { getAllQuarys } from 'src/AxiosConfig/AxiosConfig';
 import Loading from 'src/components/Loading';
+import NoDataFound from 'src/components/NoDataFound';
+import useDebounce from 'src/Hook/useDebounce';
 
 interface Quarries {
   name: string;
@@ -12,11 +15,14 @@ interface Quarries {
 const ContactPage = () => {
   const [data, setData] = useState<Quarries[]>([]);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const searchData = useDebounce(search, 500);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await getAllQuarys();
+      const response = await getAllQuarys({ search });
       setData(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -27,11 +33,21 @@ const ContactPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [searchData]);
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-blue-700 mb-6">Quarries</h1>
+      <div className="mb-3">
+        <h1 className="text-2xl font-bold text-primary mb-3">Quarries</h1>
+        <div>
+          <TextInput
+            placeholder="Search"
+            className="w-1/3"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
 
       <div className="overflow-x-auto bg-white shadow-md rounded-md">
         <table className="min-w-full text-sm text-left text-gray-700">
@@ -48,6 +64,12 @@ const ContactPage = () => {
               <tr>
                 <td colSpan={6} className="text-center py-6">
                   <Loading />
+                </td>
+              </tr>
+            ) : data.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="text-center py-6">
+                  <NoDataFound />
                 </td>
               </tr>
             ) : (

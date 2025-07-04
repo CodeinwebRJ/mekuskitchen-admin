@@ -6,6 +6,8 @@ import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosConfig';
 import Loading from 'src/components/Loading';
+import NoDataFound from 'src/components/NoDataFound';
+import useDebounce from 'src/Hook/useDebounce';
 import { RootState } from 'src/Store/Store';
 
 interface TaxEntry {
@@ -50,6 +52,10 @@ const Page = () => {
   const [provinceCode, setProvinceCode] = useState('');
   const [provinceName, setProvinceName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState({
+    search: '',
+    category: '',
+  });
   const [taxes, setTaxes] = useState<TaxEntry[]>([
     { category: '', provinceTax: '', federalTax: '' },
   ]);
@@ -58,17 +64,23 @@ const Page = () => {
 
   const categoryList = useSelector((state: RootState) => state.category.categoryList);
 
+  const filterData = useDebounce(filter, 500);
+
   const fetchTax = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await getallTax({ provinceCode: '', category: '' });
+      const data = {
+        search: filter.search,
+        category: filter.category,
+      };
+      const response = await getallTax(data);
       setTaxConfigs(response.data.data);
     } catch (error) {
       console.error('Fetch Tax Error:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [filterData]);
 
   useEffect(() => {
     fetchTax();
@@ -167,13 +179,22 @@ const Page = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 px-4">
+    <div className="flex flex-col items-center gap-6">
       <div className="w-full">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-          <h2 className="text-xl font-semibold text-primary">Tax</h2>
-          <Button size="sm" color="primary" onClick={() => setShowForm((prev) => !prev)}>
-            {showForm ? 'Cancel' : 'Create Tax'}
-          </Button>
+        <div className="mb-3">
+          <h2 className="text-xl font-semibold text-primary mb-3">Tax</h2>
+
+          <div className="flex justify-between items-center">
+            <TextInput
+              placeholder="Search"
+              className="w-1/3"
+              value={filter.search}
+              onChange={(e) => setFilter({ ...filter, search: e.target.value })}
+            />
+            <Button size="sm" color="primary" onClick={() => setShowForm((prev) => !prev)}>
+              {showForm ? 'Cancel' : 'Create Tax'}
+            </Button>
+          </div>
         </div>
 
         {showForm ? (
@@ -288,7 +309,9 @@ const Page = () => {
             {loading ? (
               <Loading />
             ) : taxConfigs.length === 0 ? (
-              <p className="text-gray-500">No tax configurations found.</p>
+              <div className='bg-white rounded-md'>
+                <NoDataFound />
+              </div>
             ) : (
               <ul className="bg-white shadow-md rounded-md divide-y">
                 {taxConfigs.map((config) => (

@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, FormEvent } from 'react';
 import { Button, Select, TextInput, ToggleSwitch } from 'flowbite-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCategoryList } from 'src/Store/Slices/Categories';
+import { setCategoryList, setSearchProductCategory } from 'src/Store/Slices/Categories';
 import { RootState } from 'src/Store/Store';
 import {
   CreateSubSubCategory,
@@ -9,6 +9,7 @@ import {
   DeleteSubSubCategory,
 } from 'src/AxiosConfig/AxiosConfig';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
+import NoDataFound from 'src/components/NoDataFound';
 
 // Define constants
 const ERROR_MESSAGES = {
@@ -16,14 +17,14 @@ const ERROR_MESSAGES = {
   UPDATE: 'Failed to update product category. Please try again.',
   DELETE: 'Failed to delete product category. Please try again.',
   DUPLICATE: 'Product category name already exists in this subcategory.',
-  INVALID: 'Product category name must be at least 3 characters long.',
+  INVALID: 'This field can not be empty.',
   NO_CATEGORY: 'Please select a category.',
   NO_SUBCATEGORY: 'Please select a subcategory.',
 };
 
 const ProductCategory = () => {
   const dispatch = useDispatch();
-  const categoryList = useSelector((state: RootState) => state.category.categoryList);
+  const { categoryList, productCategorySearch } = useSelector((state: RootState) => state.category);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [subSubCategoryName, setSubSubCategoryName] = useState('');
@@ -96,8 +97,6 @@ const ProductCategory = () => {
           subCategoryId: selectedSubCategory,
         };
         const res = await CreateSubSubCategory(data);
-        if (!res.data?.data) throw new Error('Invalid response format');
-
         dispatch(
           setCategoryList(
             categoryList.map((cat) =>
@@ -164,8 +163,6 @@ const ProductCategory = () => {
           name: trimmedName,
         };
         const res = await UpdateSubSubCategory(data);
-        if (!res.data?.data) throw new Error('Invalid response format');
-
         dispatch(
           setCategoryList(
             categoryList.map((cat) =>
@@ -219,8 +216,6 @@ const ProductCategory = () => {
           isActive: !subSubCategory.isActive,
         };
         const res = await UpdateSubSubCategory(data);
-        if (!res.data?.data) throw new Error('Invalid response format');
-
         dispatch(
           setCategoryList(
             categoryList.map((cat) =>
@@ -315,15 +310,17 @@ const ProductCategory = () => {
               onSubmit={(e) => handleEditSubmit(e, selectedCategory, selectedSubCategory, ssub)}
               className="flex items-center gap-2 w-full"
             >
-              <TextInput
-                value={editSubSubCategoryName}
-                onChange={(e) => setEditSubSubCategoryName(e.target.value)}
-                placeholder="Edit product category name"
-                required
-                className="flex-1"
-                disabled={loadingStates[`edit-${ssub._id}`]}
-                aria-label={`Edit name for ${ssub.name}`}
-              />
+              <div className="flex-1">
+                <TextInput
+                  value={editSubSubCategoryName}
+                  onChange={(e) => setEditSubSubCategoryName(e.target.value)}
+                  placeholder="Edit product category name"
+                  className="flex-1"
+                  disabled={loadingStates[`edit-${ssub._id}`]}
+                  aria-label={`Edit name for ${ssub.name}`}
+                />
+                {error.edit && <div className="text-red-600">{error.edit}</div>}
+              </div>
               <Button type="submit" size="sm" color="primary">
                 {loadingStates[`edit-${ssub._id}`] ? 'Saving...' : 'Save'}
               </Button>
@@ -377,6 +374,7 @@ const ProductCategory = () => {
       handleDelete,
       handleEditCancel,
       loadingStates,
+      error.edit,
     ],
   );
 
@@ -396,11 +394,15 @@ const ProductCategory = () => {
               {showForm ? 'Cancel' : 'Create New Product Category'}
             </Button>
           </div>
-
-          {error.edit && <div className="text-red-600">{error.edit}</div>}
           {error.delete && <div className="text-red-600">{error.delete}</div>}
 
           <div className="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <TextInput
+              placeholder="Search"
+              className="w-1/3"
+              value={productCategorySearch}
+              onChange={(e) => dispatch(setSearchProductCategory(e.target.value))}
+            />
             <Select
               value={selectedCategory}
               onChange={(e) => {
@@ -409,7 +411,7 @@ const ProductCategory = () => {
                 setEditSubSubCategoryId(null);
                 setShowForm(false);
               }}
-              className="w-full sm:w-1/2"
+              className="w-full sm:w-1/3"
               disabled={loadingStates.create || categoryList.length === 0}
               aria-label="Select category"
             >
@@ -428,7 +430,7 @@ const ProductCategory = () => {
                 setEditSubSubCategoryId(null);
                 setShowForm(false);
               }}
-              className="w-full sm:w-1/2"
+              className="w-full sm:w-1/3"
               disabled={
                 !selectedCategory || loadingStates.create || filteredSubCategories.length === 0
               }
@@ -481,7 +483,9 @@ const ProductCategory = () => {
         )}
 
         {selectedSubCategory && filteredSubSubCategories.length === 0 && (
-          <p className="text-gray-500 mt-4">No product categories available.</p>
+          <div className="bg-white rounded-md">
+            <NoDataFound />
+          </div>
         )}
       </div>
     </div>

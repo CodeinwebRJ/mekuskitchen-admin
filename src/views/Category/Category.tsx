@@ -4,7 +4,8 @@ import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { CreateCategory, DeleteCategory, UpdateCategory } from 'src/AxiosConfig/AxiosConfig'; // Fixed typo
 import Loading from 'src/components/Loading';
-import { setCategoryList } from 'src/Store/Slices/Categories';
+import NoDataFound from 'src/components/NoDataFound';
+import { setCategoryList, setSearchCategory } from 'src/Store/Slices/Categories';
 import { RootState } from 'src/Store/Store';
 
 interface SubSubCategoryType {
@@ -28,21 +29,23 @@ interface CategoryType {
 }
 
 const Category = () => {
-  const { categoryList, loading } = useSelector((state: RootState) => state.category);
-  const dispatch = useDispatch();
+  const { categoryList, loading, categorySearch } = useSelector(
+    (state: RootState) => state.category,
+  );
   const [categoryInput, setCategoryInput] = useState('');
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
   const [editCategoryName, setEditCategoryName] = useState('');
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<{ create?: string; edit?: string; delete?: string }>({});
+  const dispatch = useDispatch();
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }));
   };
 
   const validateCategory = (name: string): string | null => {
-    if (!name || name.trim() === '') return 'Category name is required';
+    if (!name || name.trim() === '') return 'This field can not be empty.';
     return null;
   };
 
@@ -62,8 +65,6 @@ const Category = () => {
       try {
         const data = { name: trimmedInput };
         const res = await CreateCategory(data);
-        if (!res.data?.data) throw new Error('Invalid response format');
-
         dispatch(setCategoryList([...categoryList, res.data.data]));
         setCategoryInput('');
         setShowCategoryForm(false);
@@ -87,8 +88,6 @@ const Category = () => {
           isActive: !category.isActive,
         };
         const res = await UpdateCategory(data);
-        if (!res.data?.data) throw new Error('Invalid response format');
-
         dispatch(
           setCategoryList(
             categoryList.map((cat) =>
@@ -153,8 +152,6 @@ const Category = () => {
           name: trimmedName,
         };
         const res = await UpdateCategory(data);
-        if (!res.data?.data) throw new Error('Invalid response format');
-
         dispatch(
           setCategoryList(
             categoryList.map((cat) =>
@@ -186,21 +183,26 @@ const Category = () => {
   const categoryListRender = useMemo(
     () =>
       categoryList.map((cat: CategoryType) => (
-        <li key={cat._id} className="flex justify-between items-center p-4">
+        <li key={cat._id} className="flex justify-between p-4">
           {editCategoryId === cat._id ? (
             <form
               onSubmit={(e) => handleEditSubmit(e, cat)}
               className="flex items-center gap-2 w-full"
             >
-              <TextInput
-                value={editCategoryName}
-                onChange={(e) => setEditCategoryName(e.target.value)}
-                placeholder="Edit category name"
-                required
-                className="flex-1"
-                disabled={loadingStates[`edit-${cat._id}`]}
-                aria-label={`Edit name for ${cat.name}`}
-              />
+              <div className="flex flex-col w-full">
+                <TextInput
+                  value={editCategoryName}
+                  onChange={(e) => setEditCategoryName(e.target.value)}
+                  placeholder="Edit category name"
+                  className="flex-1"
+                  disabled={loadingStates[`edit-${cat._id}`]}
+                  aria-label={`Edit name for ${cat.name}`}
+                />
+                {/* ✅ Show error only if it's the current edit */}
+                {editCategoryId === cat._id && error.edit && (
+                  <div className="text-red-500 text-sm mt-1">{error.edit}</div>
+                )}
+              </div>
               <Button
                 color="primary"
                 type="submit"
@@ -212,6 +214,7 @@ const Category = () => {
               <Button
                 color="gray"
                 size="sm"
+                type="button"
                 onClick={handleEditCancel}
                 disabled={loadingStates[`edit-${cat._id}`]}
               >
@@ -224,16 +227,11 @@ const Category = () => {
               <div className="flex items-center gap-4">
                 <div
                   onClick={() => handleEditStart(cat._id, cat.name)}
-                  color="primary"
                   aria-label={`Edit ${cat.name}`}
                 >
                   <MdModeEdit className="text-black cursor-pointer" size={18} />
                 </div>
-                <div
-                  color="primary"
-                  onClick={() => handleDelete(cat)}
-                  aria-label={`Delete ${cat.name}`}
-                >
+                <div onClick={() => handleDelete(cat)} aria-label={`Delete ${cat.name}`}>
                   <MdDelete className="text-red-600 cursor-pointer" size={18} />
                 </div>
                 <ToggleSwitch
@@ -257,27 +255,36 @@ const Category = () => {
       handleEditSubmit,
       handleEditCancel,
       loadingStates,
+      error.edit,
     ],
   );
 
   return (
-    <div className="flex flex-col items-center ">
+    <div className="flex flex-col items-center">
       <div className="w-full">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-700">Main Category</h2>
-          <Button
-            color="primary"
-            size="sm"
-            onClick={() => setShowCategoryForm(!showCategoryForm)}
-            disabled={loadingStates.create}
-            className="w-full sm:w-auto"
-          >
-            {showCategoryForm ? 'Cancel' : 'Create New Category'}
-          </Button>
+        <div className="mb-4 flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-700">Main Category</h2>
+            <Button
+              color="primary"
+              size="sm"
+              onClick={() => setShowCategoryForm(!showCategoryForm)}
+              disabled={loadingStates.create}
+              className="w-full sm:w-auto"
+            >
+              {showCategoryForm ? 'Cancel' : 'Create New Category'}
+            </Button>
+          </div>
+          <div>
+            <TextInput
+              className="w-full sm:w-1/3"
+              placeholder="Search Category"
+              value={categorySearch}
+              onChange={(e) => dispatch(setSearchCategory(e.target.value))}
+            />
+          </div>
         </div>
-
         {error.delete && <div className="text-red-600">{error.delete}</div>}
-        {error.edit && <div className="text-red-600">{error.edit}</div>}
 
         {loading ? (
           <Loading />
@@ -308,7 +315,9 @@ const Category = () => {
             </Button>
           </form>
         ) : categoryList.length === 0 ? (
-          <p className="text-gray-500 text-sm sm:text-base">No categories available.</p>
+          <div className="bg-white rounded-md">
+            <NoDataFound />
+          </div>
         ) : (
           <ul className="bg-white shadow-md rounded-md divide-y">{categoryListRender}</ul>
         )}

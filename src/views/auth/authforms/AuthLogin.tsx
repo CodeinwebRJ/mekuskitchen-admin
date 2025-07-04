@@ -42,7 +42,9 @@ const AuthLogin = () => {
     if (!validateForm()) return;
     try {
       setIsLoading(true);
-      const response = await Login({ uniqueId, password });
+      const trimmedUniqueId = uniqueId.trim();
+      const trimmedPassword = password.trim();
+      const response = await Login({ uniqueId: trimmedUniqueId, password: trimmedPassword });
       const { token, admin } = response.data.data;
       dispatch(login(response.data.data));
       if (rememberMe) {
@@ -52,7 +54,7 @@ const AuthLogin = () => {
       navigate('/');
       setIsLoading(false);
     } catch (error: any) {
-      setErrorMsg(error.response?.data?.errorData || 'Login failed');
+      setErrorMsg('Incorrect userId or password. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -106,8 +108,8 @@ const AuthLogin = () => {
           <Checkbox
             id="accept"
             checked={rememberMe}
+            className="border-gray-500"
             onChange={(e) => setRememberMe(e.target.checked)}
-            className="checkbox"
           />
           <Label htmlFor="accept" className="opacity-90 font-normal cursor-pointer">
             Remember Me

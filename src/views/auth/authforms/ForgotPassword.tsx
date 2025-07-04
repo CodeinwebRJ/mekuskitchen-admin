@@ -247,7 +247,7 @@ const ForgotPassword: React.FC = () => {
                 <Link to="/auth/login">
                   <p className="flex items-center text-primary text-sm mt-5">
                     <IoIosArrowRoundBack className="text-lg mr-1" />
-                    Back To Login
+                    Back To Sign in
                   </p>
                 </Link>
               </div>

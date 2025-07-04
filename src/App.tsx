@@ -8,20 +8,31 @@ import { AppDispatch } from './Store/Store';
 import { setCategoryList, setCategoryLoading, setError } from './Store/Slices/Categories';
 import { setLoading, setProducts } from './Store/Slices/ProductData';
 import { getAllProduct, getCategory } from './AxiosConfig/AxiosConfig';
+import useDebounce from './Hook/useDebounce';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
   const filterData = useSelector((state: any) => state.filterData);
+  const { categorySearch, subCategorySearch, productCategorySearch } = useSelector(
+    (state: any) => state.category,
+  );
+
+  const category = useDebounce(categorySearch, 500);
+  const subCategory = useDebounce(categorySearch, 500);
+  const productCategory = useDebounce(categorySearch, 500);
 
   const fetchCategories = useCallback(async () => {
     try {
       dispatch(setError(null));
       dispatch(setCategoryLoading(true));
-      const res = await getCategory();
+      const data = {
+        categorySearch: categorySearch,
+        subCategorySearch: subCategorySearch,
+        productCategorySearch: productCategorySearch,
+      };
+      const res = await getCategory(data);
       if (res?.data?.data) {
         dispatch(setCategoryList(res.data.data));
-      } else {
-        throw new Error('Invalid response format');
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -29,13 +40,14 @@ function App() {
     } finally {
       dispatch(setCategoryLoading(false));
     }
-  }, [dispatch]);
+  }, [dispatch, category, subCategory, productCategory]);
+
+  const filterDatas = useDebounce(filterData, 500);
 
   const fetchProducts = useCallback(async () => {
     try {
       dispatch(setError(null));
       dispatch(setLoading(true));
-
       const data = {
         page: filterData.page,
         limit: filterData.limit,
@@ -49,7 +61,6 @@ function App() {
         attributes: filterData.attributes,
         isActive: filterData.isActive,
       };
-
       const res = await getAllProduct(data);
       dispatch(setProducts(res?.data?.data));
     } catch (error) {
@@ -58,7 +69,7 @@ function App() {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch, filterData]);
+  }, [dispatch, filterDatas]);
 
   useEffect(() => {
     fetchCategories();

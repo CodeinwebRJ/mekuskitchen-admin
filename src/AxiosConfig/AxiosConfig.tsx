@@ -18,12 +18,11 @@ export const Login = async (data: any) => {
   return axiosInstance.post(`/api/v1/admin/login`, data);
 };
 
-export const getCategory = async () => {
-  return axiosInstance.get('/api/v1/categories/get/category');
-};
-
-export const getSubCategory = async () => {
-  return axiosInstance.get('/api/v1/categories/get/subCategory');
+export const getCategory = async (data: any) => {
+  const { categorySearch, subCategorySearch, productCategorySearch } = data;
+  return axiosInstance.get(
+    `/api/v1/categories/get/category?categorySearch=${categorySearch}&subCategorySearch=${subCategorySearch}&productCategorySearch=${productCategorySearch}`,
+  );
 };
 
 export const CreateCategory = async (data: CategoryData) => {
@@ -43,13 +42,10 @@ export const CreateProduct = async (data: any) => {
 };
 
 export const UploadImage = async (files: any) => {
-  console.log(files);
   const formData = new FormData();
   files?.forEach((file: any) => {
     formData.append('images', file);
   });
-
-  console.log(formData);
   return axiosInstance.post('/api/v1/C/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -81,9 +77,9 @@ export const DeleteSubSubCategory = async (data: any) => {
   return axiosInstance.delete('/api/v1/categories/delete/subsubcategory', { data });
 };
 
-export const GetAllCoupons = async (data: any) => {
-  const { page, limit } = data;
-  return axiosInstance.get(`/api/v1/coupon/admin?page=${page}&limit=${limit}`);
+export const getAllCoupons = async (data: any) => {
+  const { page, limit, code } = data;
+  return axiosInstance.get(`/api/v1/coupon/admin?code=${code}&page=${page}&limit=${limit}`);
 };
 
 export const CreateCoupon = async (data: any) => {
@@ -99,9 +95,7 @@ export const EditCoupons = async (data: any) => {
 };
 
 export const getallTax = async (data?: any) => {
-  return axiosInstance.get(
-    `/api/v1/tax/get?provinceCode=${data?.provinceCode}&category=${data?.category}`,
-  );
+  return axiosInstance.get(`/api/v1/tax/get?search=${data?.search}&category=${data?.category}`);
 };
 
 export const getAllProduct = async (data: any) => {
@@ -120,8 +114,18 @@ export const DeleteTax = async (data: any) => {
   return axiosInstance.delete(`/api/v1/tax/delete?provinceCode=${data}`);
 };
 
-export const getAllOrders = async () => {
-  return axiosInstance.get(`/api/v1/order/admin/orders`);
+export const getAllOrders = async (data: any) => {
+  const { search, startDate, endDate, dateRange, specificDate, orderStatus, orderId } = data;
+  const params = new URLSearchParams();
+  if (search) params.append('orderId', search);
+  if (startDate) params.append('startDate', startDate);
+  if (endDate) params.append('endDate', endDate);
+  if (dateRange) params.append('dateRange', dateRange);
+  if (specificDate) params.append('specificDate', specificDate);
+  if (orderStatus) params.append('orderStatus', orderStatus);
+  if (orderId) params.append('orderId', orderId);
+
+  return axiosInstance.get(`/api/v1/order/admin/orders?${params.toString()}`);
 };
 
 export const SendOtp = async (data: any) => {
@@ -129,7 +133,7 @@ export const SendOtp = async (data: any) => {
 };
 
 export const ResetPassword = async (data: any) => {
-  return axiosInstance.post("/api/v1/admin/forgot", data);
+  return axiosInstance.post('/api/v1/admin/forgot', data);
 };
 
 export const EditProduct = async (payload: any) => {
@@ -137,6 +141,7 @@ export const EditProduct = async (payload: any) => {
   return axiosInstance.put(`/api/v1/product/category/${id}`, data);
 };
 
-export const getAllQuarys = async () => {
-  return axiosInstance.get('/api/v1/contact/');
+export const getAllQuarys = async (data: any) => {
+  const { search } = data;
+  return axiosInstance.get(`/api/v1/contact?search=${search}`);
 };

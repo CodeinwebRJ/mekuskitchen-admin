@@ -14,10 +14,9 @@ const Page = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 md:px-8">
-      <h2 className="text-lg sm:text-xl font-semibold text-primary mb-4">Categories</h2>
-
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-6">
+    <div>
+      <h2 className="text-lg sm:text-xl font-semibold text-primary mb-3">Categories</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
         <Button
           onClick={() => handleViewChange('category')}
           size="md"
