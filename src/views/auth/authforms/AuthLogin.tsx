@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Checkbox, Label, TextInput } from 'flowbite-react';
+import { Button, Checkbox, Label, Spinner, TextInput } from 'flowbite-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Login } from 'src/AxiosConfig/AxiosConfig';
 import { login } from 'src/Store/Slices/AdminUser';
@@ -12,6 +12,7 @@ const AuthLogin = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formErrors, setFormErrors] = useState<{ uniqueId?: string; password?: string }>({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -38,10 +39,9 @@ const AuthLogin = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMsg('');
-
     if (!validateForm()) return;
-
     try {
+      setIsLoading(true);
       const response = await Login({ uniqueId, password });
       const { token, admin } = response.data.data;
       dispatch(login(response.data.data));
@@ -50,8 +50,11 @@ const AuthLogin = () => {
         localStorage.setItem('admin', JSON.stringify(admin));
       }
       navigate('/');
+      setIsLoading(false);
     } catch (error: any) {
       setErrorMsg(error.response?.data?.errorData || 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -116,8 +119,13 @@ const AuthLogin = () => {
       </div>
       {errorMsg && <p className="text-red-600 mb-5">{errorMsg}</p>}
 
-      <Button type="submit" className="w-full bg-primary text-white rounded-xl">
-        Sign in
+      <Button
+        type="submit"
+        className="w-full bg-primary text-white rounded-xl flex justify-center items-center gap-2"
+        disabled={isLoading}
+      >
+        {isLoading && <Spinner size="sm" light />}
+        {isLoading ? 'Signing...' : 'Sign in'}
       </Button>
     </form>
   );

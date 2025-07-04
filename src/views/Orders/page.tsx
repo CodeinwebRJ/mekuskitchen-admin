@@ -4,6 +4,7 @@ import user1 from '/src/assets/images/profile/user-1.jpg';
 import dayjs from 'dayjs';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import { Button, TextInput } from 'flowbite-react';
+import Loading from 'src/components/Loading';
 
 interface Combination {
   [key: string]: string;
@@ -51,6 +52,7 @@ const Page: React.FC = () => {
   const [data, setData] = useState<OrdersResponse>({ orders: [] });
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const toggleExpand = (orderId: string) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
@@ -58,6 +60,7 @@ const Page: React.FC = () => {
 
   const fetchOrders = async (filters: { startDate?: string; endDate?: string } = {}) => {
     try {
+      setLoading(true);
       const queryParams = new URLSearchParams();
       if (filters.startDate) queryParams.append('startDate', filters.startDate);
       if (filters.endDate) queryParams.append('endDate', filters.endDate);
@@ -68,6 +71,8 @@ const Page: React.FC = () => {
       setData(res.data.data as OrdersResponse);
     } catch (error) {
       console.error('Error fetching orders:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,7 +88,6 @@ const Page: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6 text-blue-700">Orders</h1>
-
       <form
         onSubmit={handleFilterSubmit}
         className="flex flex-col lg:flex-row items-end flex-wrap gap-4 mb-6 justify-between"
@@ -144,121 +148,133 @@ const Page: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {data.orders.map((order) => {
-              const isExpanded = expandedOrderId === order._id;
-              return (
-                <Fragment key={order._id}>
-                  <tr
-                    className="cursor-pointer hover:bg-gray-50 transition"
-                    onClick={() => toggleExpand(order._id)}
-                  >
-                    <td className="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2">
-                      <img
-                        src={user1}
-                        alt={order.user}
-                        className="w-12 h-12 sm:w-14 sm:h-14 rounded object-cover"
-                      />
-                      <span className="text-sm font-medium break-words">{order.user}</span>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">{order.orderId}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {dayjs(order.Orderdate).format('DD MMM YYYY, hh:mm A')}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span
-                        className={`font-semibold ${
-                          order.status === 'Delivered' ? 'text-green-600' : 'text-blue-600'
-                        }`}
-                      >
-                        {order.orderStatus}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">₹{order.grandTotal.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right">
-                      {isExpanded ? <IoIosArrowUp /> : <IoIosArrowDown />}
-                    </td>
-                  </tr>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-6">
+                  <Loading />
+                </td>
+              </tr>
+            ) : (
+              data.orders.map((order) => {
+                const isExpanded = expandedOrderId === order._id;
+                return (
+                  <Fragment key={order._id}>
+                    <tr
+                      className="cursor-pointer hover:bg-gray-50 transition"
+                      onClick={() => toggleExpand(order._id)}
+                    >
+                      <td className="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                        <img
+                          src={user1}
+                          alt={order.user}
+                          className="w-12 h-12 sm:w-14 sm:h-14 rounded object-cover"
+                        />
+                        <span className="text-sm font-medium break-words">{order.user}</span>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">{order.orderId}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {dayjs(order.Orderdate).format('DD MMM YYYY, hh:mm A')}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span
+                          className={`font-semibold ${
+                            order.status === 'Delivered' ? 'text-green-600' : 'text-blue-600'
+                          }`}
+                        >
+                          {order.orderStatus}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        ₹{order.grandTotal.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {isExpanded ? <IoIosArrowUp /> : <IoIosArrowDown />}
+                      </td>
+                    </tr>
 
-                  <tr>
-                    <td colSpan={6} className="p-0 border-0">
-                      <div
-                        style={{
-                          maxHeight: isExpanded ? '1000px' : '0px',
-                          overflow: 'hidden',
-                          transition: 'max-height 0.35s ease',
-                        }}
-                      >
-                        {isExpanded && (
-                          <div className="bg-white px-4 py-3 border border-t-0 border-gray-200 overflow-x-auto">
-                            <table className="min-w-full text-sm text-left text-gray-700">
-                              <thead className="text-blue-800 text-xs uppercase">
-                                <tr>
-                                  <th className="px-3 py-2 whitespace-nowrap">Image</th>
-                                  <th className="px-3 py-2 whitespace-nowrap">Item</th>
-                                  <th className="px-3 py-2 whitespace-nowrap">Color</th>
-                                  <th className="px-3 py-2 whitespace-nowrap">SKU</th>
-                                  <th className="px-3 py-2 whitespace-nowrap">Quantity</th>
-                                  <th className="px-3 py-2 whitespace-nowrap">Price</th>
-                                  <th className="px-3 py-2 whitespace-nowrap">Total Price</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {order.cartItems.map((item, idx) => (
-                                  <tr key={idx} className="hover:bg-gray-50">
-                                    <td className="px-3 py-2 whitespace-nowrap">
-                                      <img
-                                        src={
-                                          item.sku?.images?.[0] ||
-                                          item.productDetails.images[0]?.url ||
-                                          item.productDetails.images[1]?.url ||
-                                          ''
-                                        }
-                                        alt={item.productDetails.name}
-                                        className="w-12 h-12 object-cover"
-                                      />
-                                    </td>
-                                    <td className="px-3 py-2 whitespace-nowrap">
-                                      {item.sku?.skuName || item.productDetails.name}
-                                    </td>
-                                    <td className="px-3 py-2 whitespace-nowrap">
-                                      {item.sku?.color || '-'}
-                                    </td>
-                                    <td className="px-3 py-2 whitespace-nowrap">
-                                      {item.combination ? (
-                                        Object.entries(item.combination).map(
-                                          ([key, value]) =>
-                                            key.toLowerCase() !== 'stock' && (
-                                              <div key={key}>
-                                                <span className="font-medium capitalize">
-                                                  {key}
-                                                </span>
-                                                : {value}
-                                              </div>
-                                            ),
-                                        )
-                                      ) : (
-                                        <div>-</div>
-                                      )}
-                                    </td>
-                                    <td className="px-3 py-2 whitespace-nowrap">{item.quantity}</td>
-                                    <td className="px-3 py-2 whitespace-nowrap">
-                                      ₹{item.price.toFixed(2)}
-                                    </td>
-                                    <td className="px-3 py-2 whitespace-nowrap">
-                                      ₹{(item.quantity * item.price).toFixed(2)}
-                                    </td>
+                    <tr>
+                      <td colSpan={6} className="p-0 border-0">
+                        <div
+                          style={{
+                            maxHeight: isExpanded ? '1000px' : '0px',
+                            overflow: 'hidden',
+                            transition: 'max-height 0.35s ease',
+                          }}
+                        >
+                          {isExpanded && (
+                            <div className="bg-white px-4 py-3 border border-t-0 border-gray-200 overflow-x-auto">
+                              <table className="min-w-full text-sm text-left text-gray-700">
+                                <thead className="text-blue-800 text-xs uppercase">
+                                  <tr>
+                                    <th className="px-3 py-2 whitespace-nowrap">Image</th>
+                                    <th className="px-3 py-2 whitespace-nowrap">Item</th>
+                                    <th className="px-3 py-2 whitespace-nowrap">Color</th>
+                                    <th className="px-3 py-2 whitespace-nowrap">SKU</th>
+                                    <th className="px-3 py-2 whitespace-nowrap">Quantity</th>
+                                    <th className="px-3 py-2 whitespace-nowrap">Price</th>
+                                    <th className="px-3 py-2 whitespace-nowrap">Total Price</th>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                </Fragment>
-              );
-            })}
+                                </thead>
+                                <tbody>
+                                  {order.cartItems.map((item, idx) => (
+                                    <tr key={idx} className="hover:bg-gray-50">
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        <img
+                                          src={
+                                            item.sku?.images?.[0] ||
+                                            item.productDetails.images?.[0]?.url ||
+                                            item.productDetails.images?.[1]?.url ||
+                                            ''
+                                          }
+                                          alt={item.productDetails.name}
+                                          className="w-12 h-12 object-cover"
+                                        />
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        {item.sku?.skuName || item.productDetails.name}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        {item.sku?.color || '-'}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        {item.combination ? (
+                                          Object.entries(item.combination).map(
+                                            ([key, value]) =>
+                                              key.toLowerCase() !== 'stock' && (
+                                                <div key={key}>
+                                                  <span className="font-medium capitalize">
+                                                    {key}
+                                                  </span>
+                                                  : {value}
+                                                </div>
+                                              ),
+                                          )
+                                        ) : (
+                                          <div>-</div>
+                                        )}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        {item.quantity}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        ₹{item.price.toFixed(2)}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        ₹{(item.quantity * item.price).toFixed(2)}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  </Fragment>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

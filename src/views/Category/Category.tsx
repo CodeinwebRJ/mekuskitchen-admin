@@ -3,6 +3,7 @@ import { useState, useCallback, FormEvent, useMemo } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { CreateCategory, DeleteCategory, UpdateCategory } from 'src/AxiosConfig/AxiosConfig'; // Fixed typo
+import Loading from 'src/components/Loading';
 import { setCategoryList } from 'src/Store/Slices/Categories';
 import { RootState } from 'src/Store/Store';
 
@@ -27,7 +28,7 @@ interface CategoryType {
 }
 
 const Category = () => {
-  const categoryList = useSelector((state: RootState) => state.category.categoryList);
+  const { categoryList, loading } = useSelector((state: RootState) => state.category);
   const dispatch = useDispatch();
   const [categoryInput, setCategoryInput] = useState('');
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -278,7 +279,9 @@ const Category = () => {
         {error.delete && <div className="text-red-600">{error.delete}</div>}
         {error.edit && <div className="text-red-600">{error.edit}</div>}
 
-        {showCategoryForm ? (
+        {loading ? (
+          <Loading />
+        ) : showCategoryForm ? (
           <form
             onSubmit={handleCategorySubmit}
             className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 flex flex-col gap-5 bg-white shadow-md rounded-lg p-4 sm:p-6"

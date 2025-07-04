@@ -5,12 +5,17 @@ import { FiPlus } from 'react-icons/fi';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosConfig';
+import Loading from 'src/components/Loading';
 import { RootState } from 'src/Store/Store';
 
 interface TaxEntry {
   category: string;
   provinceTax: string;
   federalTax: string;
+}
+
+interface PreventScrollEvent extends React.WheelEvent<HTMLInputElement> {
+  target: HTMLInputElement;
 }
 
 interface TaxConfig {
@@ -44,6 +49,7 @@ const Page = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [provinceCode, setProvinceCode] = useState('');
   const [provinceName, setProvinceName] = useState('');
+  const [loading, setLoading] = useState(false);
   const [taxes, setTaxes] = useState<TaxEntry[]>([
     { category: '', provinceTax: '', federalTax: '' },
   ]);
@@ -54,10 +60,13 @@ const Page = () => {
 
   const fetchTax = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await getallTax({ provinceCode: '', category: '' });
       setTaxConfigs(response.data.data);
     } catch (error) {
       console.error('Fetch Tax Error:', error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -151,10 +160,6 @@ const Page = () => {
       console.error('Delete Tax Error:', error);
     }
   };
-
-  interface PreventScrollEvent extends React.WheelEvent<HTMLInputElement> {
-    target: HTMLInputElement;
-  }
 
   const preventScroll = (e: PreventScrollEvent) => {
     e.target.blur();
@@ -280,7 +285,9 @@ const Page = () => {
           </form>
         ) : (
           <div className="w-full">
-            {taxConfigs.length === 0 ? (
+            {loading ? (
+              <Loading />
+            ) : taxConfigs.length === 0 ? (
               <p className="text-gray-500">No tax configurations found.</p>
             ) : (
               <ul className="bg-white shadow-md rounded-md divide-y">

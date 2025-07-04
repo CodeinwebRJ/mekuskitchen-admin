@@ -7,6 +7,7 @@ import { MdModeEdit } from 'react-icons/md';
 import { MdDelete } from 'react-icons/md';
 import { EditProduct } from 'src/AxiosConfig/AxiosConfig';
 import { updateProductStatus } from 'src/Store/Slices/ProductData';
+import Loading from 'src/components/Loading';
 
 interface RootState {
   product: any;
@@ -67,9 +68,7 @@ const Page = () => {
       </form>
 
       {loading ? (
-        <div className="flex justify-center items-center py-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-700"></div>
-        </div>
+        <Loading />
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full rounded-md text-sm text-left text-gray-800 border border-gray-200">

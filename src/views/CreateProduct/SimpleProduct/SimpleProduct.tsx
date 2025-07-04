@@ -3,6 +3,7 @@ import { Button, TextInput } from 'flowbite-react';
 import BasicInfo from '../BasicInfo';
 import { CreateProduct, UploadImage } from 'src/AxiosConfig/AxiosConfig';
 import { MdDelete } from 'react-icons/md';
+import Loading from 'src/components/Loading';
 
 interface Dimension {
   length: string;
@@ -73,6 +74,7 @@ const SimpleProduct = () => {
   const [specValue, setSpecValue] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(false);
 
   const validateInput = useCallback((value: string, field: string): boolean => {
     if (!value.trim()) {
@@ -131,6 +133,7 @@ const SimpleProduct = () => {
     if (!validateForm()) return;
     try {
       setError(null);
+      setLoading(true);
       const imageFiles: File[] = product.images.map((img: any) =>
         img?.file instanceof File ? img.file : img,
       );
@@ -147,9 +150,12 @@ const SimpleProduct = () => {
       };
 
       await CreateProduct(data);
+      setLoading(false);
     } catch (error) {
       console.error('Error while creating product:', error);
       setError('Failed to create product. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -234,153 +240,158 @@ const SimpleProduct = () => {
   return (
     <div className="mx-auto p-6 bg-white rounded-xl shadow">
       {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
-      <BasicInfo product={product} setProduct={setProduct} errors={errors} />
 
-      <div className="mt-6">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Features & Specifications</h3>
-
+      {loading ? (
+        <Loading />
+      ) : (
         <div>
-          <h4 className="text-lg font-medium text-gray-700">Tags</h4>
-          <div className="flex gap-4 items-center mb-4">
-            <TextInput
-              type="text"
-              value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
-              placeholder="Enter tag (e.g., Electronics)"
-              className="w-full"
-              maxLength={100}
-              aria-label="Add new tag"
-            />
-            <div className="w-full">
-              <Button color="primary" size="sm" type="button" onClick={addTag}>
-                Add Tag
-              </Button>
-            </div>
-          </div>
-          <ul className="flex flex-wrap gap-2">
-            {product.tags.map((tag, index) => (
-              <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
-                <span className="text-gray-800">{tag}</span>
-                <div
-                  className="cursor-pointer"
-                  onClick={() => removeTag(index)}
-                  aria-label={`Remove tag: ${tag}`}
-                >
-                  <MdDelete size={20} className="text-red-600" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+          <BasicInfo product={product} setProduct={setProduct} errors={errors} />
+          <div className="mt-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Features & Specifications</h3>
 
-        <div className="mb-6 mt-4">
-          <h4 className="text-lg font-medium text-gray-700">Features</h4>
-          <div className="flex gap-4 items-center mb-4">
-            <TextInput
-              type="text"
-              value={newFeature}
-              onChange={(e) => setNewFeature(e.target.value)}
-              placeholder="Enter feature (e.g., Waterproof)"
-              className="w-full"
-              maxLength={100}
-            />
-            <div className="w-full">
-              <Button color="primary" size="sm" type="button" onClick={addFeature}>
-                Add Feature
-              </Button>
-            </div>
-          </div>
-          <ul className="flex flex-wrap gap-2">
-            {product.features.map((feature, index) => (
-              <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
-                <span className="text-gray-800">{feature}</span>
-                <div
-                  className="cursor-pointer"
-                  onClick={() => removeFeature(index)}
-                  aria-label={`Remove feature: ${feature}`}
-                >
-                  <MdDelete size={20} className="text-red-600" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="mb-6 mt-4">
-          <h4 className="text-lg font-medium text-gray-700">About Product</h4>
-          <div className="flex gap-4 items-center mb-4">
-            <TextInput
-              type="text"
-              value={aboutItem}
-              onChange={(e) => setAboutItem(e.target.value)}
-              placeholder="Enter feature (e.g., Waterproof)"
-              className="w-full"
-              maxLength={100}
-            />
-            <div className="w-full">
-              <Button color="primary" size="sm" type="button" onClick={addAboutItem}>
-                Add AboutItem
-              </Button>
-            </div>
-          </div>
-          <ul className="flex flex-wrap gap-2">
-            {product.aboutItem.map((feature, index) => (
-              <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
-                <span className="text-gray-800">{feature}</span>
-                <div
-                  className="cursor-pointer"
-                  onClick={() => removeAboutItem(index)}
-                  aria-label={`Remove feature: ${feature}`}
-                >
-                  <MdDelete size={20} className="text-red-600" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-lg font-medium text-gray-700 mb-2">Specifications</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-            <TextInput
-              type="text"
-              value={specKey}
-              onChange={(e) => setSpecKey(e.target.value)}
-              placeholder="Specification Key (e.g., Material)"
-              maxLength={100}
-            />
-            <TextInput
-              type="text"
-              value={specValue}
-              onChange={(e) => setSpecValue(e.target.value)}
-              placeholder="Specification Value (e.g., Aluminum)"
-              maxLength={100}
-            />
-            <div className="w-full">
-              <Button color="primary" size="sm" onClick={addSpecification}>
-                Add Specification
-              </Button>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {Object.entries(product.specifications).map(([key, value]) => (
-              <div key={key} className="flex gap-2 items-center bg-gray-100 rounded-md p-2">
-                <span>
-                  <span className="font-medium text-gray-800">{key}:</span> {value}
-                </span>
-                <div
-                  color="failure"
-                  onClick={() => removeSpecification(key)}
-                  aria-label={`Remove specification: ${key}`}
-                >
-                  <MdDelete size={20} className="text-red-600" />
+            <div>
+              <h4 className="text-lg font-medium text-gray-700">Tags</h4>
+              <div className="flex gap-4 items-center mb-4">
+                <TextInput
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  placeholder="Enter tag (e.g., Electronics)"
+                  className="w-full"
+                  maxLength={100}
+                  aria-label="Add new tag"
+                />
+                <div className="w-full">
+                  <Button color="primary" size="sm" type="button" onClick={addTag}>
+                    Add Tag
+                  </Button>
                 </div>
               </div>
-            ))}
+              <ul className="flex flex-wrap gap-2">
+                {product.tags.map((tag, index) => (
+                  <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
+                    <span className="text-gray-800">{tag}</span>
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => removeTag(index)}
+                      aria-label={`Remove tag: ${tag}`}
+                    >
+                      <MdDelete size={20} className="text-red-600" />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="mb-6 mt-4">
+              <h4 className="text-lg font-medium text-gray-700">Features</h4>
+              <div className="flex gap-4 items-center mb-4">
+                <TextInput
+                  type="text"
+                  value={newFeature}
+                  onChange={(e) => setNewFeature(e.target.value)}
+                  placeholder="Enter feature (e.g., Waterproof)"
+                  className="w-full"
+                  maxLength={100}
+                />
+                <div className="w-full">
+                  <Button color="primary" size="sm" type="button" onClick={addFeature}>
+                    Add Feature
+                  </Button>
+                </div>
+              </div>
+              <ul className="flex flex-wrap gap-2">
+                {product.features.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
+                    <span className="text-gray-800">{feature}</span>
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => removeFeature(index)}
+                      aria-label={`Remove feature: ${feature}`}
+                    >
+                      <MdDelete size={20} className="text-red-600" />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="mb-6 mt-4">
+              <h4 className="text-lg font-medium text-gray-700">About Product</h4>
+              <div className="flex gap-4 items-center mb-4">
+                <TextInput
+                  type="text"
+                  value={aboutItem}
+                  onChange={(e) => setAboutItem(e.target.value)}
+                  placeholder="Enter feature (e.g., Waterproof)"
+                  className="w-full"
+                  maxLength={100}
+                />
+                <div className="w-full">
+                  <Button color="primary" size="sm" type="button" onClick={addAboutItem}>
+                    Add AboutItem
+                  </Button>
+                </div>
+              </div>
+              <ul className="flex flex-wrap gap-2">
+                {product.aboutItem.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-2 bg-gray-100 rounded-md p-2">
+                    <span className="text-gray-800">{feature}</span>
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => removeAboutItem(index)}
+                      aria-label={`Remove feature: ${feature}`}
+                    >
+                      <MdDelete size={20} className="text-red-600" />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-medium text-gray-700 mb-2">Specifications</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <TextInput
+                  type="text"
+                  value={specKey}
+                  onChange={(e) => setSpecKey(e.target.value)}
+                  placeholder="Specification Key (e.g., Material)"
+                  maxLength={100}
+                />
+                <TextInput
+                  type="text"
+                  value={specValue}
+                  onChange={(e) => setSpecValue(e.target.value)}
+                  placeholder="Specification Value (e.g., Aluminum)"
+                  maxLength={100}
+                />
+                <div className="w-full">
+                  <Button color="primary" size="sm" onClick={addSpecification}>
+                    Add Specification
+                  </Button>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {Object.entries(product.specifications).map(([key, value]) => (
+                  <div key={key} className="flex gap-2 items-center bg-gray-100 rounded-md p-2">
+                    <span>
+                      <span className="font-medium text-gray-800">{key}:</span> {value}
+                    </span>
+                    <div
+                      color="failure"
+                      onClick={() => removeSpecification(key)}
+                      aria-label={`Remove specification: ${key}`}
+                    >
+                      <MdDelete size={20} className="text-red-600" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
+      )}
       <div className="mt-6 flex justify-end">
         <Button color="primary" onClick={handleSubmit} size="lg">
           Submit

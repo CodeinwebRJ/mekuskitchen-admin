@@ -4,6 +4,7 @@ import CreateCoupons from './CreateCoupon';
 import { DeleteCoupons, EditCoupons, GetAllCoupons } from 'src/AxiosConfig/AxiosConfig';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { format } from 'date-fns';
+import Loading from 'src/components/Loading';
 
 interface CouponFormData {
   _id?: string;
@@ -159,9 +160,7 @@ const Page: FC = () => {
       ) : (
         <div className="divide-y">
           {loading ? (
-            <div className="flex justify-center items-center py-10">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-700"></div>
-            </div>
+            <Loading />
           ) : (
             <div className="bg-white shadow-md rounded-md overflow-x-auto">
               <table className="min-w-full text-sm text-left text-gray-700">

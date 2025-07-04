@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getAllQuarys } from 'src/AxiosConfig/AxiosConfig';
+import Loading from 'src/components/Loading';
 
 interface Quarries {
   name: string;
@@ -10,13 +11,17 @@ interface Quarries {
 
 const ContactPage = () => {
   const [data, setData] = useState<Quarries[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
     try {
+      setLoading(true);
       const response = await getAllQuarys();
       setData(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,14 +44,22 @@ const ContactPage = () => {
             </tr>
           </thead>
           <tbody>
-            {data?.map((item, index) => (
-              <tr key={index} className="border-t hover:bg-gray-50 transition">
-                <td className="px-4 py-3 whitespace-nowrap">{item?.name}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{item?.email}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{item?.phone}</td>
-                <td className="px-4 py-3 ">{item?.message}</td>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-6">
+                  <Loading />
+                </td>
               </tr>
-            ))}
+            ) : (
+              data?.map((item, index) => (
+                <tr key={index} className="border-t hover:bg-gray-50 transition">
+                  <td className="px-4 py-3 whitespace-nowrap">{item?.name}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{item?.email}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{item?.phone}</td>
+                  <td className="px-4 py-3 ">{item?.message}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
