@@ -1,8 +1,8 @@
 import { Label, TextInput, ToggleSwitch } from 'flowbite-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import Pagination from 'src/components/Pagination/Pagination';
-import { setIsActive, setPage, setSearch } from 'src/Store/Slices/FilterData';
+import { setIsActive, setPage, setSearch, setVariation } from 'src/Store/Slices/FilterData';
 import { MdModeEdit } from 'react-icons/md';
 import { MdDelete } from 'react-icons/md';
 import { EditProduct } from 'src/AxiosConfig/AxiosConfig';
@@ -19,7 +19,7 @@ const Page = () => {
   const { products, loading } = useSelector((state: RootState) => state.product);
   const { search, isActive } = useSelector((state: RootState) => state.filterData);
   const dispatch = useDispatch();
-  
+
   const handlePageChange = useCallback(
     (pageNumber: number) => {
       dispatch(setPage(pageNumber));
@@ -47,6 +47,20 @@ const Page = () => {
     },
     [dispatch],
   );
+
+  const fetchdata = () => {
+    try {
+      if (location.pathname === '/') {
+        dispatch(setVariation('product'));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchdata();
+  }, [location.pathname]);
 
   return (
     <div className="max-w-7xl mx-auto">

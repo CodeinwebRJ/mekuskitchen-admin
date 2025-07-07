@@ -327,6 +327,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
       type: 'number' as const,
     };
     const updatedVariants = [...product?.sku];
+
     updatedVariants[variantIndex].combinations[combinationIndex] = {
       ...updatedVariants[variantIndex].combinations[combinationIndex],
       [fieldName]:
@@ -336,7 +337,22 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             : value
           : value,
     };
-    setProduct({ ...product, sku: updatedVariants });
+
+    const totalStock = updatedVariants[variantIndex].combinations.reduce((sum: any, comb: any) => {
+      return sum + (parseFloat(comb.Stock) || 0);
+    }, 0);
+
+    updatedVariants[variantIndex].Stock = totalStock;
+
+    const totalProductStock = updatedVariants.reduce((sum, variant) => {
+      return sum + (variant.Stock || 0);
+    }, 0);
+
+    setProduct({
+      ...product,
+      sku: updatedVariants,
+      stock: totalProductStock,
+    });
   };
 
   const addVariant = () => {
@@ -384,9 +400,22 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           ? []
           : '';
     });
+
     const updatedVariants = [...product.sku];
     updatedVariants[variantIndex].combinations.push(newCombination);
-    setProduct({ ...product, sku: updatedVariants });
+
+    const skuStock = updatedVariants[variantIndex].combinations.reduce((sum: any, comb: any) => {
+      return sum + (parseFloat(comb.Stock) || 0);
+    }, 0);
+    updatedVariants[variantIndex].Stock = skuStock;
+
+    const totalStock = updatedVariants.reduce((sum, sku) => sum + (sku.Stock || 0), 0);
+
+    setProduct({
+      ...product,
+      sku: updatedVariants,
+      stock: totalStock,
+    });
   };
 
   const removeVariant = (index: number) => {
@@ -402,12 +431,24 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     updatedVariants[variantIndex].combinations = updatedVariants[variantIndex].combinations.filter(
       (_: any, i: number) => i !== combinationIndex,
     );
-    setProduct({ ...product, sku: updatedVariants });
+
+    updatedVariants[variantIndex].Stock = updatedVariants[variantIndex].combinations.reduce(
+      (sum: any, comb: any) => sum + (parseFloat(comb.Stock) || 0),
+      0,
+    );
+
+    const totalStock = updatedVariants.reduce((sum, sku) => sum + (sku.Stock || 0), 0);
+
+    setProduct({
+      ...product,
+      sku: updatedVariants,
+      stock: totalStock,
+    });
   };
 
   return (
     <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 bg-white rounded-xl shadow">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">Create Product</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-6">Create Product</h1>
       <form className="space-y-3 sm:space-y-4 md:space-y-6">
         <div className="flex flex-col sm:flex-row items-start gap-4">
           <Card className="w-full p-2 sm:p-4 space-y-4">

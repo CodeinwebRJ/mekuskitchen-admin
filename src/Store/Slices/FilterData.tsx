@@ -9,9 +9,10 @@ const initialState = {
   attributes: {},
   search: '',
   sortBy: '',
+  variation: 'product',
   page: '1',
   limit: '10',
-  isActive: 'true',
+  isActive: true,
 };
 
 const filterDataSlice = createSlice({
@@ -42,6 +43,9 @@ const filterDataSlice = createSlice({
     setAttributes: (state, action) => {
       state.attributes = action.payload;
     },
+    setVariation: (state, action) => {
+      state.variation = action.payload;
+    },
     setPage: (state, action) => {
       state.page = action.payload;
     },
@@ -58,7 +62,7 @@ const filterDataSlice = createSlice({
       state.Brands = [];
       state.price = [0, 2000];
       state.attributes = {};
-      state.isActive = 'true';
+      state.isActive = true;
     },
   },
 });
@@ -74,6 +78,7 @@ export const {
   setSearch,
   setPage,
   setLimit,
+  setVariation,
   resetFilters,
 } = filterDataSlice.actions;
 

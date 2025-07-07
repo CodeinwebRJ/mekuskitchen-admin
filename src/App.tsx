@@ -42,7 +42,7 @@ function App() {
     }
   }, [dispatch, category, subCategory, productCategory]);
 
-  const filterDatas = useDebounce(filterData, 500);
+  const debouncedSearch = useDebounce(filterData.search, 500);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -51,13 +51,14 @@ function App() {
       const data = {
         page: filterData.page,
         limit: filterData.limit,
-        search: filterData.search,
+        search: debouncedSearch,
         sortBy: filterData.sortBy,
         category: filterData.categories,
         subCategory: filterData.subCategories,
         ProductCategory: filterData.productCategories,
         brands: filterData.Brands,
         ratings: filterData.ratings,
+        variation: filterData.variation,
         attributes: filterData.attributes,
         isActive: filterData.isActive,
       };
@@ -69,7 +70,7 @@ function App() {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch, filterDatas]);
+  }, [dispatch, filterData, debouncedSearch]);
 
   useEffect(() => {
     fetchCategories();

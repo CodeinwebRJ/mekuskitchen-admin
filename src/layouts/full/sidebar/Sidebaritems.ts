@@ -42,26 +42,41 @@ const SidebarContent: MenuItem[] = [
     children: [
       {
         name: 'Products',
+      },
+      {
+        name: 'Products',
         icon: getIconByName('Simple Product'),
-        id: 'util-category',
-        url: '/',
+        id: 'util-product',
+        children: [
+          {
+            name: 'Products',
+            id: 'util-category',
+            url: '/',
+            icon: getIconByName('Simple Product'),
+          },
+          {
+            name: 'Variations Products',
+            id: 'product-add',
+            url: '/variations-product',
+            icon: getIconByName('Variations Product'),
+          },
+        ],
       },
       {
         name: 'Create Product',
         icon: getIconByName('Product'),
         id: 'util-product',
-        url: '/product',
         children: [
           {
             name: 'Simple Product',
             id: 'product-view',
-            url: '/product',
+            url: '/create-product',
             icon: getIconByName('Simple Product'),
           },
           {
             name: 'Variations Product',
             id: 'product-add',
-            url: '/variations-product',
+            url: '/create-variations-product',
             icon: getIconByName('Variations Product'),
           },
         ],

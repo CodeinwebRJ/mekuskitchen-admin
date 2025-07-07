@@ -261,7 +261,6 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
 
   const preventScroll = (e: PreventScrollEvent) => {
     e.target.blur();
-    e.preventDefault();
   };
 
   return (

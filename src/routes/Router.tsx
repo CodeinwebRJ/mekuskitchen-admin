@@ -12,6 +12,7 @@ import ProtectedRoute from 'src/components/ProtectedRoute/ProtectedRoute';
 import ForgotPassword from 'src/views/auth/authforms/ForgotPassword';
 import Contact from 'src/views/Contact/page';
 import Productdata from 'src/views/ProductData/page';
+import ShowVariantProduct from 'src/views/ProductData/ShowVariantProduct';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -33,19 +34,26 @@ const Router = [
         ),
       },
       {
-        path: '/product',
+        path: '/create-product',
         element: (
           <ProtectedRoute>
             <SimpleProduct />
           </ProtectedRoute>
         ),
       },
-
+      {
+        path: '/create-variations-product',
+        element: (
+          <ProtectedRoute>
+            <VariationsProduct />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: '/variations-product',
         element: (
           <ProtectedRoute>
-            <VariationsProduct />
+            <ShowVariantProduct />
           </ProtectedRoute>
         ),
       },

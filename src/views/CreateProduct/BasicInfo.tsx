@@ -110,7 +110,6 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
 
   const preventScroll = (e: PreventScrollEvent) => {
     e.target.blur();
-    e.preventDefault();
   };
 
   return (
@@ -308,7 +307,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
           </div>
         </div>
 
-        {location.pathname === '/product' && (
+        {location.pathname === '/create-product' && (
           <div className="flex flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
@@ -413,12 +412,22 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
           </div>
         )}
 
-        <div className="flex items-center gap-2 px-1">
-          <div>
-            <Checkbox id="isTaxFree" checked={product.isTaxFree} onChange={handleInputChange} />
+        <div className="flex gap-4 items-center">
+          <div className="flex items-center gap-2 px-1">
+            <Checkbox
+              id="manageInventory"
+              name="manageInventory"
+              checked={product.manageInventory}
+              onChange={handleInputChange}
+            />
+            <Label htmlFor="manageInventory" value="Manage Inventory" />
           </div>
-
-          <Label value={'Is Tax Free'} />
+          <div className="flex items-center gap-2 px-1">
+            <div>
+              <Checkbox id="isTaxFree" checked={product.isTaxFree} onChange={handleInputChange} />
+            </div>
+            <Label value={'Is Tax Free'} />
+          </div>
         </div>
 
         <div>

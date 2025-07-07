@@ -28,9 +28,11 @@ interface Product {
   brand: string;
   weight: string;
   weightUnit: string;
+  discount: string;
   dimensions: Dimension;
   tags: string[];
   isTaxFree: boolean;
+  manageInventory: boolean;
   specifications: Record<string, string>;
   features: string[];
   aboutItem: string[];
@@ -51,9 +53,11 @@ const SimpleProduct = () => {
     subCategory: '',
     subsubCategory: '',
     SKUName: '',
+    discount: '',
     brand: '',
     weight: '',
     isTaxFree: false,
+    manageInventory: true,
     weightUnit: '',
     dimensions: {
       length: '',
@@ -72,24 +76,14 @@ const SimpleProduct = () => {
   const [newTag, setNewTag] = useState<string>('');
   const [specKey, setSpecKey] = useState<string>('');
   const [specValue, setSpecValue] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
 
-  const validateInput = useCallback((value: string, field: string): boolean => {
-    if (!value.trim()) {
-      setError(`Please enter a valid ${field}`);
-      return false;
-    }
-    if (value.length > 100) {
-      setError(`${field} cannot exceed 100 characters`);
-      return false;
-    }
-    return true;
-  }, []);
-
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
+
+    console.log(product.price)
+    console.log(product.sellingPrice)
 
     if (!product.images || product.images.length === 0) {
       newErrors.images = 'Product images are required';
@@ -101,15 +95,15 @@ const SimpleProduct = () => {
     if (!product.currency) newErrors.currency = 'Currency is required';
     if (!product.price) newErrors.price = 'price is required';
     if (!product.sellingPrice) newErrors.sellingPrice = 'selling price is required';
-    if (product.price > product.sellingPrice)
-      newErrors.sellingPrice = 'Selling price must be greater than price';
+    // if (product.price >= product.sellingPrice)
+    //   newErrors.sellingPrice = 'Selling price must be greater than price';
     if (!product.SKUName || product.SKUName.trim() === '')
       newErrors.SKUName = 'SKU Name is required';
     if (!product.shortDescription || product.shortDescription.trim() === '')
       newErrors.shortDescription = 'Short description is required';
     if (!product.description || product.description.trim() === '')
       newErrors.description = 'Description is required';
-    if (location.pathname === '/product') {
+    if (location.pathname === '/create-product') {
       if (!product.weight) newErrors.weight = 'Weight is required';
       if (!product.weightUnit) newErrors.weightUnit = 'Weight unit is required';
     }
@@ -132,7 +126,6 @@ const SimpleProduct = () => {
   const handleSubmit = async (): Promise<void> => {
     if (!validateForm()) return;
     try {
-      setError(null);
       setLoading(true);
       const imageFiles: File[] = product.images.map((img: any) =>
         img?.file instanceof File ? img.file : img,
@@ -153,33 +146,46 @@ const SimpleProduct = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error while creating product:', error);
-      setError('Failed to create product. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const addFeature = useCallback(() => {
-    if (!validateInput(newFeature, 'feature')) return;
+    const trimmedFeature = newFeature.trim();
+    if (trimmedFeature === '') {
+      setErrors((prev) => ({ ...prev, feature: 'Please enter a valid feature' }));
+      return;
+    }
+    if (product.features.includes(trimmedFeature)) {
+      setErrors((prev) => ({ ...prev, feature: 'Feature already added' }));
+      return;
+    }
 
     setProduct((prev) => ({
       ...prev,
       features: [...prev.features, newFeature.trim()],
     }));
     setNewFeature('');
-    setError(null);
-  }, [newFeature, validateInput]);
+  }, [newFeature]);
 
   const addAboutItem = useCallback(() => {
-    if (!validateInput(aboutItem, 'aboutItem')) return;
+    const trimmedAboutItem = aboutItem.trim();
+    if (trimmedAboutItem === '') {
+      setErrors((prev) => ({ ...prev, aboutItem: 'Please enter a valid AboutItem' }));
+      return;
+    }
+    if (product.aboutItem.includes(trimmedAboutItem)) {
+      setErrors((prev) => ({ ...prev, aboutItem: 'AboutItem already added' }));
+      return;
+    }
 
     setProduct((prev) => ({
       ...prev,
       aboutItem: [...prev.aboutItem, aboutItem.trim()],
     }));
     setAboutItem('');
-    setError(null);
-  }, [aboutItem, validateInput]);
+  }, [aboutItem]);
 
   const removeAboutItem = useCallback((index: number) => {
     setProduct((prev) => ({
@@ -196,15 +202,22 @@ const SimpleProduct = () => {
   }, []);
 
   const addTag = useCallback(() => {
-    if (!validateInput(newTag, 'tag')) return;
+    const trimmedTag = newTag.trim();
+    if (trimmedTag === '') {
+      setErrors((prev) => ({ ...prev, tag: 'Please enter a valid Tag' }));
+      return;
+    }
+    if (product.aboutItem.includes(trimmedTag)) {
+      setErrors((prev) => ({ ...prev, tag: 'Tag already added' }));
+      return;
+    }
 
     setProduct((prev) => ({
       ...prev,
       tags: [...prev.tags, newTag.trim()],
     }));
     setNewTag('');
-    setError(null);
-  }, [newTag, validateInput]);
+  }, [newTag]);
 
   const removeTag = useCallback((index: number) => {
     setProduct((prev) => ({
@@ -214,14 +227,22 @@ const SimpleProduct = () => {
   }, []);
 
   const addSpecification = useCallback(() => {
-    if (
-      !validateInput(specKey, 'specification key') ||
-      !validateInput(specValue, 'specification value')
-    )
-      return;
+    const trimmedKey = specKey.trim();
+    const trimmedValue = specValue.trim();
 
-    if (product.specifications[specKey.trim()]) {
-      setError('Specification key already exists');
+    if (!trimmedKey || !trimmedValue) {
+      setErrors((prev) => ({
+        ...prev,
+        specification: 'Please enter a valid key and value.',
+      }));
+      return;
+    }
+
+    if (product.specifications[trimmedKey]) {
+      setErrors((prev) => ({
+        ...prev,
+        specification: 'Specification key already exists',
+      }));
       return;
     }
 
@@ -229,18 +250,19 @@ const SimpleProduct = () => {
       ...prev,
       specifications: {
         ...prev.specifications,
-        [specKey.trim()]: specValue.trim(),
+        [trimmedKey]: trimmedValue,
       },
     }));
     setSpecKey('');
     setSpecValue('');
-    setError(null);
-  }, [specKey, specValue, product.specifications, validateInput]);
+    setErrors((prev) => {
+      const { specification, ...rest } = prev;
+      return rest;
+    });
+  }, [specKey, specValue, product.specifications]);
 
   return (
     <div className="mx-auto p-6 bg-white rounded-xl shadow">
-      {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
-
       {loading ? (
         <Loading />
       ) : (
@@ -251,16 +273,24 @@ const SimpleProduct = () => {
 
             <div>
               <h4 className="text-lg font-medium text-gray-700">Tags</h4>
-              <div className="flex gap-4 items-center mb-4">
-                <TextInput
-                  type="text"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  placeholder="Enter tag (e.g., Electronics)"
-                  className="w-full"
-                  maxLength={100}
-                  aria-label="Add new tag"
-                />
+              <div className="flex gap-4 mb-4">
+                <div className="w-full">
+                  <TextInput
+                    type="text"
+                    value={newTag}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewTag(value);
+                      if (errors.tag && value.trim() !== '') {
+                        setErrors((prev) => ({ ...prev, tag: '' }));
+                      }
+                    }}
+                    placeholder="Enter tag (e.g., Electronics)"
+                    className="w-full"
+                    aria-label="Add new tag"
+                  />
+                  {errors.tag && <span className="text-red-600">{errors.tag}</span>}
+                </div>
                 <div className="w-full">
                   <Button color="primary" size="sm" type="button" onClick={addTag}>
                     Add Tag
@@ -285,15 +315,23 @@ const SimpleProduct = () => {
 
             <div className="mb-6 mt-4">
               <h4 className="text-lg font-medium text-gray-700">Features</h4>
-              <div className="flex gap-4 items-center mb-4">
-                <TextInput
-                  type="text"
-                  value={newFeature}
-                  onChange={(e) => setNewFeature(e.target.value)}
-                  placeholder="Enter feature (e.g., Waterproof)"
-                  className="w-full"
-                  maxLength={100}
-                />
+              <div className="flex gap-4  mb-4">
+                <div className="w-full">
+                  <TextInput
+                    type="text"
+                    value={newFeature}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewFeature(value);
+                      if (errors.feature && value.trim() !== '') {
+                        setErrors((prev) => ({ ...prev, feature: '' }));
+                      }
+                    }}
+                    placeholder="Enter feature (e.g., Waterproof)"
+                    className="w-full"
+                  />
+                  {errors.feature && <span className="text-red-600">{errors.feature}</span>}
+                </div>
                 <div className="w-full">
                   <Button color="primary" size="sm" type="button" onClick={addFeature}>
                     Add Feature
@@ -318,15 +356,23 @@ const SimpleProduct = () => {
 
             <div className="mb-6 mt-4">
               <h4 className="text-lg font-medium text-gray-700">About Product</h4>
-              <div className="flex gap-4 items-center mb-4">
-                <TextInput
-                  type="text"
-                  value={aboutItem}
-                  onChange={(e) => setAboutItem(e.target.value)}
-                  placeholder="Enter feature (e.g., Waterproof)"
-                  className="w-full"
-                  maxLength={100}
-                />
+              <div className="flex gap-4 mb-4">
+                <div className="w-full">
+                  <TextInput
+                    type="text"
+                    value={aboutItem}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setAboutItem(value);
+                      if (errors.aboutItem && value.trim() !== '') {
+                        setErrors((prev) => ({ ...prev, aboutItem: '' }));
+                      }
+                    }}
+                    placeholder="Enter feature (e.g., Waterproof)"
+                    className="w-full"
+                  />
+                  {errors.aboutItem && <span className="text-red-600">{errors.aboutItem}</span>}
+                </div>
                 <div className="w-full">
                   <Button color="primary" size="sm" type="button" onClick={addAboutItem}>
                     Add AboutItem
@@ -351,27 +397,52 @@ const SimpleProduct = () => {
 
             <div>
               <h4 className="text-lg font-medium text-gray-700 mb-2">Specifications</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <TextInput
-                  type="text"
-                  value={specKey}
-                  onChange={(e) => setSpecKey(e.target.value)}
-                  placeholder="Specification Key (e.g., Material)"
-                  maxLength={100}
-                />
-                <TextInput
-                  type="text"
-                  value={specValue}
-                  onChange={(e) => setSpecValue(e.target.value)}
-                  placeholder="Specification Value (e.g., Aluminum)"
-                  maxLength={100}
-                />
-                <div className="w-full">
+              <div className="flex w-full gap-4 items-start">
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-4">
+                    <TextInput
+                      type="text"
+                      value={specKey}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSpecKey(value);
+                        if (errors.specification && value.trim() !== '') {
+                          setErrors((prev) => ({ ...prev, specification: '' }));
+                        }
+                      }}
+                      placeholder="Specification Key (e.g., Material)"
+                      color={errors.specKey ? 'failure' : ''}
+                      className="w-full"
+                    />
+                    <TextInput
+                      type="text"
+                      value={specValue}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSpecValue(value);
+                        if (errors.specification && value.trim() !== '') {
+                          setErrors((prev) => ({ ...prev, specification: '' }));
+                        }
+                      }}
+                      placeholder="Specification Value (e.g., Aluminum)"
+                      color={errors.specValue ? 'failure' : ''}
+                      className="w-full"
+                    />
+                  </div>
+                  {errors.specKey && <span className="text-red-600">{errors.specKey}</span>}
+                  {errors.specValue && <span className="text-red-600">{errors.specValue}</span>}
+                  {errors.specification && (
+                    <span className="text-red-600">{errors.specification}</span>
+                  )}
+                </div>
+
+                <div className="flex justify-start md:justify-end">
                   <Button color="primary" size="sm" onClick={addSpecification}>
                     Add Specification
                   </Button>
                 </div>
               </div>
+
               <div className="flex flex-wrap gap-2 mt-3">
                 {Object.entries(product.specifications).map(([key, value]) => (
                   <div key={key} className="flex gap-2 items-center bg-gray-100 rounded-md p-2">
@@ -379,7 +450,7 @@ const SimpleProduct = () => {
                       <span className="font-medium text-gray-800">{key}:</span> {value}
                     </span>
                     <div
-                      color="failure"
+                      className="cursor-pointer"
                       onClick={() => removeSpecification(key)}
                       aria-label={`Remove specification: ${key}`}
                     >

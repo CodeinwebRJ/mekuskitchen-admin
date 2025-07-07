@@ -175,7 +175,6 @@ const Page = () => {
 
   const preventScroll = (e: PreventScrollEvent) => {
     e.target.blur();
-    e.preventDefault();
   };
 
   return (

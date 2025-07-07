@@ -8,7 +8,7 @@ import { ProductSchema } from '../interface';
 import { CreateProduct, UploadImage } from 'src/AxiosConfig/AxiosConfig';
 
 const VariationsProduct = () => {
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentStep, setCurrentStep] = useState<number>(2);
   const [product, setProduct] = useState<ProductSchema>({
     name: '',
     price: '',
@@ -21,8 +21,8 @@ const VariationsProduct = () => {
     category: '',
     discount: '',
     SKUName: '',
+    manageInventory: true,
     subCategory: '',
-
     subsubCategory: '',
     brand: '',
     weight: '',
@@ -101,7 +101,14 @@ const VariationsProduct = () => {
       case 2:
         return <SKU errors={errors} product={product} setProduct={setProduct} />;
       case 3:
-        return <ProductDetail errors={errors} product={product} setProduct={setProduct} />;
+        return (
+          <ProductDetail
+            errors={errors}
+            product={product}
+            setProduct={setProduct}
+            setErrors={setErrors}
+          />
+        );
       default:
         return null;
     }

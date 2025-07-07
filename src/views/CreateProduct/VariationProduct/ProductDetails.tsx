@@ -1,39 +1,25 @@
-import { Label, Select, TextInput, Button, Alert } from 'flowbite-react';
+import { Label, Select, TextInput, Button } from 'flowbite-react';
 import { useCallback, useState, useMemo } from 'react';
 import { BasicInfoProps } from '../interface';
 import { MdDelete } from 'react-icons/md';
 
-const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }) => {
+const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, setErrors }) => {
   const [newFeature, setNewFeature] = useState('');
   const [newTag, setNewTag] = useState('');
   const [aboutItem, setAboutItem] = useState<string>('');
   const [specKey, setSpecKey] = useState('');
   const [specValue, setSpecValue] = useState('');
-  const [error, setError] = useState<string | null>(null);
-
-  const validateInput = useCallback((value: string, field: string): boolean => {
-    if (!value.trim()) {
-      setError(`Please enter a valid ${field}`);
-      return false;
-    }
-    if (value.length > 100) {
-      setError(`${field} cannot exceed 100 characters`);
-      return false;
-    }
-    return true;
-  }, []);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { id, value } = e.target;
-      setError(null);
 
-      if (['length', 'width', 'height'].includes(id)) {
-        if (parseFloat(value) < 0) {
-          setError('Dimensions cannot be negative');
-          return;
-        }
-      }
+      // if (['length', 'width', 'height'].includes(id)) {
+      //   if (parseFloat(value) < 0) {
+      //     // setErrors('Dimensions cannot be negative');
+      //     return;
+      //   }
+      // }
 
       if (['length', 'width', 'height', 'dimensionUnit'].includes(id)) {
         setProduct((prev: any) => ({
@@ -54,15 +40,22 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
   );
 
   const addFeature = useCallback(() => {
-    if (!validateInput(newFeature, 'feature')) return;
+    const trimmedFeature = newFeature.trim();
+    if (trimmedFeature === '') {
+      setErrors((prev: any) => ({ ...prev, feature: 'Please enter a valid feature' }));
+      return;
+    }
+    if (product.features.includes(trimmedFeature)) {
+      setErrors((prev: any) => ({ ...prev, feature: 'Feature already added' }));
+      return;
+    }
 
     setProduct((prev: any) => ({
       ...prev,
       features: [...prev.features, newFeature.trim()],
     }));
     setNewFeature('');
-    setError(null);
-  }, [newFeature, validateInput]);
+  }, [newFeature]);
 
   const removeFeature = useCallback(
     (index: number) => {
@@ -75,15 +68,22 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
   );
 
   const addAboutItem = useCallback(() => {
-    if (!validateInput(aboutItem, 'aboutItem')) return;
+    const trimmedAboutItem = aboutItem.trim();
+    if (trimmedAboutItem === '') {
+      setErrors((prev: any) => ({ ...prev, aboutItem: 'Please enter a valid AboutItem' }));
+      return;
+    }
+    if (product.aboutItem.includes(trimmedAboutItem)) {
+      setErrors((prev: any) => ({ ...prev, aboutItem: 'AboutItem already added' }));
+      return;
+    }
 
     setProduct((prev: any) => ({
       ...prev,
       aboutItem: [...prev.aboutItem, aboutItem.trim()],
     }));
     setAboutItem('');
-    setError(null);
-  }, [aboutItem, validateInput]);
+  }, [aboutItem]);
 
   const removeAboutItem = useCallback((index: number) => {
     setProduct((prev: any) => ({
@@ -93,15 +93,22 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
   }, []);
 
   const addTag = useCallback(() => {
-    if (!validateInput(newTag, 'tag')) return;
+    const trimmedTag = newTag.trim();
+    if (trimmedTag === '') {
+      setErrors((prev: any) => ({ ...prev, tag: 'Please enter a valid Tag' }));
+      return;
+    }
+    if (product.aboutItem.includes(trimmedTag)) {
+      setErrors((prev: any) => ({ ...prev, tag: 'Tag already added' }));
+      return;
+    }
 
     setProduct((prev: any) => ({
       ...prev,
       tags: [...prev.tags, newTag.trim()],
     }));
     setNewTag('');
-    setError(null);
-  }, [newTag, validateInput]);
+  }, [newTag]);
 
   const removeTag = useCallback(
     (index: number) => {
@@ -114,14 +121,22 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
   );
 
   const addSpecification = useCallback(() => {
-    if (
-      !validateInput(specKey, 'specification key') ||
-      !validateInput(specValue, 'specification value')
-    )
-      return;
+    const trimmedKey = specKey.trim();
+    const trimmedValue = specValue.trim();
 
-    if (product.specifications[specKey.trim()]) {
-      setError('Specification key already exists');
+    if (!trimmedKey || !trimmedValue) {
+      setErrors((prev: any) => ({
+        ...prev,
+        specification: 'Please enter a valid key and value.',
+      }));
+      return;
+    }
+
+    if (product.specifications[trimmedKey]) {
+      setErrors((prev: any) => ({
+        ...prev,
+        specification: 'Specification key already exists',
+      }));
       return;
     }
 
@@ -129,13 +144,16 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
       ...prev,
       specifications: {
         ...prev.specifications,
-        [specKey.trim()]: specValue.trim(),
+        [trimmedKey]: trimmedValue,
       },
     }));
     setSpecKey('');
     setSpecValue('');
-    setError(null);
-  }, [specKey, specValue, product.specifications, validateInput]);
+    setErrors((prev: any) => {
+      const { specification, ...rest } = prev;
+      return rest;
+    });
+  }, [specKey, specValue, product.specifications]);
 
   const removeSpecification = useCallback(
     (key: string) => {
@@ -173,16 +191,9 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
 
   return (
     <div className="mx-auto p-4 sm:p-6 bg-white rounded-xl shadow space-y-6 sm:space-y-8">
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Product Information</h2>
-
-      {error && (
-        <Alert color="failure" onDismiss={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
+      <h2 className="text-2xl sm:text-3xl font-bold text-primary">Product Information</h2>
 
       <form className="space-y-6 sm:space-y-8" onSubmit={(e) => e.preventDefault()}>
-        {/* Weight & Dimensions */}
         <div>
           <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
             Weight & Dimensions
@@ -294,19 +305,29 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
 
           <div className="mb-6">
             <h4 className="text-base font-medium text-gray-700 mb-2">Tags</h4>
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
-              <TextInput
-                type="text"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                placeholder="Enter tag (e.g., Electronics)"
-                className="w-full sm:w-1/2"
-                maxLength={100}
-                aria-label="Add new tag"
-              />
-              <Button color="primary" size="sm" type="button" onClick={addTag}>
-                Add Tag
-              </Button>
+            <div className="flex gap-4 mb-4">
+              <div className="w-full">
+                <TextInput
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewTag(value);
+                    if (errors.tag && value.trim() !== '') {
+                      setErrors((prev: any) => ({ ...prev, tag: '' }));
+                    }
+                  }}
+                  placeholder="Enter tag (e.g., Electronics)"
+                  className="w-full"
+                  aria-label="Add new tag"
+                />
+                {errors.tag && <span className="text-red-600">{errors.tag}</span>}
+              </div>
+              <div className="w-full">
+                <Button color="primary" size="sm" type="button" onClick={addTag}>
+                  Add Tag
+                </Button>
+              </div>
             </div>
             <ul className="flex flex-wrap gap-2">
               {product.tags.map((tag: any, index: number) => (
@@ -330,15 +351,23 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
 
           <div className="mb-6 mt-4">
             <h4 className="text-lg font-medium text-gray-700">About Product</h4>
-            <div className="flex gap-4 items-center mb-4">
-              <TextInput
-                type="text"
-                value={aboutItem}
-                onChange={(e) => setAboutItem(e.target.value)}
-                placeholder="Enter feature (e.g., Waterproof)"
-                className="w-full"
-                maxLength={100}
-              />
+            <div className="flex gap-4 mb-4">
+              <div className="w-full">
+                <TextInput
+                  type="text"
+                  value={aboutItem}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setAboutItem(value);
+                    if (errors.aboutItem && value.trim() !== '') {
+                      setErrors((prev: any) => ({ ...prev, aboutItem: '' }));
+                    }
+                  }}
+                  placeholder="Enter feature (e.g., Waterproof)"
+                  className="w-full"
+                />
+                {errors.aboutItem && <span className="text-red-600">{errors.aboutItem}</span>}
+              </div>
               <div className="w-full">
                 <Button color="primary" size="sm" type="button" onClick={addAboutItem}>
                   Add AboutItem
@@ -363,17 +392,28 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
 
           <div className="mb-6">
             <h4 className="text-base font-medium text-gray-700 mb-2">Features</h4>
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
-              <TextInput
-                type="text"
-                value={newFeature}
-                onChange={(e) => setNewFeature(e.target.value)}
-                placeholder="Enter feature (e.g., Waterproof)"
-                className="w-full sm:w-1/2"
-              />
-              <Button color="primary" size="sm" type="button" onClick={addFeature}>
-                Add Feature
-              </Button>
+            <div className="flex gap-4  mb-4">
+              <div className="w-full">
+                <TextInput
+                  type="text"
+                  value={newFeature}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewFeature(value);
+                    if (errors.feature && value.trim() !== '') {
+                      setErrors((prev: any) => ({ ...prev, feature: '' }));
+                    }
+                  }}
+                  placeholder="Enter feature (e.g., Waterproof)"
+                  className="w-full"
+                />
+                {errors.feature && <span className="text-red-600">{errors.feature}</span>}
+              </div>
+              <div className="w-full">
+                <Button color="primary" size="sm" type="button" onClick={addFeature}>
+                  Add Feature
+                </Button>
+              </div>
             </div>
             <ul className="flex flex-wrap gap-2">
               {product.features.map((feature: any, index: number) => (
@@ -392,22 +432,50 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct }
 
           <div>
             <h4 className="text-base font-medium text-gray-700 mb-2">Specifications</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-              <TextInput
-                type="text"
-                value={specKey}
-                onChange={(e) => setSpecKey(e.target.value)}
-                placeholder="Specification Key"
-              />
-              <TextInput
-                type="text"
-                value={specValue}
-                onChange={(e) => setSpecValue(e.target.value)}
-                placeholder="Specification Value"
-              />
-              <Button color="primary" type="button" size="sm" onClick={addSpecification}>
-                Add Specification
-              </Button>
+            <div className="flex w-full gap-4 items-start">
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-4">
+                  <TextInput
+                    type="text"
+                    value={specKey}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSpecKey(value);
+                      if (errors.specification && value.trim() !== '') {
+                        setErrors((prev: any) => ({ ...prev, specification: '' }));
+                      }
+                    }}
+                    placeholder="Specification Key (e.g., Material)"
+                    color={errors.specKey ? 'failure' : ''}
+                    className="w-full"
+                  />
+                  <TextInput
+                    type="text"
+                    value={specValue}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSpecValue(value);
+                      if (errors.specification && value.trim() !== '') {
+                        setErrors((prev: any) => ({ ...prev, specification: '' }));
+                      }
+                    }}
+                    placeholder="Specification Value (e.g., Aluminum)"
+                    color={errors.specValue ? 'failure' : ''}
+                    className="w-full"
+                  />
+                </div>
+                {errors.specKey && <span className="text-red-600">{errors.specKey}</span>}
+                {errors.specValue && <span className="text-red-600">{errors.specValue}</span>}
+                {errors.specification && (
+                  <span className="text-red-600">{errors.specification}</span>
+                )}
+              </div>
+
+              <div className="flex justify-start md:justify-end">
+                <Button color="primary" size="sm" onClick={addSpecification}>
+                  Add Specification
+                </Button>
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               {(Object.entries(product.specifications) as [string, string][]).map(

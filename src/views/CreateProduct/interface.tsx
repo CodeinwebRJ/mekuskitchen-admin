@@ -49,6 +49,7 @@ export interface ProductSchema {
   category: string;
   SKUName: string;
   subCategory: string;
+  manageInventory: boolean;
   subsubCategory: string;
   brand: string;
   weight: string;
@@ -71,5 +72,6 @@ export interface ProductSchema {
 export interface BasicInfoProps {
   product: any;
   setProduct: any;
-  errors: any;
+  errors?: any;
+  setErrors?: any;
 }
