@@ -54,9 +54,50 @@ const CreateTiffin = () => {
     ],
   });
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < steps.length) {
       setCurrentStep((prev) => prev + 1);
+    } else {
+      try {
+        const imageFiles: File[] = formData.images
+          .filter((img) => img.file instanceof File)
+          .map((img) => img.file as File);
+
+        const uploadedTiffinImages = await UploadImage(imageFiles);
+
+        const formattedImages =
+          uploadedTiffinImages?.data?.data?.images?.map((img: { url: string }, index: number) => ({
+            url: img.url,
+            isPrimary: index === 0,
+          })) || [];
+
+        const payload = {
+          ...formData,
+          images: formattedImages,
+        };
+
+        await Createtiffin(payload);
+        setFormData({
+          day: '',
+          date: '',
+          BookingEndDate: '',
+          description: '',
+          images: [],
+          category: '',
+          aboutItem: [],
+          items: [
+            {
+              name: '',
+              price: '',
+              quantity: '',
+              quantityUnit: '',
+              description: '',
+            },
+          ],
+        });
+      } catch (error) {
+        console.error('Failed to submit tiffin items:', error);
+      }
     }
   };
 
@@ -77,50 +118,10 @@ const CreateTiffin = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    try {
-      const imageFiles: File[] = formData.images
-        .filter((img) => img.file instanceof File)
-        .map((img) => img.file as File);
-
-      const uploadedTiffinImages = await UploadImage(imageFiles);
-
-      const formattedImages =
-        uploadedTiffinImages?.data?.data?.images?.map((img: { url: string }, index: number) => ({
-          url: img.url,
-          isPrimary: index === 0,
-        })) || [];
-
-      const payload = {
-        ...formData,
-        images: formattedImages,
-      };
-
-      await Createtiffin(payload);
-      setFormData({
-        day: '',
-        date: '',
-        BookingEndDate: '',
-        description: '',
-        images: [],
-        category: '',
-        aboutItem: [],
-        items: [
-          {
-            name: '',
-            price: '',
-            quantity: '',
-            quantityUnit: '',
-            description: '',
-          },
-        ],
-      });
-    } catch (error) {
-      console.error('Failed to submit tiffin items:', error);
-    }
-  };
+  // };
 
   return (
     <div className="flex flex-col items-center justify-center mx-auto p-6 bg-white rounded-xl shadow">
@@ -135,15 +136,10 @@ const CreateTiffin = () => {
           <Button onClick={handleBack} disabled={currentStep === 1} color="gray" type="button">
             Back
           </Button>
-          {currentStep === steps.length ? (
-            <Button type="submit" color="blue" onClick={handleSubmit}>
-              Submit
-            </Button>
-          ) : (
-            <Button onClick={handleNext} type="button" color="blue">
-              Next
-            </Button>
-          )}
+
+          <Button onClick={handleNext} type="button" color="blue">
+            Next
+          </Button>
         </div>
       </form>
     </div>
