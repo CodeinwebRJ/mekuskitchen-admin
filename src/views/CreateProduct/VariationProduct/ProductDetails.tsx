@@ -336,14 +336,13 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
                   className="flex items-center gap-2 bg-gray-100 rounded-md px-2 py-1"
                 >
                   <span className="text-gray-800 text-sm">{tag}</span>
-                  <Button
-                    color="failure"
-                    size="xs"
+                  <div
+                    className="cursor-pointer text-red-600"
                     onClick={() => removeTag(index)}
                     aria-label={`Remove tag: ${tag}`}
                   >
                     <MdDelete />
-                  </Button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -383,7 +382,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
                     onClick={() => removeAboutItem(index)}
                     aria-label={`Remove feature: ${feature}`}
                   >
-                    <MdDelete size={20} className="text-red-600" />
+                    <MdDelete className="text-red-600" />
                   </div>
                 </li>
               ))}
@@ -392,7 +391,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
 
           <div className="mb-6">
             <h4 className="text-base font-medium text-gray-700 mb-2">Features</h4>
-            <div className="flex gap-4  mb-4">
+            <div className="flex gap-4 mb-4">
               <div className="w-full">
                 <TextInput
                   type="text"
@@ -422,9 +421,9 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
                   className="flex items-center gap-2 bg-gray-100 rounded-md px-2 py-1"
                 >
                   <span className="text-gray-800 text-sm">{feature}</span>
-                  <Button color="failure" size="xs" onClick={() => removeFeature(index)}>
+                  <div className="cursor-pointer text-red-600" onClick={() => removeFeature(index)}>
                     <MdDelete />
-                  </Button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -433,7 +432,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
           <div>
             <h4 className="text-base font-medium text-gray-700 mb-2">Specifications</h4>
             <div className="flex w-full gap-4 items-start">
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 mb-4">
                 <div className="flex gap-4">
                   <TextInput
                     type="text"

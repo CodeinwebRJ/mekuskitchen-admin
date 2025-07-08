@@ -50,6 +50,7 @@ export interface ProductSchema {
   SKUName: string;
   subCategory: string;
   manageInventory: boolean;
+  isTaxFree: boolean;
   subsubCategory: string;
   brand: string;
   weight: string;

@@ -10,6 +10,7 @@ interface NewField {
 }
 
 const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
+  const [fieldErrors, setFieldErrors] = useState<{ variant?: string; combination?: string }>({});
   const [newVariantField, setNewVariantField] = useState<any>({
     name: '',
     type: 'text',
@@ -20,8 +21,6 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     type: 'text',
     options: '',
   });
-
-  const [fieldErrors, setFieldErrors] = useState<{ variant?: string; combination?: string }>({});
 
   const hasImageField =
     product.skuFields.some((field: any) => field.type === 'image') ||
@@ -164,7 +163,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     };
     const updatedVariants = product.sku?.map((variant: any) => ({
       ...variant,
-      combinations: variant.combinations.map((comb: any) => ({
+      combinations: variant?.combinations?.map((comb: any) => ({
         ...comb,
         [field.name]:
           field.type === 'checkbox'
@@ -213,7 +212,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
   const removeCombinationField = (fieldName: string) => {
     const updatedVariants = product.sku?.map((variant: any) => ({
       ...variant,
-      combinations: variant.combinations.map((comb: any) => {
+      combinations: variant?.combinations?.map((comb: any) => {
         const { [fieldName]: _, ...rest } = comb;
         return rest as Combination;
       }),
@@ -776,15 +775,12 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                         }
                                       }}
                                     />
-                                    <Button
-                                      type="button"
+                                    <div
                                       onClick={() => removeImage(index, field.name, imgIndex)}
-                                      color="failure"
-                                      size="xs"
-                                      className="absolute p-0 top-1 right-0 bg-red-500 hover:bg-red-600 text-white rounded"
+                                      className="absolute top-1 right-0 cursor-pointer"
                                     >
-                                      <MdDelete className="text-red-600" />
-                                    </Button>
+                                      <MdDelete className="text-red-600" size={20} />
+                                    </div>
                                   </div>
                                 );
                               })}
@@ -820,7 +816,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 <h4 className="text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">
                   Combinations
                 </h4>
-                {variant.combinations.map((combination: any, combIndex: number) => (
+                {variant?.combinations?.map((combination: any, combIndex: number) => (
                   <div
                     key={combIndex}
                     className="mt-2 sm:mt-3 px-2 py-2 sm:px-3 sm:py-3 bg-gray-50 rounded-md border border-gray-200"

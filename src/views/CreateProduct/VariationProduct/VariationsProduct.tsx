@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Stepper from '../Component/Stepper';
 import BasicInfo from '../BasicInfo';
 import SKU from './SKU';
 import { Button } from 'flowbite-react';
 import ProductDetail from './ProductDetails';
 import { ProductSchema } from '../interface';
-import { CreateProduct, UploadImage } from 'src/AxiosConfig/AxiosConfig';
+import {
+  CreateProduct,
+  EditProduct,
+  getProductById,
+  UploadImage,
+} from 'src/AxiosConfig/AxiosConfig';
+import { useLocation, useNavigate } from 'react-router';
 
 const VariationsProduct = () => {
-  const [currentStep, setCurrentStep] = useState<number>(2);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isEdit, setIsEdit] = useState(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const [product, setProduct] = useState<ProductSchema>({
     name: '',
     price: '',
@@ -22,6 +31,7 @@ const VariationsProduct = () => {
     discount: '',
     SKUName: '',
     manageInventory: true,
+    isTaxFree: true,
     subCategory: '',
     subsubCategory: '',
     brand: '',
@@ -59,30 +69,22 @@ const VariationsProduct = () => {
       if (!product.name || product.name.trim() === '') newErrors.name = 'Product name is required';
       if (!product.category) newErrors.category = 'Category is required';
       if (!product.subCategory) newErrors.subCategory = 'Subcategory is required';
-      if (!product.subsubCategory) newErrors.subsubCategory = 'Sub-subcategory is required';
       if (!product.currency) newErrors.currency = 'Currency is required';
       if (!product.price) newErrors.price = 'Price is required';
       if (!product.sellingPrice) newErrors.sellingPrice = 'Selling price is required';
-      if (product.price > product.sellingPrice)
-        newErrors.sellingPrice = 'Selling price must be greater than price';
+      if (
+        product.price &&
+        product.sellingPrice &&
+        Number(product.price) <= Number(product.sellingPrice)
+      ) {
+        newErrors.sellingPrice = 'Selling price must be less than original price';
+      }
       if (!product.SKUName || product.SKUName.trim() === '')
         newErrors.SKUName = 'SKU Name is required';
       if (!product.shortDescription || product.shortDescription.trim() === '')
         newErrors.shortDescription = 'Short description is required';
       if (!product.description || product.description.trim() === '')
         newErrors.description = 'Description is required';
-    }
-
-    if (step === 2) {
-      if (!product.sku || product.sku.length === 0) {
-        newErrors.sku = 'At least one SKU is required';
-      } else {
-        product.sku.forEach((skuItem: any, index: number) => {
-          if (!skuItem.Name) newErrors[`sku-${index}-Name`] = 'SKU name is required';
-          if (!skuItem.Stock || skuItem.Stock < 0)
-            newErrors[`sku-${index}-Stock`] = 'Valid stock is required';
-        });
-      }
     }
 
     if (step === 3) {
@@ -124,24 +126,104 @@ const VariationsProduct = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
+  const fetchData = async () => {
+    try {
+      const res = await getProductById({ id: location?.state?.id });
+      const edit = res?.data?.data;
+
+      if (edit) {
+        const flattenedSku = edit.sku.map((item: any) => item.details);
+
+        setProduct({
+          ...product,
+          name: edit.name || '',
+          price: edit.price || '',
+          sellingPrice: edit.sellingPrice || '',
+          currency: edit.currency || '',
+          SKUName: edit.SKUName || '',
+          description: edit.description || '',
+          shortDescription: edit.shortDescription || '',
+          images: edit.images || [],
+          stock: edit.stock || '',
+          category: edit.category || '',
+          subCategory: edit.subCategory || '',
+          subsubCategory: edit.subsubCategory || '',
+          brand: edit.brand || '',
+          weight: edit.weight || '',
+          isTaxFree: edit.isTaxFree ?? false,
+          weightUnit: edit.weightUnit || '',
+          dimensions: edit.dimensions || {
+            length: '',
+            width: '',
+            height: '',
+            dimensionUnit: '',
+          },
+          tags: edit.tags || [],
+          specifications: edit.specifications || {},
+          features: edit.features || [],
+          aboutItem: edit.aboutItem || [],
+          sku: flattenedSku.map((skuItem: any) => ({
+            ...skuItem,
+            combinations: (skuItem.combinations || []).map((comb: any) => ({
+              ...comb,
+            })),
+          })),
+          skuFields: edit.skuFields?.length ? edit.skuFields : product.skuFields,
+          combinationFields: edit.combinationFields?.length
+            ? edit.combinationFields
+            : [
+                { name: 'Size', type: 'text', isDefault: false },
+                { name: 'Storage', type: 'text', isDefault: false },
+              ],
+        });
+
+        setIsEdit(true);
+      }
+    } catch (error) {
+      console.error('Error fetching product:', error);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateStep(currentStep)) return;
+
     try {
       const fileFieldNames = product.skuFields
         .filter((field) => field.type === 'image')
         .map((field) => field.name);
 
+      // Handle SKU image uploads conditionally
       const updatedSku = await Promise.all(
         (product.sku || []).map(async (skuItem: any) => {
           const updatedFields = { ...skuItem };
 
           for (const fieldName of fileFieldNames) {
-            const files: File[] = skuItem[fieldName];
+            const files = skuItem[fieldName];
 
-            if (Array.isArray(files) && files.length > 0) {
-              const uploadRes = await UploadImage(files);
-              const uploadedImages = uploadRes?.data?.data?.images || [];
-              updatedFields[fieldName] = uploadedImages.map((img: any) => img.url);
+            if (Array.isArray(files)) {
+              const newFiles: File[] = [];
+              const existingUrls: string[] = [];
+
+              for (const file of files) {
+                if (file instanceof File) {
+                  newFiles.push(file);
+                } else if (file?.file instanceof File) {
+                  newFiles.push(file.file);
+                } else if (typeof file === 'string') {
+                  existingUrls.push(file);
+                } else if (file?.url) {
+                  existingUrls.push(file.url);
+                }
+              }
+
+              let uploadedImages: string[] = [];
+
+              if (newFiles.length > 0) {
+                const uploadRes = await UploadImage(newFiles);
+                uploadedImages = uploadRes?.data?.data?.images?.map((img: any) => img.url) || [];
+              }
+
+              updatedFields[fieldName] = [...existingUrls, ...uploadedImages];
             }
           }
 
@@ -149,44 +231,57 @@ const VariationsProduct = () => {
         }),
       );
 
-      const productImageFiles: File[] = product.images.map((img: any) => img.file);
-      const uploadedProductImages = await UploadImage(productImageFiles);
+      const newProductImages: File[] = [];
+      const existingProductImages: { url: string; isPrimary: boolean }[] = [];
 
-      const formattedImages = uploadedProductImages.data.data.images.map(
-        (img: any, index: number) => ({
-          url: img.url,
-          isPrimary: index === 0,
-        }),
-      );
+      product.images.forEach((img: any, index: number) => {
+        if (img?.file instanceof File) {
+          newProductImages.push(img.file);
+        } else if (img?.url) {
+          existingProductImages.push({
+            url: img.url,
+            isPrimary: img.isPrimary ?? index === 0,
+          });
+        }
+      });
+
+      let uploadedProductImages: { url: string; isPrimary: boolean }[] = [];
+
+      if (newProductImages.length > 0) {
+        const uploadRes = await UploadImage(newProductImages);
+        uploadedProductImages =
+          uploadRes?.data?.data?.images?.map((img: any, index: number) => ({
+            url: img.url,
+            isPrimary: index === 0 && existingProductImages.length === 0,
+          })) || [];
+      }
+
+      const formattedImages = [...existingProductImages, ...uploadedProductImages];
 
       const data = {
-        name: product.name,
-        price: product.price,
-        sellingPrice: product.sellingPrice,
-        currency: product.currency,
-        SKUName: product.SKUName,
-        description: product.description,
-        shortDescription: product.shortDescription,
+        ...product,
         images: formattedImages,
-        stock: product.stock,
-        category: product.category,
-        subCategory: product.subCategory,
-        subsubCategory: product.subsubCategory,
-        brand: product.brand,
-        weight: product.weight,
-        weightUnit: product.weightUnit,
-        dimensions: product.dimensions,
-        tags: product.tags,
-        specifications: product.specifications,
-        features: product.features,
         sku: updatedSku,
       };
 
-      await CreateProduct(data);
+      if (isEdit && location?.state?.id) {
+        await EditProduct({ id: location.state.id, data });
+      } else {
+        await CreateProduct(data);
+      }
+
+      navigate('/');
     } catch (error) {
-      console.error('Error while creating product:', error);
+      console.error('Error while submitting product:', error);
     }
   };
+
+  useEffect(() => {
+    if (location?.state?.id) {
+      setIsEdit(true);
+      fetchData();
+    }
+  }, [location?.state?.id]);
 
   return (
     <div className="flex flex-col items-center justify-center mx-auto p-6 bg-white rounded-xl shadow">

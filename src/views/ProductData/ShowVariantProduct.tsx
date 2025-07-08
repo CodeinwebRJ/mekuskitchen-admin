@@ -2,18 +2,24 @@ import { Fragment, useCallback, useEffect, useState } from 'react';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { Label, Pagination, TextInput, ToggleSwitch } from 'flowbite-react';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsActive, setPage, setSearch, setVariation } from 'src/Store/Slices/FilterData';
 import NoDataFound from 'src/components/NoDataFound';
 import { RootState } from 'src/Store/Store';
 import Loading from 'src/components/Loading';
-import { EditProduct } from 'src/AxiosConfig/AxiosConfig';
+import { DeleteProduct, EditProduct } from 'src/AxiosConfig/AxiosConfig';
 import { updateProductStatus } from 'src/Store/Slices/ProductData';
+import DeleteDialog from 'src/components/DeleteDialog';
 
 const ShowVariantProduct = () => {
   const location = useLocation();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { products, loading } = useSelector((state: RootState) => state.product);
+  const { search, isActive } = useSelector((state: RootState) => state.filterData);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const toggleExpand = (index: number) => {
@@ -30,19 +36,35 @@ const ShowVariantProduct = () => {
     }
   };
 
-  useEffect(() => {
-    fetchdata();
-  }, [location.pathname]);
-
-  const { products, loading } = useSelector((state: RootState) => state.product);
-  const { search, isActive } = useSelector((state: RootState) => state.filterData);
-
   const handlePageChange = useCallback(
     (pageNumber: number) => {
       dispatch(setPage(pageNumber));
     },
     [dispatch],
   );
+
+  const handleOpenDelete = (productId: string) => {
+    setSelectedProductId(productId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedProductId(null);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedProductId) return;
+
+    try {
+      await DeleteProduct(selectedProductId);
+      setIsDeleteDialogOpen(false);
+      setSelectedProductId(null);
+      dispatch(setPage(1));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
 
   const handleToggle = useCallback(
     async (productId: string, currentStatus: boolean) => {
@@ -64,6 +86,10 @@ const ShowVariantProduct = () => {
     },
     [dispatch],
   );
+
+  useEffect(() => {
+    fetchdata();
+  }, [location.pathname]);
 
   return (
     <div className="mx-auto">
@@ -103,7 +129,11 @@ const ShowVariantProduct = () => {
           </thead>
           <tbody>
             {loading ? (
-              <Loading />
+              <tr>
+                <td colSpan={9} className="text-center py-6">
+                  <Loading />
+                </td>
+              </tr>
             ) : products?.data?.length === 0 ? (
               <tr>
                 <td colSpan={9} className="text-center py-6">
@@ -113,8 +143,6 @@ const ShowVariantProduct = () => {
             ) : (
               products?.data?.map((product: any, index: number) => {
                 const isExpanded = expandedIndex === index;
-
-                // Calculate total stock from all SKUs
                 const totalStock = product?.sku?.reduce((skuAcc: number, skuItem: any) => {
                   const combinations = skuItem?.details?.combinations || [];
                   return (
@@ -160,13 +188,31 @@ const ShowVariantProduct = () => {
                       <td className="px-4 py-3">{product.brand || '-'}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-4 items-center justify-end">
-                          <MdModeEdit className="text-black cursor-pointer" size={20} />
-                          <MdDelete className="text-red-600 cursor-pointer" size={20} />
-                          <ToggleSwitch
-                            onChange={() => handleToggle(product._id, product.isActive)}
-                            checked={product.isActive || false}
-                            className="focus:ring-0"
-                          />
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <MdModeEdit
+                              className="text-black cursor-pointer"
+                              size={20}
+                              onClick={() =>
+                                navigate('/create-variations-product', {
+                                  state: { id: product._id },
+                                })
+                              }
+                            />
+                          </div>
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <MdDelete
+                              className="text-red-600 cursor-pointer"
+                              size={20}
+                              onClick={() => handleOpenDelete(product._id)}
+                            />
+                          </div>
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <ToggleSwitch
+                              onChange={() => handleToggle(product._id, product.isActive)}
+                              checked={product.isActive || false}
+                              className="focus:ring-0"
+                            />
+                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -263,6 +309,12 @@ const ShowVariantProduct = () => {
           />
         </div>
       )}
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={handleDelete}
+        message="Are you sure you want to delete this product?"
+      />
     </div>
   );
 };

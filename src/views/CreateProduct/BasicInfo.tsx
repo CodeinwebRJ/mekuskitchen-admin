@@ -184,7 +184,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
           </div>
           <div>
             <Label
-              value="Product Subcategory*"
+              value="Product Subcategory"
               className="block text-sm font-medium text-gray-700 mb-1"
             />
             <Select
@@ -257,7 +257,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
               onWheel={preventScroll}
               value={product.discount || '0'}
               readOnly
-              className="w-full bg-gray-100 cursor-not-allowed"
+              disabled
+              className="w-full"
             />
           </div>
 
@@ -431,7 +432,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
 
         <div>
           <Label
-            value="Short Description*"
+            value="Short Description"
             className="block text-sm font-medium text-gray-700 mb-1"
           />
           <Textarea
