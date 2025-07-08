@@ -1,14 +1,16 @@
 import { Label, TextInput, ToggleSwitch } from 'flowbite-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Pagination from 'src/components/Pagination/Pagination';
 import { setIsActive, setPage, setSearch, setVariation } from 'src/Store/Slices/FilterData';
 import { MdModeEdit } from 'react-icons/md';
 import { MdDelete } from 'react-icons/md';
-import { EditProduct } from 'src/AxiosConfig/AxiosConfig';
+import { DeleteProduct, EditProduct } from 'src/AxiosConfig/AxiosConfig';
 import { updateProductStatus } from 'src/Store/Slices/ProductData';
 import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
+import { useNavigate } from 'react-router';
+import DeleteDialog from 'src/components/DeleteDialog';
 
 interface RootState {
   product: any;
@@ -18,7 +20,10 @@ interface RootState {
 const Page = () => {
   const { products, loading } = useSelector((state: RootState) => state.product);
   const { search, isActive } = useSelector((state: RootState) => state.filterData);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handlePageChange = useCallback(
     (pageNumber: number) => {
@@ -47,6 +52,29 @@ const Page = () => {
     },
     [dispatch],
   );
+
+  const handleOpenDelete = (productId: string) => {
+    setSelectedProductId(productId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedProductId(null);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedProductId) return;
+
+    try {
+      await DeleteProduct(selectedProductId);
+      setIsDeleteDialogOpen(false);
+      setSelectedProductId(null);
+      dispatch(setPage(1));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
 
   const fetchdata = () => {
     try {
@@ -130,8 +158,16 @@ const Page = () => {
                   <td className="px-4 py-3">{product.brand || '-'}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-4 items-center justify-end">
-                      <MdModeEdit className="text-black cursor-pointer" size={20} />
-                      <MdDelete className="text-red-600 cursor-pointer" size={20} />
+                      <MdModeEdit
+                        className="text-black cursor-pointer"
+                        size={20}
+                        onClick={() => navigate('/create-product', { state: { id: product._id } })}
+                      />
+                      <MdDelete
+                        className="text-red-600 cursor-pointer"
+                        size={20}
+                        onClick={() => handleOpenDelete(product._id)}
+                      />
                       <ToggleSwitch
                         onChange={() => handleToggle(product._id, product.isActive)}
                         checked={product.isActive || false}
@@ -163,6 +199,12 @@ const Page = () => {
           />
         </div>
       )}
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={handleDelete}
+        message='Are you sure you want to delete this product?'
+      />
     </div>
   );
 };

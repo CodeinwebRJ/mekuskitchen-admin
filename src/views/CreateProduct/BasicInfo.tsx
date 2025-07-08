@@ -139,7 +139,6 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
                 required
                 placeholder="Enter product name"
                 className="w-full"
-                color={product.name ? 'success' : 'gray'}
               />
               {errors.name && <span className="text-red-500">{errors.name}</span>}
             </div>

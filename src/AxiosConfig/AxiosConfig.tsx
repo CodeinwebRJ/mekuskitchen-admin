@@ -141,7 +141,16 @@ export const EditProduct = async (payload: any) => {
   return axiosInstance.put(`/api/v1/product/category/${id}`, data);
 };
 
+export const getProductById = async (data: any) => {
+  const { id } = data;
+  return axiosInstance.get(`/api/v1/product/${id}`);
+};
+
 export const getAllQuarys = async (data: any) => {
   const { search } = data;
   return axiosInstance.get(`/api/v1/contact?search=${search}`);
+};
+
+export const DeleteProduct = async (data: any) => {
+  return axiosInstance.delete(`/api/v1/product/category/delete/${data}`);
 };

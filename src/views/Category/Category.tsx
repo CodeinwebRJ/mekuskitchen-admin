@@ -3,6 +3,7 @@ import { useState, useCallback, FormEvent, useMemo } from 'react';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { CreateCategory, DeleteCategory, UpdateCategory } from 'src/AxiosConfig/AxiosConfig'; // Fixed typo
+import DeleteDialog from 'src/components/DeleteDialog';
 import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
 import { setCategoryList, setSearchCategory } from 'src/Store/Slices/Categories';
@@ -38,11 +39,43 @@ const Category = () => {
   const [editCategoryName, setEditCategoryName] = useState('');
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<{ create?: string; edit?: string; delete?: string }>({});
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
+
   const dispatch = useDispatch();
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }));
   };
+
+  const handleOpenDelete = useCallback((category: CategoryType) => {
+    setSelectedCategory(category);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  const handleCancelDelete = useCallback(() => {
+    setIsDeleteDialogOpen(false);
+    setSelectedCategory(null);
+  }, []);
+
+  const confirmDeleteCategory = useCallback(async () => {
+    if (!selectedCategory) return;
+
+    setLoading(`delete-${selectedCategory._id}`, true);
+    setError({});
+
+    try {
+      await DeleteCategory({ categoryId: selectedCategory._id });
+      dispatch(setCategoryList(categoryList.filter((cat) => cat._id !== selectedCategory._id)));
+      setIsDeleteDialogOpen(false);
+      setSelectedCategory(null);
+    } catch (error: any) {
+      console.error('Failed to delete category:', error);
+      setError((prev) => ({ ...prev, delete: 'Failed to delete category.' }));
+    } finally {
+      setLoading(`delete-${selectedCategory._id}`, false);
+    }
+  }, [selectedCategory, categoryList, dispatch]);
 
   const validateCategory = (name: string): string | null => {
     if (!name || name.trim() === '') return 'This field can not be empty.';
@@ -99,23 +132,6 @@ const Category = () => {
         console.error('Failed to toggle category:', error);
       } finally {
         setLoading(`toggle-${category._id}`, false);
-      }
-    },
-    [categoryList, dispatch],
-  );
-
-  const handleDelete = useCallback(
-    async (category: CategoryType) => {
-      setLoading(`delete-${category._id}`, true);
-      setError({});
-      try {
-        await DeleteCategory({ categoryId: category._id });
-        dispatch(setCategoryList(categoryList.filter((cat) => cat._id !== category._id)));
-      } catch (error: any) {
-        console.error('Failed to delete category:', error);
-        setError((prev) => ({ ...prev, create: 'Failed to delete category.' }));
-      } finally {
-        setLoading(`delete-${category._id}`, false);
       }
     },
     [categoryList, dispatch],
@@ -231,9 +247,10 @@ const Category = () => {
                 >
                   <MdModeEdit className="text-black cursor-pointer" size={18} />
                 </div>
-                <div onClick={() => handleDelete(cat)} aria-label={`Delete ${cat.name}`}>
+                <div onClick={() => handleOpenDelete(cat)} aria-label={`Delete ${cat.name}`}>
                   <MdDelete className="text-red-600 cursor-pointer" size={18} />
                 </div>
+
                 <ToggleSwitch
                   checked={cat.isActive}
                   onChange={() => handleToggle(cat)}
@@ -251,7 +268,7 @@ const Category = () => {
       editCategoryName,
       handleToggle,
       handleEditStart,
-      handleDelete,
+      confirmDeleteCategory,
       handleEditSubmit,
       handleEditCancel,
       loadingStates,
@@ -291,7 +308,7 @@ const Category = () => {
         ) : showCategoryForm ? (
           <form
             onSubmit={handleCategorySubmit}
-            className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 flex flex-col gap-5 bg-white shadow-md rounded-lg p-4 sm:p-6"
+            className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 flex flex-col mb-4 gap-5 bg-white shadow-md rounded-lg p-4 sm:p-6"
           >
             <h2 className="text-lg sm:text-xl font-semibold text-gray-700">Create Category</h2>
             <div>
@@ -322,6 +339,12 @@ const Category = () => {
           <ul className="bg-white shadow-md rounded-md divide-y">{categoryListRender}</ul>
         )}
       </div>
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={confirmDeleteCategory}
+        message={`Are you sure you want to delete this Category?`}
+      />
     </div>
   );
 };

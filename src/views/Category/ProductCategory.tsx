@@ -10,6 +10,7 @@ import {
 } from 'src/AxiosConfig/AxiosConfig';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import NoDataFound from 'src/components/NoDataFound';
+import DeleteDialog from 'src/components/DeleteDialog';
 
 // Define constants
 const ERROR_MESSAGES = {
@@ -33,6 +34,10 @@ const ProductCategory = () => {
   const [editSubSubCategoryName, setEditSubSubCategoryName] = useState('');
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<{ create?: string; edit?: string; delete?: string }>({});
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedSubSubCategory, setSelectedSubSubCategory] = useState<SubSubCategoryType | null>(
+    null,
+  );
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }));
@@ -252,49 +257,60 @@ const ProductCategory = () => {
     [categoryList, dispatch],
   );
 
-  const handleDelete = useCallback(
-    async (catId: string, subCatId: string, subSubCategory: SubSubCategoryType) => {
-      setLoading(`delete-${subSubCategory._id}`, true);
-      try {
-        const data = {
-          categoryId: catId,
-          subCategoryId: subCatId,
-          subSubCategoryId: subSubCategory._id,
-        };
-        await DeleteSubSubCategory(data);
-        dispatch(
-          setCategoryList(
-            categoryList.map((cat) =>
-              cat._id === catId
-                ? {
-                    ...cat,
-                    subCategories: cat.subCategories.map((sub) =>
-                      sub._id === subCatId
-                        ? {
-                            ...sub,
-                            subSubCategories: sub.subSubCategories.filter(
-                              (ssub) => ssub._id !== subSubCategory._id,
-                            ),
-                          }
-                        : sub,
-                    ),
-                  }
-                : cat,
-            ),
+  const handleOpenDelete = useCallback((ssub: SubSubCategoryType) => {
+    setSelectedSubSubCategory(ssub);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  const handleCancelDelete = useCallback(() => {
+    setIsDeleteDialogOpen(false);
+    setSelectedSubSubCategory(null);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (!selectedCategory || !selectedSubCategory || !selectedSubSubCategory) return;
+
+    setLoading(`delete-${selectedSubSubCategory._id}`, true);
+    try {
+      await DeleteSubSubCategory({
+        categoryId: selectedCategory,
+        subCategoryId: selectedSubCategory,
+        subSubCategoryId: selectedSubSubCategory._id,
+      });
+
+      dispatch(
+        setCategoryList(
+          categoryList.map((cat) =>
+            cat._id === selectedCategory
+              ? {
+                  ...cat,
+                  subCategories: cat.subCategories.map((sub) =>
+                    sub._id === selectedSubCategory
+                      ? {
+                          ...sub,
+                          subSubCategories: sub.subSubCategories.filter(
+                            (ssub) => ssub._id !== selectedSubSubCategory._id,
+                          ),
+                        }
+                      : sub,
+                  ),
+                }
+              : cat,
           ),
-        );
-      } catch (error: any) {
-        console.error('Failed to delete sub-subcategory:', error);
-        setError((prev) => ({
-          ...prev,
-          delete: 'Failed to delete product category. Please try again.',
-        }));
-      } finally {
-        setLoading(`delete-${subSubCategory._id}`, false);
-      }
-    },
-    [categoryList, dispatch],
-  );
+        ),
+      );
+      setIsDeleteDialogOpen(false);
+      setSelectedSubSubCategory(null);
+    } catch (error: any) {
+      console.error('Failed to delete product category:', error);
+      setError((prev) => ({
+        ...prev,
+        delete: 'Failed to delete product category. Please try again.',
+      }));
+    } finally {
+      setLoading(`delete-${selectedSubSubCategory._id}`, false);
+    }
+  }, [selectedCategory, selectedSubCategory, selectedSubSubCategory, categoryList, dispatch]);
 
   const handleEditCancel = useCallback(() => {
     setEditSubSubCategoryId(null);
@@ -346,7 +362,7 @@ const ProductCategory = () => {
                   <MdModeEdit className="text-black cursor-pointer" size={18} />
                 </div>
                 <div
-                  onClick={() => handleDelete(selectedCategory, selectedSubCategory, ssub)}
+                  onClick={() => handleOpenDelete(ssub)}
                   color="primary"
                   aria-label={`Delete ${ssub.name}`}
                 >
@@ -371,7 +387,7 @@ const ProductCategory = () => {
       handleEditSubmit,
       handleEditStart,
       handleToggle,
-      handleDelete,
+      confirmDelete,
       handleEditCancel,
       loadingStates,
       error.edit,
@@ -399,7 +415,7 @@ const ProductCategory = () => {
           <div className="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <TextInput
               placeholder="Search"
-              className="w-1/3"
+              className="w-full sm:w-1/3"
               value={productCategorySearch}
               onChange={(e) => dispatch(setSearchProductCategory(e.target.value))}
             />
@@ -449,7 +465,7 @@ const ProductCategory = () => {
         {showForm && selectedSubCategory && (
           <form
             onSubmit={handleAddSubSubCategory}
-            className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6"
+            className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6 mb-4"
           >
             <h3 className="text-base sm:text-lg font-semibold text-gray-600">
               Create Product Category
@@ -488,6 +504,12 @@ const ProductCategory = () => {
           </div>
         )}
       </div>
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={confirmDelete}
+        message={`Are you sure you want to delete this Product Category?`}
+      />
     </div>
   );
 };

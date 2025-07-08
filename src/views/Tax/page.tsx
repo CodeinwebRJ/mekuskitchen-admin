@@ -5,6 +5,7 @@ import { FiPlus } from 'react-icons/fi';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosConfig';
+import DeleteDialog from 'src/components/DeleteDialog';
 import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
 import useDebounce from 'src/Hook/useDebounce';
@@ -52,6 +53,8 @@ const Page = () => {
   const [provinceCode, setProvinceCode] = useState('');
   const [provinceName, setProvinceName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState<string | null>(null);
   const [filter, setFilter] = useState({
     search: '',
     category: '',
@@ -164,12 +167,26 @@ const Page = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (provinceCode: string) => {
+  const handleOpenDelete = (provinceCode: string) => {
+    setSelectedProvinceCode(provinceCode);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedProvinceCode(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedProvinceCode) return;
     try {
-      await DeleteTax(provinceCode);
+      await DeleteTax(selectedProvinceCode);
       fetchTax();
     } catch (error) {
       console.error('Delete Tax Error:', error);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setSelectedProvinceCode(null);
     }
   };
 
@@ -308,7 +325,7 @@ const Page = () => {
             {loading ? (
               <Loading />
             ) : taxConfigs.length === 0 ? (
-              <div className='bg-white rounded-md'>
+              <div className="bg-white rounded-md">
                 <NoDataFound />
               </div>
             ) : (
@@ -328,7 +345,7 @@ const Page = () => {
                         <MdDelete
                           className="text-red-600 cursor-pointer"
                           size={18}
-                          onClick={() => handleDelete(config.provinceCode)}
+                          onClick={() => handleOpenDelete(config.provinceCode)}
                         />
                       </div>
                     </div>
@@ -352,6 +369,12 @@ const Page = () => {
           </div>
         )}
       </div>
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={confirmDelete}
+        message={`Are you sure you want to delete this Tax?`}
+      />
     </div>
   );
 };

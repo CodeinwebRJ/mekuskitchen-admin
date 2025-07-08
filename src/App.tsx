@@ -4,7 +4,7 @@ import customTheme from './utils/theme/custom-theme';
 import router from './routes/Router';
 import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from './Store/Store';
+import { AppDispatch, RootState } from './Store/Store';
 import { setCategoryList, setCategoryLoading, setError } from './Store/Slices/Categories';
 import { setLoading, setProducts } from './Store/Slices/ProductData';
 import { getAllProduct, getCategory } from './AxiosConfig/AxiosConfig';
@@ -16,6 +16,8 @@ function App() {
   const { categorySearch, subCategorySearch, productCategorySearch } = useSelector(
     (state: any) => state.category,
   );
+
+  const { products } = useSelector((state: RootState) => state.product);
 
   const category = useDebounce(categorySearch, 500);
   const subCategory = useDebounce(categorySearch, 500);
@@ -49,9 +51,9 @@ function App() {
       dispatch(setError(null));
       dispatch(setLoading(true));
       const data = {
+        search: debouncedSearch,
         page: filterData.page,
         limit: filterData.limit,
-        search: debouncedSearch,
         sortBy: filterData.sortBy,
         category: filterData.categories,
         subCategory: filterData.subCategories,
@@ -70,7 +72,21 @@ function App() {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch, filterData, debouncedSearch]);
+  }, [
+    dispatch,
+    products?.length,
+    debouncedSearch,
+    filterData.limit,
+    filterData.sortBy,
+    filterData.categories,
+    filterData.subCategories,
+    filterData.productCategories,
+    filterData.Brands,
+    filterData.ratings,
+    filterData.variation,
+    filterData.attributes,
+    filterData.page,
+  ]);
 
   useEffect(() => {
     fetchCategories();

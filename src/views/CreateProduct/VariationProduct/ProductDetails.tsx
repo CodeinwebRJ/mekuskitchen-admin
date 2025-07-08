@@ -446,7 +446,6 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
                       }
                     }}
                     placeholder="Specification Key (e.g., Material)"
-                    color={errors.specKey ? 'failure' : ''}
                     className="w-full"
                   />
                   <TextInput
@@ -460,7 +459,6 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
                       }
                     }}
                     placeholder="Specification Value (e.g., Aluminum)"
-                    color={errors.specValue ? 'failure' : ''}
                     className="w-full"
                   />
                 </div>

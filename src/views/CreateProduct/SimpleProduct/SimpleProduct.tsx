@@ -1,9 +1,15 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, TextInput } from 'flowbite-react';
 import BasicInfo from '../BasicInfo';
-import { CreateProduct, UploadImage } from 'src/AxiosConfig/AxiosConfig';
+import {
+  CreateProduct,
+  EditProduct,
+  getProductById,
+  UploadImage,
+} from 'src/AxiosConfig/AxiosConfig';
 import { MdDelete } from 'react-icons/md';
 import Loading from 'src/components/Loading';
+import { useLocation, useNavigate } from 'react-router';
 
 interface Dimension {
   length: string;
@@ -40,6 +46,7 @@ interface Product {
 }
 
 const SimpleProduct = () => {
+  const [isEdit, setIsEdit] = useState(false);
   const [product, setProduct] = useState<Product>({
     name: '',
     price: '',
@@ -71,6 +78,8 @@ const SimpleProduct = () => {
     aboutItem: [],
     sku: [],
   });
+  const location = useLocation();
+  const navigate = useNavigate();
   const [newFeature, setNewFeature] = useState<string>('');
   const [aboutItem, setAboutItem] = useState<string>('');
   const [newTag, setNewTag] = useState<string>('');
@@ -79,11 +88,100 @@ const SimpleProduct = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
 
+  const resetForm = () => {
+    setProduct({
+      name: '',
+      price: '',
+      sellingPrice: '',
+      currency: '',
+      description: '',
+      shortDescription: '',
+      images: [],
+      stock: '',
+      category: '',
+      subCategory: '',
+      subsubCategory: '',
+      SKUName: '',
+      discount: '',
+      brand: '',
+      weight: '',
+      isTaxFree: false,
+      manageInventory: true,
+      weightUnit: '',
+      dimensions: {
+        length: '',
+        width: '',
+        height: '',
+        dimensionUnit: '',
+      },
+      tags: [],
+      specifications: {},
+      features: [],
+      aboutItem: [],
+      sku: [],
+    });
+    setNewFeature('');
+    setAboutItem('');
+    setNewTag('');
+    setSpecKey('');
+    setSpecValue('');
+    setErrors({});
+  };
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const res = await getProductById({ id: location?.state?.id });
+      const edit = res?.data?.data;
+      if (edit) {
+        setProduct({
+          name: edit.name || '',
+          price: edit.price || '',
+          sellingPrice: edit.sellingPrice || '',
+          currency: edit.currency || '',
+          description: edit.description || '',
+          shortDescription: edit.shortDescription || '',
+          images: edit.images || [],
+          stock: edit.stock || '',
+          category: edit.category || '',
+          subCategory: edit.subCategory || '',
+          subsubCategory: edit.subsubCategory || '',
+          SKUName: edit.SKUName || '',
+          discount: edit.discount || '',
+          brand: edit.brand || '',
+          weight: edit.weight || '',
+          isTaxFree: edit.isTaxFree ?? false,
+          manageInventory: edit.manageInventory ?? true,
+          weightUnit: edit.weightUnit || '',
+          dimensions: {
+            length: edit.dimensions?.length || '',
+            width: edit.dimensions?.width || '',
+            height: edit.dimensions?.height || '',
+            dimensionUnit: edit.dimensions?.dimensionUnit || '',
+          },
+          tags: edit.tags || [],
+          specifications: edit.specifications || {},
+          features: edit.features || [],
+          aboutItem: edit.aboutItem || [],
+          sku: edit.sku || [],
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (location?.state?.id) {
+      setIsEdit(true);
+      fetchProduct();
+    }
+  }, [location?.state?.id]);
+
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
-
-    console.log(product.price)
-    console.log(product.sellingPrice)
 
     if (!product.images || product.images.length === 0) {
       newErrors.images = 'Product images are required';
@@ -91,12 +189,16 @@ const SimpleProduct = () => {
     if (!product.name || product.name.trim() === '') newErrors.name = 'Product name is required';
     if (!product.category) newErrors.category = 'Category is required';
     if (!product.subCategory) newErrors.subCategory = 'Subcategory is required';
-    if (!product.subsubCategory) newErrors.subsubCategory = 'Sub-subcategory is required';
     if (!product.currency) newErrors.currency = 'Currency is required';
     if (!product.price) newErrors.price = 'price is required';
     if (!product.sellingPrice) newErrors.sellingPrice = 'selling price is required';
-    // if (product.price >= product.sellingPrice)
-    //   newErrors.sellingPrice = 'Selling price must be greater than price';
+    if (
+      product.price &&
+      product.sellingPrice &&
+      Number(product.price) <= Number(product.sellingPrice)
+    ) {
+      newErrors.sellingPrice = 'Selling price must be less than original price';
+    }
     if (!product.SKUName || product.SKUName.trim() === '')
       newErrors.SKUName = 'SKU Name is required';
     if (!product.shortDescription || product.shortDescription.trim() === '')
@@ -142,7 +244,23 @@ const SimpleProduct = () => {
         images: formattedImages,
       };
 
-      await CreateProduct(data);
+      if (isEdit && location?.state?.id) {
+        const payload = {
+          id: location.state.id,
+          data: data,
+        };
+        const res = await EditProduct(payload);
+        if (res.status === 200) {
+          navigate('/');
+          resetForm();
+        }
+      } else {
+        const res = await CreateProduct(data);
+        if (res.status === 200) {
+          navigate('/');
+          resetForm();
+        }
+      }
       setLoading(false);
     } catch (error) {
       console.error('Error while creating product:', error);
@@ -411,7 +529,6 @@ const SimpleProduct = () => {
                         }
                       }}
                       placeholder="Specification Key (e.g., Material)"
-                      color={errors.specKey ? 'failure' : ''}
                       className="w-full"
                     />
                     <TextInput
@@ -425,7 +542,6 @@ const SimpleProduct = () => {
                         }
                       }}
                       placeholder="Specification Value (e.g., Aluminum)"
-                      color={errors.specValue ? 'failure' : ''}
                       className="w-full"
                     />
                   </div>

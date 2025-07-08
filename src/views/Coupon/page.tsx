@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
 import useDebounce from 'src/Hook/useDebounce';
+import DeleteDialog from 'src/components/DeleteDialog';
 
 interface CouponFormData {
   _id?: string;
@@ -54,6 +55,8 @@ const Page: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<CouponFormData | null>(null);
 
   const code = useDebounce(search, 500);
 
@@ -101,12 +104,25 @@ const Page: FC = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: any) => {
+  const handleOpenDelete = (coupon: CouponFormData) => {
+    setSelectedCoupon(coupon);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedCoupon(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedCoupon?._id) return;
     setLoading(true);
     setError(null);
     try {
-      await DeleteCoupons({ couponId: id });
-      setData((prev) => prev.filter((coupon) => coupon._id !== id));
+      await DeleteCoupons({ couponId: selectedCoupon._id });
+      setData((prev) => prev.filter((coupon) => coupon._id !== selectedCoupon._id));
+      setIsDeleteDialogOpen(false);
+      setSelectedCoupon(null);
     } catch (error) {
       console.error('Failed to delete coupon:', error);
       setError('Failed to delete coupon. Please try again.');
@@ -183,7 +199,6 @@ const Page: FC = () => {
                   <th className="px-4 py-3">Start Date</th>
                   <th className="px-4 py-3">End Date</th>
                   <th className="px-4 py-3">Discount</th>
-                  <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
@@ -225,23 +240,21 @@ const Page: FC = () => {
                         {coupon.discountValue} {coupon.discountType === 'percentage' ? '%' : '$'}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <ToggleSwitch
-                          onChange={(checked) => handleToggleChange(coupon._id, checked)}
-                          checked={coupon.isActive}
-                          className="focus:ring-0"
-                        />
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 items-center">
                           <MdModeEdit
                             size={18}
-                            className="text-primary cursor-pointer"
+                            className=" cursor-pointer"
                             onClick={() => handleEdit(coupon)}
                           />
                           <MdDelete
                             size={18}
                             className="text-red-600 cursor-pointer"
-                            onClick={() => handleDelete(coupon._id)}
+                            onClick={() => handleOpenDelete(coupon)}
+                          />
+                          <ToggleSwitch
+                            onChange={(checked) => handleToggleChange(coupon._id, checked)}
+                            checked={coupon.isActive}
+                            className="focus:ring-0"
                           />
                         </div>
                       </td>
@@ -259,6 +272,12 @@ const Page: FC = () => {
           </div>
         </div>
       )}
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={confirmDelete}
+        message={`Are you sure you want to delete this Coupon?`}
+      />
     </div>
   );
 };

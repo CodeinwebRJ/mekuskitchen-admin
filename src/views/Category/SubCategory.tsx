@@ -10,6 +10,7 @@ import {
 } from 'src/AxiosConfig/AxiosConfig';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import NoDataFound from 'src/components/NoDataFound';
+import DeleteDialog from 'src/components/DeleteDialog';
 
 interface SubSubCategoryType {
   _id: string;
@@ -34,6 +35,8 @@ const SubCategory = () => {
   const [editSubCategoryName, setEditSubCategoryName] = useState('');
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<{ create?: string; edit?: string; delete?: string }>({});
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategoryType | null>(null);
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }));
@@ -41,8 +44,7 @@ const SubCategory = () => {
 
   const validateSubCategory = (name: string, categoryId: string): string | null => {
     if (!categoryId) return 'Please select a category.';
-    if (!name || name.trim().length < 3)
-      return 'This field can not be empty.';
+    if (!name || name.trim().length < 3) return 'This field can not be empty.';
     const category = categoryList.find((cat) => cat._id === categoryId);
     const duplicate = category?.subCategories.some(
       (sub) => sub.name.toLowerCase() === name.trim().toLowerCase(),
@@ -203,35 +205,51 @@ const SubCategory = () => {
     setEditSubCategoryName('');
   }, []);
 
-  const handleDelete = useCallback(
-    async (catId: string, subCategory: SubCategoryType) => {
-      setLoading(`delete-${subCategory._id}`, true);
-      try {
-        await DeleteSubCategory({ categoryId: catId, subCategoryId: subCategory._id });
-        dispatch(
-          setCategoryList(
-            categoryList.map((cat) =>
-              cat._id === catId
-                ? {
-                    ...cat,
-                    subCategories: cat.subCategories.filter((sub) => sub._id !== subCategory._id),
-                  }
-                : cat,
-            ),
+  const handleOpenDelete = useCallback((subCategory: SubCategoryType) => {
+    setSelectedSubCategory(subCategory);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  const handleCancelDelete = useCallback(() => {
+    setIsDeleteDialogOpen(false);
+    setSelectedSubCategory(null);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (!selectedSubCategory || !selectedCategory) return;
+
+    setLoading(`delete-${selectedSubCategory._id}`, true);
+    try {
+      await DeleteSubCategory({
+        categoryId: selectedCategory,
+        subCategoryId: selectedSubCategory._id,
+      });
+      dispatch(
+        setCategoryList(
+          categoryList.map((cat) =>
+            cat._id === selectedCategory
+              ? {
+                  ...cat,
+                  subCategories: cat.subCategories.filter(
+                    (sub) => sub._id !== selectedSubCategory._id,
+                  ),
+                }
+              : cat,
           ),
-        );
-      } catch (error: any) {
-        console.error('Failed to delete subcategory:', error);
-        setError((prev) => ({
-          ...prev,
-          delete: 'Failed to delete subcategory. Please try again.',
-        }));
-      } finally {
-        setLoading(`delete-${subCategory._id}`, false);
-      }
-    },
-    [categoryList, dispatch],
-  );
+        ),
+      );
+      setIsDeleteDialogOpen(false);
+      setSelectedSubCategory(null);
+    } catch (error: any) {
+      console.error('Failed to delete subcategory:', error);
+      setError((prev) => ({
+        ...prev,
+        delete: 'Failed to delete subcategory. Please try again.',
+      }));
+    } finally {
+      setLoading(`delete-${selectedSubCategory._id}`, false);
+    }
+  }, [selectedSubCategory, selectedCategory, categoryList, dispatch]);
 
   const filteredSubCategories = useMemo(
     () => categoryList.find((cat) => cat._id === selectedCategory)?.subCategories || [],
@@ -247,7 +265,7 @@ const SubCategory = () => {
               onSubmit={(e) => handleEditSubmit(e, selectedCategory, sub)}
               className="flex items-center gap-2 w-full"
             >
-              <div className='flex-1'>
+              <div className="flex-1">
                 <TextInput
                   value={editSubCategoryName}
                   onChange={(e) => setEditSubCategoryName(e.target.value)}
@@ -282,7 +300,7 @@ const SubCategory = () => {
                   <MdModeEdit className="text-black cursor-pointer" size={18} />
                 </div>
                 <div
-                  onClick={() => handleDelete(selectedCategory, sub)}
+                  onClick={() => handleOpenDelete(sub)}
                   color="primary"
                   aria-label={`Delete ${sub.name}`}
                 >
@@ -305,7 +323,7 @@ const SubCategory = () => {
       selectedCategory,
       handleToggle,
       handleEditStart,
-      handleDelete,
+      confirmDelete,
       handleEditSubmit,
       handleEditCancel,
       loadingStates,
@@ -331,10 +349,10 @@ const SubCategory = () => {
           </div>
         </div>
 
-        <div className="w-full mb-4 flex items-center gap-3">
+        <div className="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <TextInput
             placeholder="Search"
-            className="w-1/3"
+            className="w-full sm:w-1/3"
             value={subCategorySearch}
             onChange={(e) => dispatch(setSearchSubCategory(e.target.value))}
           />
@@ -359,7 +377,7 @@ const SubCategory = () => {
         {showForm && (
           <form
             onSubmit={handleAddSubCategory}
-            className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6"
+            className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6 mb-4"
           >
             <h3 className="text-base sm:text-lg font-semibold text-gray-600">Create SubCategory</h3>
             <div>
@@ -394,6 +412,12 @@ const SubCategory = () => {
           <ul className="bg-white shadow-md rounded-md divide-y mt-4">{subCategoryListRender}</ul>
         )}
       </div>
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={confirmDelete}
+        message={`Are you sure you want to delete this Subcategory?`}
+      />
     </div>
   );
 };
