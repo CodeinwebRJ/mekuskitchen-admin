@@ -82,6 +82,18 @@ const SidebarContent: MenuItem[] = [
         ],
       },
       {
+        name: 'Tiffin',
+        icon: getIconByName('Category'),
+        id: 'util-category',
+        url: '/tiffin',
+      },
+      {
+        name: 'Create Tiffin',
+        icon: getIconByName('Category'),
+        id: 'util-category',
+        url: '/create-tiffin',
+      },
+      {
         name: 'Create Category',
         icon: getIconByName('Category'),
         id: 'util-category',

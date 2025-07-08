@@ -1,5 +1,5 @@
 import { Button } from 'flowbite-react';
-import React, { useRef, ChangeEvent, DragEvent } from 'react';
+import { useRef, ChangeEvent, DragEvent } from 'react';
 
 export interface ImageItem {
   file?: File;
@@ -27,7 +27,7 @@ export interface Product {
 
 interface TableFileUploaderProps {
   images: ImageItem[];
-  setProduct: React.Dispatch<React.SetStateAction<Product>>;
+  setProduct: any;
 }
 
 export default function TableFileUploader({ images, setProduct }: TableFileUploaderProps) {
@@ -36,24 +36,43 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-      const newImages: ImageItem[] = selectedFiles.map((file) => ({ file }));
 
-      setProduct((prev) => ({
-        ...prev,
-        images: [...(prev.images || []), ...newImages],
-      }));
+      setProduct((prev: any) => {
+        const existingFiles = new Set(
+          (prev.images || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
+        );
+
+        const newImages: ImageItem[] = selectedFiles
+          .filter((file) => !existingFiles.has(file.name + file.size))
+          .map((file) => ({ file }));
+
+        return {
+          ...prev,
+          images: [...(prev.images || []), ...newImages],
+        };
+      });
+      e.target.value = '';
     }
   };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const droppedFiles = Array.from(e.dataTransfer.files);
-    const newImages: ImageItem[] = droppedFiles.map((file) => ({ file }));
 
-    setProduct((prev) => ({
-      ...prev,
-      images: [...(prev.images || []), ...newImages],
-    }));
+    setProduct((prev: any) => {
+      const existingFiles = new Set(
+        (prev.images || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
+      );
+
+      const newImages: ImageItem[] = droppedFiles
+        .filter((file) => !existingFiles.has(file.name + file.size))
+        .map((file) => ({ file }));
+
+      return {
+        ...prev,
+        images: [...(prev.images || []), ...newImages],
+      };
+    });
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -61,8 +80,8 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
   };
 
   const removeImage = (index: number) => {
-    setProduct((prev) => {
-      const updatedImages = (prev.images || []).filter((_, idx) => idx !== index);
+    setProduct((prev: any) => {
+      const updatedImages = (prev.images || []).filter((_: any, idx: number) => idx !== index);
       return {
         ...prev,
         images: updatedImages,
@@ -76,9 +95,9 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
 
   return (
     <div className="flex flex-col items-center w-full p-6 bg-white rounded-xl">
-      {images.length > 0 && (
+      {images?.length > 0 && (
         <div className="mb-6 w-full grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {images.map((image, index) => (
+          {images?.map((image, index) => (
             <div
               key={index}
               className="relative group rounded-md overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"

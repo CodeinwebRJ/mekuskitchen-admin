@@ -133,6 +133,21 @@ const VariationsProduct = () => {
 
       if (edit) {
         const flattenedSku = edit.sku.map((item: any) => item.details);
+        const combinationFields = edit.combinationFields?.length
+          ? edit.combinationFields
+          : Array.from(
+              new Set(
+                flattenedSku.flatMap((skuItem: any) =>
+                  skuItem.combinations.flatMap((comb: any) =>
+                    Object.keys(comb).filter((key) => key !== 'Price' && key !== 'Stock'),
+                  ),
+                ),
+              ),
+            ).map((name) => ({
+              name,
+              type: 'text',
+              isDefault: false,
+            }));
 
         setProduct({
           ...product,
@@ -147,7 +162,7 @@ const VariationsProduct = () => {
           stock: edit.stock || '',
           category: edit.category || '',
           subCategory: edit.subCategory || '',
-          subsubCategory: edit.subsubCategory || '',
+          subsubCategory: edit.ProductCategory || '',
           brand: edit.brand || '',
           weight: edit.weight || '',
           isTaxFree: edit.isTaxFree ?? false,
@@ -169,12 +184,7 @@ const VariationsProduct = () => {
             })),
           })),
           skuFields: edit.skuFields?.length ? edit.skuFields : product.skuFields,
-          combinationFields: edit.combinationFields?.length
-            ? edit.combinationFields
-            : [
-                { name: 'Size', type: 'text', isDefault: false },
-                { name: 'Storage', type: 'text', isDefault: false },
-              ],
+          combinationFields,
         });
 
         setIsEdit(true);
@@ -192,7 +202,6 @@ const VariationsProduct = () => {
         .filter((field) => field.type === 'image')
         .map((field) => field.name);
 
-      // Handle SKU image uploads conditionally
       const updatedSku = await Promise.all(
         (product.sku || []).map(async (skuItem: any) => {
           const updatedFields = { ...skuItem };

@@ -154,3 +154,7 @@ export const getAllQuarys = async (data: any) => {
 export const DeleteProduct = async (data: any) => {
   return axiosInstance.delete(`/api/v1/product/category/delete/${data}`);
 };
+
+export const Createtiffin = async (data: any) => {
+  return axiosInstance.post('/api/v1/tiffin-menu/create', data);
+};

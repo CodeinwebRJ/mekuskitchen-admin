@@ -5,7 +5,6 @@ import Category from 'src/views/Category/page';
 import Coupon from 'src/views/Coupon/page';
 import Tax from 'src/views/Tax/page';
 import Orders from 'src/views/Orders/page';
-import Tiffin from 'src/views/Tiffin/Tiffin';
 import SimpleProduct from 'src/views/CreateProduct/SimpleProduct/SimpleProduct';
 import VariationsProduct from 'src/views/CreateProduct/VariationProduct/VariationsProduct';
 import ProtectedRoute from 'src/components/ProtectedRoute/ProtectedRoute';
@@ -13,6 +12,8 @@ import ForgotPassword from 'src/views/auth/authforms/ForgotPassword';
 import Contact from 'src/views/Contact/page';
 import Productdata from 'src/views/ProductData/page';
 import ShowVariantProduct from 'src/views/ProductData/ShowVariantProduct';
+import CreateTiffin from 'src/views/CreateTiffin/page';
+import TiffinCompo from 'src/views/Tiffin/TiffinCompo';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -61,7 +62,15 @@ const Router = [
         path: '/tiffin',
         element: (
           <ProtectedRoute>
-            <Tiffin />
+            <TiffinCompo />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/create-tiffin',
+        element: (
+          <ProtectedRoute>
+            <CreateTiffin />
           </ProtectedRoute>
         ),
       },

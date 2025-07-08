@@ -78,6 +78,7 @@ function App() {
     debouncedSearch,
     filterData.limit,
     filterData.sortBy,
+    filterData.isActive,
     filterData.categories,
     filterData.subCategories,
     filterData.productCategories,

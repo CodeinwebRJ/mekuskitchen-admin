@@ -369,7 +369,7 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
               </div>
               <div className="w-full">
                 <Button color="primary" size="sm" type="button" onClick={addAboutItem}>
-                  Add AboutItem
+                  Add About Product
                 </Button>
               </div>
             </div>
