@@ -8,8 +8,11 @@ import {
   getTiffinById,
   UploadImage,
   updateTiffin,
+  getAllTiffin,
 } from 'src/AxiosConfig/AxiosConfig';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
+import { useDispatch } from 'react-redux';
+import { setTiffin } from 'src/Store/Slices/Tiffin';
 
 export interface TiffinItem {
   name: string;
@@ -40,6 +43,8 @@ export interface TiffinFormData {
 
 const CreateTiffin = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -121,6 +126,16 @@ const CreateTiffin = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const fetchAllTiffin = async () => {
+    try {
+      const data = { day: '', Active: '', search: '' };
+      const res = await getAllTiffin(data);
+      dispatch(setTiffin(res?.data?.data));
+    } catch (error) {
+      console.error('Error fetching tiffins:', error);
+    }
+  };
+
   const handleNext = async () => {
     const isValid = validateForm(currentStep);
     if (!isValid) return;
@@ -133,17 +148,28 @@ const CreateTiffin = () => {
           .filter((img) => img.file instanceof File)
           .map((img) => img.file as File);
 
-        let uploadedImages: ImageItem[] = formData.image_url.filter((img) => img.url && !img.file); // already uploaded
+        let uploadedImages: ImageItem[] = formData.image_url
+          .filter((img) => img.url && !img.file)
+          .map((img, index) => ({
+            url: img.url,
+            isPrimary: img.isPrimary ?? index === 0,
+          }));
 
         if (imageFiles.length > 0) {
           const uploadedRes = await UploadImage(imageFiles);
-          const newlyUploaded = uploadedRes?.data?.data?.images?.map(
-            (img: { url: string }, index: number) => ({
+          const newlyUploaded: ImageItem[] =
+            uploadedRes?.data?.data?.images?.map((img: { url: string }, index: number) => ({
               url: img.url,
-              isPrimary: index === 0 && uploadedImages.length === 0,
-            }),
-          );
+              isPrimary: uploadedImages.length === 0 && index === 0,
+            })) || [];
+
           uploadedImages = [...uploadedImages, ...newlyUploaded];
+        }
+
+        if (!uploadedImages.some((img) => img.isPrimary)) {
+          if (uploadedImages.length > 0) {
+            uploadedImages[0].isPrimary = true;
+          }
         }
 
         const payload = {
@@ -175,7 +201,8 @@ const CreateTiffin = () => {
             },
           ],
         });
-        setCurrentStep(1);
+        navigate('/tiffin');
+        fetchAllTiffin();
       } catch (error) {
         console.error('Failed to submit tiffin items:', error);
       }

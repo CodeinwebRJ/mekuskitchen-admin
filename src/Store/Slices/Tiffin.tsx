@@ -25,10 +25,16 @@ export interface Tiffin {
 
 interface TiffinState {
   data: Tiffin | [];
+  search: string;
+  dat: string;
+  Active: string;
 }
 
 const initialState: TiffinState = {
   data: [],
+  search: '',
+  dat: '',
+  Active: '',
 };
 
 const tiffinSlice = createSlice({

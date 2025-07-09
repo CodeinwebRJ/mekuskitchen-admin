@@ -172,5 +172,5 @@ export const updateTiffin = async (id: string, data: any) => {
 };
 
 export const deleteTiffin = async (id: string) => {
-  return axiosInstance.put(`/api/v1/tiffin-menu/delete/${id}`);
+  return axiosInstance.delete(`/api/v1/tiffin-menu/delete/${id}`);
 };

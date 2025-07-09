@@ -82,9 +82,9 @@ export default function TiffinImage({
   };
 
   return (
-    <div className="flex flex-col items-center w-full p-6 bg-white rounded-xl">
+    <div className="flex flex-col items-center w-full px-4 py-4 sm:px-6 sm:py-6 bg-white rounded-xl">
       {images?.length > 0 && (
-        <div className="mb-6 w-full grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="mb-6 w-full grid grid-cols-2 gap-3 sm:gap-4">
           {images?.map((image, index) => (
             <div
               key={index}
@@ -93,7 +93,7 @@ export default function TiffinImage({
               <img
                 src={image.file ? URL.createObjectURL(image.file) : image.url}
                 alt="preview"
-                className="w-full h-24 object-cover"
+                className="w-full h-24 sm:h-28 md:h-32 object-cover"
                 onLoad={(e) => {
                   if (image.file) URL.revokeObjectURL((e.target as HTMLImageElement).src);
                 }}
@@ -135,13 +135,13 @@ export default function TiffinImage({
       )}
 
       <div
-        className="w-full h-52 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300 cursor-pointer"
+        className="w-full h-40 sm:h-48 md:h-52 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300 cursor-pointer"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={handleContainerClick}
       >
         {images.length === 0 ? (
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col items-center text-center px-2">
             <svg
               className="w-10 h-10 text-gray-400"
               fill="none"
@@ -162,7 +162,7 @@ export default function TiffinImage({
             <p className="mt-1 text-xs text-gray-400">Supports images (PNG, JPG, etc.)</p>
           </div>
         ) : (
-          <p className="text-sm text-gray-600">Drop more images or click to add</p>
+          <p className="text-sm text-gray-600 px-2 text-center">Drop more images or click to add</p>
         )}
       </div>
 

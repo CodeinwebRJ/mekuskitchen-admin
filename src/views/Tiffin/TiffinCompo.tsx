@@ -2,21 +2,57 @@ import { Label, TextInput, ToggleSwitch } from 'flowbite-react';
 import { Fragment, useState } from 'react';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { RootState } from 'src/Store/Store';
 import { format } from 'date-fns';
+import DeleteDialog from 'src/components/DeleteDialog';
+import { deleteTiffin, getAllTiffin } from 'src/AxiosConfig/AxiosConfig';
+import { setTiffin } from 'src/Store/Slices/Tiffin';
 
 const TiffinCompo = () => {
   const navigate = useNavigate();
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const dispatch = useDispatch();
   const { data } = useSelector((state: RootState) => state.tiffin);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedTiffinId, setSelectedTiffinId] = useState<string | null>(null);
+
+  const fetchAllTiffin = async () => {
+    try {
+      const data = { day: '', Active: '', search: '' };
+      const res = await getAllTiffin(data);
+      dispatch(setTiffin(res?.data?.data));
+    } catch (error) {
+      console.error('Error fetching tiffins:', error);
+    }
+  };
 
   const toggleExpand = (index: number) => {
     setExpandedIndex((prev) => (prev === index ? null : index));
   };
 
-  console.log(data);
+  const handleOpenDelete = (tiffinId: string) => {
+    setSelectedTiffinId(tiffinId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedTiffinId(null);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedTiffinId) return;
+    try {
+      await deleteTiffin(selectedTiffinId);
+      setIsDeleteDialogOpen(false);
+      setSelectedTiffinId(null);
+      await fetchAllTiffin();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
 
   return (
     <div className="mx-auto">
@@ -90,7 +126,11 @@ const TiffinCompo = () => {
                             />
                           </div>
                           <div onClick={(e) => e.stopPropagation()}>
-                            <MdDelete className="text-red-600 cursor-pointer" size={20} />
+                            <MdDelete
+                              onClick={() => handleOpenDelete(tiffin._id)}
+                              className="text-red-600 cursor-pointer"
+                              size={20}
+                            />
                           </div>
                           <div onClick={(e) => e.stopPropagation()}>
                             <ToggleSwitch checked={tiffin.Active} onChange={() => {}} />
@@ -148,6 +188,12 @@ const TiffinCompo = () => {
           </tbody>
         </table>
       </div>
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={handleDelete}
+        message="Are you sure you want to delete this Tiffin?"
+      />
     </div>
   );
 };
