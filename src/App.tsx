@@ -1,50 +1,49 @@
 import { RouterProvider } from 'react-router';
 import { Flowbite, ThemeModeScript } from 'flowbite-react';
-import customTheme from './utils/theme/custom-theme';
-import router from './routes/Router';
 import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from './Store/Store';
+import customTheme from './utils/theme/custom-theme';
+import router from './routes/Router';
 import { setCategoryList, setCategoryLoading, setError } from './Store/Slices/Categories';
 import { setLoading, setProducts } from './Store/Slices/ProductData';
-import { getAllProduct, getCategory } from './AxiosConfig/AxiosConfig';
+import { setTiffin } from './Store/Slices/Tiffin';
+
+import { getAllProduct, getAllTiffin, getCategory } from './AxiosConfig/AxiosConfig';
 import useDebounce from './Hook/useDebounce';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
-  const filterData = useSelector((state: any) => state.filterData);
-  const { categorySearch, subCategorySearch, productCategorySearch } = useSelector(
-    (state: any) => state.category,
-  );
-
+  const filterData = useSelector((state: RootState) => state.filterData);
   const { products } = useSelector((state: RootState) => state.product);
-
+  const { categorySearch, subCategorySearch, productCategorySearch } = useSelector(
+    (state: RootState) => state.category,
+  );
   const category = useDebounce(categorySearch, 500);
-  const subCategory = useDebounce(categorySearch, 500);
-  const productCategory = useDebounce(categorySearch, 500);
+  const subCategory = useDebounce(subCategorySearch, 500);
+  const productCategory = useDebounce(productCategorySearch, 500);
+  const debouncedSearch = useDebounce(filterData.search, 500);
 
   const fetchCategories = useCallback(async () => {
     try {
       dispatch(setError(null));
       dispatch(setCategoryLoading(true));
       const data = {
-        categorySearch: categorySearch,
-        subCategorySearch: subCategorySearch,
-        productCategorySearch: productCategorySearch,
+        categorySearch: category,
+        subCategorySearch: subCategory,
+        productCategorySearch: productCategory,
       };
       const res = await getCategory(data);
       if (res?.data?.data) {
         dispatch(setCategoryList(res.data.data));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching categories:', error);
       dispatch(setError('Failed to fetch categories. Please try again.'));
     } finally {
       dispatch(setCategoryLoading(false));
     }
-  }, [dispatch, category, subCategory, productCategory]);
-
-  const debouncedSearch = useDebounce(filterData.search, 500);
+  }, [dispatch, products?.length, category, subCategory, productCategory]);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -59,14 +58,13 @@ function App() {
         subCategory: filterData.subCategories,
         ProductCategory: filterData.productCategories,
         brands: filterData.Brands,
-        ratings: filterData.ratings,
         variation: filterData.variation,
         attributes: filterData.attributes,
         isActive: filterData.isActive,
       };
       const res = await getAllProduct(data);
       dispatch(setProducts(res?.data?.data));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching products:', error);
       dispatch(setError('Failed to fetch products. Please try again.'));
     } finally {
@@ -74,24 +72,36 @@ function App() {
     }
   }, [
     dispatch,
-    products?.length,
     debouncedSearch,
+    filterData.page,
     filterData.limit,
     filterData.sortBy,
-    filterData.isActive,
     filterData.categories,
     filterData.subCategories,
     filterData.productCategories,
     filterData.Brands,
-    filterData.ratings,
     filterData.variation,
     filterData.attributes,
-    filterData.page,
+    filterData.isActive,
   ]);
+
+  const fetchAllTiffin = useCallback(async () => {
+    try {
+      const data = { day: '', Active: '', search: '' };
+      const res = await getAllTiffin(data);
+      dispatch(setTiffin(res?.data?.data));
+    } catch (error) {
+      console.error('Error fetching tiffin:', error);
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
+
+  useEffect(() => {
+    fetchAllTiffin();
+  }, [fetchAllTiffin]);
 
   useEffect(() => {
     fetchProducts();

@@ -165,7 +165,7 @@ const Page: React.FC = () => {
             <tr>
               <th className="px-4 py-3">User</th>
               <th className="px-4 py-3">Order ID</th>
-              <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">Orderd Date</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3 text-right"></th>
@@ -214,7 +214,7 @@ const Page: React.FC = () => {
                           {order.orderStatus}
                         </span>
                       </td>
-                      <td className="px-4 py-3">₹{order.grandTotal.toFixed(2)}</td>
+                      <td className="px-4 py-3">$ {order.grandTotal.toFixed(2)}</td>
                       <td className="px-4 py-3 text-right">
                         {isExpanded ? <IoIosArrowUp /> : <IoIosArrowDown />}
                       </td>
@@ -273,9 +273,9 @@ const Page: React.FC = () => {
                                       )}
                                     </td>
                                     <td className="px-3 py-2">{item.quantity}</td>
-                                    <td className="px-3 py-2">₹{item.price.toFixed(2)}</td>
+                                    <td className="px-3 py-2">${item.price.toFixed(2)}</td>
                                     <td className="px-3 py-2">
-                                      ₹{(item.quantity * item.price).toFixed(2)}
+                                      ${(item.quantity * item.price).toFixed(2)}
                                     </td>
                                   </tr>
                                 ))}

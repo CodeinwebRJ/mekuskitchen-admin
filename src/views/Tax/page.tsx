@@ -217,7 +217,7 @@ const Page = () => {
           <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-md space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="provinceName" value="Province Name" />
+                <Label htmlFor="provinceName" value="Province Name*" />
                 <TextInput
                   id="provinceName"
                   value={provinceName}
@@ -231,7 +231,7 @@ const Page = () => {
                 )}
               </div>
               <div>
-                <Label htmlFor="provinceCode" value="Province Code" />
+                <Label htmlFor="provinceCode" value="Province Code*" />
                 <TextInput
                   id="provinceCode"
                   value={provinceCode}
@@ -253,7 +253,7 @@ const Page = () => {
                   className="flex flex-col lg:flex-row lg:items-start gap-4 border p-3 rounded-md"
                 >
                   <div className="flex-1">
-                    <Label value="Select Category" />
+                    <Label value="Select Category*" />
                     <Select
                       value={tax.category}
                       onChange={(e) => handleTaxChange(index, 'category', e.target.value)}
@@ -271,7 +271,7 @@ const Page = () => {
                     )}
                   </div>
                   <div className="flex-1">
-                    <Label value="Province Tax (%)" />
+                    <Label value="Province Tax (%)*" />
                     <TextInput
                       type="number"
                       onWheel={preventScroll}
@@ -283,7 +283,7 @@ const Page = () => {
                     )}
                   </div>
                   <div className="flex-1">
-                    <Label value="Federal Tax (%)" />
+                    <Label value="Federal Tax (%)*" />
                     <TextInput
                       type="number"
                       onWheel={preventScroll}

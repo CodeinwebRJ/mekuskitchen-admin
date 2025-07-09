@@ -11,6 +11,7 @@ import {
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import NoDataFound from 'src/components/NoDataFound';
 import DeleteDialog from 'src/components/DeleteDialog';
+import Loading from 'src/components/Loading';
 
 interface SubSubCategoryType {
   _id: string;
@@ -27,7 +28,9 @@ interface SubCategoryType {
 
 const SubCategory = () => {
   const dispatch = useDispatch();
-  const { categoryList, subCategorySearch } = useSelector((state: RootState) => state.category);
+  const { categoryList, loading, subCategorySearch } = useSelector(
+    (state: RootState) => state.category,
+  );
   const [selectedCategory, setSelectedCategory] = useState('');
   const [subCategoryName, setSubCategoryName] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -268,7 +271,12 @@ const SubCategory = () => {
               <div className="flex-1">
                 <TextInput
                   value={editSubCategoryName}
-                  onChange={(e) => setEditSubCategoryName(e.target.value)}
+                  onChange={(e) => {
+                    if (error.edit) {
+                      setError((prev) => ({ ...prev, edit: '' }));
+                    }
+                    setEditSubCategoryName(e.target.value);
+                  }}
                   placeholder="Edit subcategory name"
                   className="flex-1"
                   disabled={loadingStates[`edit-${sub._id}`]}
@@ -374,7 +382,9 @@ const SubCategory = () => {
 
         {error.delete && <p className="text-red-500">{error.delete}</p>}
 
-        {showForm && (
+        {loading ? (
+          <Loading />
+        ) : showForm ? (
           <form
             onSubmit={handleAddSubCategory}
             className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6 mb-4"
@@ -383,7 +393,12 @@ const SubCategory = () => {
             <div>
               <TextInput
                 value={subCategoryName}
-                onChange={(e) => setSubCategoryName(e.target.value)}
+                onChange={(e) => {
+                  if (error.create) {
+                    setError((prev) => ({ ...prev, create: '' }));
+                  }
+                  setSubCategoryName(e.target.value);
+                }}
                 placeholder="Enter subcategory name"
                 disabled={loadingStates.create}
                 aria-label="Subcategory name"
@@ -400,17 +415,15 @@ const SubCategory = () => {
               {loadingStates.create ? 'Creating...' : 'Create SubCategory'}
             </Button>
           </form>
-        )}
-
-        {selectedCategory && filteredSubCategories.length === 0 && (
-          <div className="bg-white rounded-md">
-            <NoDataFound />
-          </div>
-        )}
-
-        {selectedCategory && filteredSubCategories.length > 0 && (
-          <ul className="bg-white shadow-md rounded-md divide-y mt-4">{subCategoryListRender}</ul>
-        )}
+        ) : selectedCategory ? (
+          filteredSubCategories.length > 0 ? (
+            <ul className="bg-white shadow-md rounded-md divide-y mt-4">{subCategoryListRender}</ul>
+          ) : (
+            <div className="bg-white rounded-md">
+              <NoDataFound />
+            </div>
+          )
+        ) : null}
       </div>
       <DeleteDialog
         isOpen={isDeleteDialogOpen}

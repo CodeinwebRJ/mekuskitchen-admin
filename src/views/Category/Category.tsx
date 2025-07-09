@@ -208,13 +208,17 @@ const Category = () => {
               <div className="flex flex-col w-full">
                 <TextInput
                   value={editCategoryName}
-                  onChange={(e) => setEditCategoryName(e.target.value)}
+                  onChange={(e) => {
+                    setEditCategoryName(e.target.value);
+                    if (error.edit) {
+                      setError((prev) => ({ ...prev, edit: '' }));
+                    }
+                  }}
                   placeholder="Edit category name"
                   className="flex-1"
                   disabled={loadingStates[`edit-${cat._id}`]}
                   aria-label={`Edit name for ${cat.name}`}
                 />
-                {/* ✅ Show error only if it's the current edit */}
                 {editCategoryId === cat._id && error.edit && (
                   <div className="text-red-500 text-sm mt-1">{error.edit}</div>
                 )}
@@ -314,7 +318,12 @@ const Category = () => {
             <div>
               <TextInput
                 value={categoryInput}
-                onChange={(e) => setCategoryInput(e.target.value)}
+                onChange={(e) => {
+                  if (error.create) {
+                    setError((prev) => ({ ...prev, create: '' }));
+                  }
+                  setCategoryInput(e.target.value);
+                }}
                 placeholder="Enter category name"
                 disabled={loadingStates.create}
                 aria-label="Category name"

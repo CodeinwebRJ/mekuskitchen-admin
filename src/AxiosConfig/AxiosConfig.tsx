@@ -158,3 +158,19 @@ export const DeleteProduct = async (data: any) => {
 export const Createtiffin = async (data: any) => {
   return axiosInstance.post('/api/v1/tiffin-menu/create', data);
 };
+
+export const getAllTiffin = async (data: any) => {
+  return axiosInstance.post('/api/v1/tiffin-menu/', data);
+};
+
+export const getTiffinById = async (id: string) => {
+  return axiosInstance.get(`/api/v1/tiffin-menu/${id}`);
+};
+
+export const updateTiffin = async (id: string, data: any) => {
+  return axiosInstance.put(`/api/v1/tiffin-menu/update/${id}`, data);
+};
+
+export const deleteTiffin = async (id: string) => {
+  return axiosInstance.put(`/api/v1/tiffin-menu/delete/${id}`);
+};

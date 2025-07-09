@@ -65,12 +65,10 @@ const Page = () => {
 
   const handleDelete = async () => {
     if (!selectedProductId) return;
-
     try {
       await DeleteProduct(selectedProductId);
       setIsDeleteDialogOpen(false);
       setSelectedProductId(null);
-      dispatch(setPage(1));
     } catch (error) {
       console.error('Error deleting product:', error);
     }
@@ -144,7 +142,9 @@ const Page = () => {
                     />
                   </td>
                   <td className="px-4 py-3">{product?.name?.toUpperCase()}</td>
-                  <td className="px-4 py-3">₹{product?.price?.toFixed(2)}</td>
+                  <td className="px-4 py-3">
+                   $ {product?.price?.toFixed(2)} {product.currency}{' '}
+                  </td>
                   <td className="px-4 py-3">{product?.stock}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-col text-sm gap-1">

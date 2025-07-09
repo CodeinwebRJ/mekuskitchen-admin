@@ -44,7 +44,7 @@ const Notification = () => {
             >
                 {
                     Notifications.map((item) => (
-                        <Dropdown.Item as={Link} key={item.id} to="#" className="px-3 py-3 flex items-center bg-hover group/link w-full gap-3 text-dark hover:bg-gray-100">
+                        <Dropdown.Item  as={Link} key={item.id} to="#" className="px-3 py-3 flex items-center bg-hover group/link w-full gap-3 text-dark hover:bg-gray-100">
                         <div className="flex items-center gap-5">
                             <div>
                                 <img

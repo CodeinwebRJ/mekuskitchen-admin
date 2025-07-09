@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Stepper from '../CreateProduct/Component/Stepper';
 import TiffinInfo from './TiffinInfo';
 import Items from './Items';
 import { Button } from 'flowbite-react';
-import { Createtiffin, UploadImage } from 'src/AxiosConfig/AxiosConfig';
+import {
+  Createtiffin,
+  getTiffinById,
+  UploadImage,
+  updateTiffin,
+} from 'src/AxiosConfig/AxiosConfig';
+import { useLocation } from 'react-router';
 
 export interface TiffinItem {
   name: string;
@@ -33,8 +39,10 @@ export interface TiffinFormData {
 }
 
 const CreateTiffin = () => {
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [formData, setFormData] = useState<TiffinFormData>({
     day: '',
     date: '',
@@ -57,9 +65,41 @@ const CreateTiffin = () => {
 
   const steps = [1, 2];
 
+  const fetchData = async () => {
+    try {
+      const id = location?.state?.id;
+      if (id) {
+        setIsEditMode(true);
+        const { data } = await getTiffinById(id);
+        const tiffin = data?.data;
+
+        const formatDate = (dateStr: string) => {
+          return dateStr ? new Date(dateStr).toISOString().split('T')[0] : '';
+        };
+
+        setFormData({
+          day: tiffin.day || '',
+          date: formatDate(tiffin.date),
+          endDate: formatDate(tiffin.endDate),
+          description: tiffin.description || '',
+          image_url: tiffin.image_url || [],
+          category: tiffin.category || '',
+          aboutItem: tiffin.aboutItem || [],
+          totalAmount: tiffin.totalAmount || '',
+          items: tiffin.items || [],
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching tiffin data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [location?.state?.id]);
+
   const validateForm = (step: number): boolean => {
     const newErrors: { [key: string]: string } = {};
-
     if (step === 1) {
       if (!formData.day.trim()) newErrors.day = 'Day is required';
       if (!formData.date.trim()) newErrors.date = 'Date is required';
@@ -68,17 +108,15 @@ const CreateTiffin = () => {
       if (!formData.category.trim()) newErrors.category = 'Category is required';
       if (formData.image_url.length === 0) newErrors.image_url = 'Tiffin Image is required';
     }
-
     if (step === 2) {
       formData.items.forEach((item, index) => {
         if (!item.name.trim()) newErrors[`item_name_${index}`] = 'Item name is required';
         if (!item.price.trim()) newErrors[`item_price_${index}`] = 'Price is required';
-        if (!item.quantity.trim()) newErrors[`item_quantity_${index}`] = 'Quantity is required';
+        if (!item.quantity) newErrors[`item_quantity_${index}`] = 'Quantity is required';
         if (!item.quantityUnit.trim())
           newErrors[`item_quantityUnit_${index}`] = 'Quantity unit is required';
       });
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -95,20 +133,29 @@ const CreateTiffin = () => {
           .filter((img) => img.file instanceof File)
           .map((img) => img.file as File);
 
-        const uploadedTiffinImages = await UploadImage(imageFiles);
+        let uploadedImages: ImageItem[] = formData.image_url.filter((img) => img.url && !img.file); // already uploaded
 
-        const formattedImages =
-          uploadedTiffinImages?.data?.data?.images?.map((img: { url: string }, index: number) => ({
-            url: img.url,
-            isPrimary: index === 0,
-          })) || [];
+        if (imageFiles.length > 0) {
+          const uploadedRes = await UploadImage(imageFiles);
+          const newlyUploaded = uploadedRes?.data?.data?.images?.map(
+            (img: { url: string }, index: number) => ({
+              url: img.url,
+              isPrimary: index === 0 && uploadedImages.length === 0,
+            }),
+          );
+          uploadedImages = [...uploadedImages, ...newlyUploaded];
+        }
 
         const payload = {
           ...formData,
-          image_url: formattedImages,
+          image_url: uploadedImages,
         };
 
-        await Createtiffin(payload);
+        if (isEditMode && location.state?.id) {
+          await updateTiffin(location.state.id, payload);
+        } else {
+          await Createtiffin(payload);
+        }
         setFormData({
           day: '',
           date: '',
@@ -128,6 +175,7 @@ const CreateTiffin = () => {
             },
           ],
         });
+        setCurrentStep(1);
       } catch (error) {
         console.error('Failed to submit tiffin items:', error);
       }
@@ -180,7 +228,7 @@ const CreateTiffin = () => {
           </Button>
 
           <Button onClick={handleNext} type="button" color="blue">
-            Next
+            {currentStep === steps.length ? (isEditMode ? 'Update' : 'Submit') : 'Next'}
           </Button>
         </div>
       </form>

@@ -11,6 +11,7 @@ import {
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import NoDataFound from 'src/components/NoDataFound';
 import DeleteDialog from 'src/components/DeleteDialog';
+import Loading from 'src/components/Loading';
 
 // Define constants
 const ERROR_MESSAGES = {
@@ -25,7 +26,9 @@ const ERROR_MESSAGES = {
 
 const ProductCategory = () => {
   const dispatch = useDispatch();
-  const { categoryList, productCategorySearch } = useSelector((state: RootState) => state.category);
+  const { categoryList, loading, productCategorySearch } = useSelector(
+    (state: RootState) => state.category,
+  );
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [subSubCategoryName, setSubSubCategoryName] = useState('');
@@ -329,7 +332,12 @@ const ProductCategory = () => {
               <div className="flex-1">
                 <TextInput
                   value={editSubSubCategoryName}
-                  onChange={(e) => setEditSubSubCategoryName(e.target.value)}
+                  onChange={(e) => {
+                    if (error.edit) {
+                      setError((prev) => ({ ...prev, edit: '' }));
+                    }
+                    setEditSubSubCategoryName(e.target.value);
+                  }}
                   placeholder="Edit product category name"
                   className="flex-1"
                   disabled={loadingStates[`edit-${ssub._id}`]}
@@ -462,47 +470,52 @@ const ProductCategory = () => {
           </div>
         </div>
 
-        {showForm && selectedSubCategory && (
-          <form
-            onSubmit={handleAddSubSubCategory}
-            className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6 mb-4"
-          >
-            <h3 className="text-base sm:text-lg font-semibold text-gray-600">
-              Create Product Category
-            </h3>
-            <div>
-              <TextInput
-                value={subSubCategoryName}
-                onChange={(e) => setSubSubCategoryName(e.target.value)}
-                placeholder="Enter product category name"
-                disabled={loadingStates.create}
-                aria-label="Product category name"
-              />
-              {error.create && <div className="text-red-600">{error.create}</div>}
-            </div>
-            <Button
-              color="primary"
-              size="sm"
-              type="submit"
-              disabled={loadingStates.create}
-              className="w-full sm:w-auto"
+        {loading ? (
+          <Loading />
+        ) : selectedSubCategory ? (
+          showForm ? (
+            <form
+              onSubmit={handleAddSubSubCategory}
+              className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6 mb-4"
             >
-              {loadingStates.create ? 'Creating...' : 'Create'}
-            </Button>
-          </form>
-        )}
-
-        {selectedSubCategory && filteredSubSubCategories.length > 0 && (
-          <ul className="bg-white shadow-md rounded-md divide-y mt-4">
-            {subSubCategoryListRender}
-          </ul>
-        )}
-
-        {selectedSubCategory && filteredSubSubCategories.length === 0 && (
-          <div className="bg-white rounded-md">
-            <NoDataFound />
-          </div>
-        )}
+              <h3 className="text-base sm:text-lg font-semibold text-gray-600">
+                Create Product Category
+              </h3>
+              <div>
+                <TextInput
+                  value={subSubCategoryName}
+                  onChange={(e) => {
+                    if (error.create) {
+                      setError((prev) => ({ ...prev, create: '' }));
+                    }
+                    setSubSubCategoryName(e.target.value);
+                  }}
+                  placeholder="Enter product category name"
+                  disabled={loadingStates.create}
+                  aria-label="Product category name"
+                />
+                {error.create && <div className="text-red-600">{error.create}</div>}
+              </div>
+              <Button
+                color="primary"
+                size="sm"
+                type="submit"
+                disabled={loadingStates.create}
+                className="w-full sm:w-auto"
+              >
+                {loadingStates.create ? 'Creating...' : 'Create Product Category'}
+              </Button>
+            </form>
+          ) : filteredSubSubCategories.length > 0 ? (
+            <ul className="bg-white shadow-md rounded-md divide-y mt-4">
+              {subSubCategoryListRender}
+            </ul>
+          ) : (
+            <div className="bg-white rounded-md">
+              <NoDataFound />
+            </div>
+          )
+        ) : null}
       </div>
       <DeleteDialog
         isOpen={isDeleteDialogOpen}

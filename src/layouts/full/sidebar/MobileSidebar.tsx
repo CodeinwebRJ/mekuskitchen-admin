@@ -23,7 +23,7 @@ const MobileSidebar = () => {
               <Sidebar.ItemGroup className="sidebar-nav hide-menu">
                 {SidebarContent &&
                   SidebarContent?.map((item, index) => (
-                    <div className="caption" key={item.heading}>
+                    <div className="caption" key={index}>
                       <React.Fragment key={index}>
                         <h5 className="text-link dark:text-white/70 caption font-semibold leading-6 tracking-widest text-xs pb-2 uppercase">
                           {item.heading}
