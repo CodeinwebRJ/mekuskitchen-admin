@@ -227,43 +227,60 @@ const SimpleProduct = () => {
 
   const handleSubmit = async (): Promise<void> => {
     if (!validateForm()) return;
+
     try {
       setLoading(true);
-      const imageFiles: File[] = product.images.map((img: any) =>
-        img?.file instanceof File ? img.file : img,
-      );
-      const uploadedProductImages = await UploadImage(imageFiles);
-      const formattedImages =
-        uploadedProductImages?.data?.data?.images?.map((img: { url: string }, index: number) => ({
-          url: img.url,
-          isPrimary: index === 0,
-        })) || [];
+
+      const newImageFiles: File[] = [];
+      const existingImages: { url: string; isPrimary: boolean }[] = [];
+
+      product.images.forEach((img: any, index: number) => {
+        if (img?.file instanceof File) {
+          newImageFiles.push(img.file);
+        } else if (typeof img === 'string') {
+          existingImages.push({
+            url: img,
+            isPrimary: index === 0,
+          });
+        } else if (img?.url) {
+          existingImages.push({
+            url: img.url,
+            isPrimary: img.isPrimary ?? index === 0,
+          });
+        }
+      });
+
+      let uploadedImages: { url: string; isPrimary: boolean }[] = [];
+
+      if (newImageFiles.length > 0) {
+        const uploadRes = await UploadImage(newImageFiles);
+        uploadedImages =
+          uploadRes?.data?.data?.images?.map((img: any, index: number) => ({
+            url: img.url,
+            isPrimary: existingImages.length === 0 && index === 0,
+          })) || [];
+      }
+
+      const formattedImages = [...existingImages, ...uploadedImages];
 
       const data = {
         ...product,
         images: formattedImages,
       };
 
+      let res;
       if (isEdit && location?.state?.id) {
-        const payload = {
-          id: location.state.id,
-          data: data,
-        };
-        const res = await EditProduct(payload);
-        if (res.status === 200) {
-          navigate('/');
-          resetForm();
-        }
+        res = await EditProduct({ id: location.state.id, data });
       } else {
-        const res = await CreateProduct(data);
-        if (res.status === 200) {
-          navigate('/');
-          resetForm();
-        }
+        res = await CreateProduct(data);
       }
-      setLoading(false);
+
+      if (res?.status === 200) {
+        navigate('/');
+        resetForm();
+      }
     } catch (error) {
-      console.error('Error while creating product:', error);
+      console.error('Error while submitting product:', error);
     } finally {
       setLoading(false);
     }
@@ -385,7 +402,12 @@ const SimpleProduct = () => {
         <Loading />
       ) : (
         <div>
-          <BasicInfo product={product} setErrors={setErrors} setProduct={setProduct} errors={errors} />
+          <BasicInfo
+            product={product}
+            setErrors={setErrors}
+            setProduct={setProduct}
+            errors={errors}
+          />
           <div className="mt-6">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">Features & Specifications</h3>
             <div>

@@ -135,7 +135,7 @@ const Page = () => {
               products?.data?.length > 0 &&
               products?.data?.map((product: any, index: number) => (
                 <tr key={product?._id} className="hover:bg-gray-50 transition">
-                  <td className="px-4 py-3">{index + 1}</td>
+                  <td className="px-4 py-3">{(products?.page - 1) * 10 + index + 1}</td>
                   <td className="px-4 py-3">
                     <img
                       src={product?.images?.[0]?.url || '/default-product.jpg'}
@@ -203,7 +203,7 @@ const Page = () => {
         isOpen={isDeleteDialogOpen}
         onCancel={handleCancelDelete}
         onDelete={handleDelete}
-        message='Are you sure you want to delete this product?'
+        message="Are you sure you want to delete this product?"
       />
     </div>
   );

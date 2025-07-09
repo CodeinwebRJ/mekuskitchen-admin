@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
-import { Label, Pagination, TextInput, ToggleSwitch } from 'flowbite-react';
+import { Label, TextInput, ToggleSwitch } from 'flowbite-react';
 import { useLocation, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsActive, setPage, setSearch, setVariation } from 'src/Store/Slices/FilterData';
@@ -11,6 +11,7 @@ import Loading from 'src/components/Loading';
 import { DeleteProduct, EditProduct } from 'src/AxiosConfig/AxiosConfig';
 import { updateProductStatus } from 'src/Store/Slices/ProductData';
 import DeleteDialog from 'src/components/DeleteDialog';
+import Pagination from 'src/components/Pagination/Pagination';
 
 const ShowVariantProduct = () => {
   const location = useLocation();
@@ -160,7 +161,7 @@ const ShowVariantProduct = () => {
                       className="hover:bg-gray-50 transition cursor-pointer"
                       onClick={() => toggleExpand(index)}
                     >
-                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3"> {(products?.page - 1) * 10 + index + 1}</td>
                       <td className="px-4 py-3">
                         <img
                           src={product?.images?.[0]?.url || '/default-product.jpg'}
