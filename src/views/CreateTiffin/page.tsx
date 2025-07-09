@@ -23,26 +23,27 @@ export interface ImageItem {
 export interface TiffinFormData {
   day: string;
   date: string;
-  BookingEndDate: string;
+  endDate: string;
   description: string;
-  images: ImageItem[];
+  image_url: ImageItem[];
   category: string;
   aboutItem: string[];
   items: TiffinItem[];
+  totalAmount: string;
 }
 
 const CreateTiffin = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const steps = [1, 2];
-
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<TiffinFormData>({
     day: '',
     date: '',
-    BookingEndDate: '',
+    endDate: '',
     description: '',
-    images: [],
+    image_url: [],
     category: '',
     aboutItem: [],
+    totalAmount: '',
     items: [
       {
         name: '',
@@ -54,12 +55,43 @@ const CreateTiffin = () => {
     ],
   });
 
+  const steps = [1, 2];
+
+  const validateForm = (step: number): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (step === 1) {
+      if (!formData.day.trim()) newErrors.day = 'Day is required';
+      if (!formData.date.trim()) newErrors.date = 'Date is required';
+      if (!formData.endDate.trim()) newErrors.endDate = 'BookingDate is required';
+      if (!formData.description.trim()) newErrors.description = 'Description is required';
+      if (!formData.category.trim()) newErrors.category = 'Category is required';
+      if (formData.image_url.length === 0) newErrors.image_url = 'Tiffin Image is required';
+    }
+
+    if (step === 2) {
+      formData.items.forEach((item, index) => {
+        if (!item.name.trim()) newErrors[`item_name_${index}`] = 'Item name is required';
+        if (!item.price.trim()) newErrors[`item_price_${index}`] = 'Price is required';
+        if (!item.quantity.trim()) newErrors[`item_quantity_${index}`] = 'Quantity is required';
+        if (!item.quantityUnit.trim())
+          newErrors[`item_quantityUnit_${index}`] = 'Quantity unit is required';
+      });
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleNext = async () => {
+    const isValid = validateForm(currentStep);
+    if (!isValid) return;
+
     if (currentStep < steps.length) {
       setCurrentStep((prev) => prev + 1);
     } else {
       try {
-        const imageFiles: File[] = formData.images
+        const imageFiles: File[] = formData.image_url
           .filter((img) => img.file instanceof File)
           .map((img) => img.file as File);
 
@@ -73,18 +105,19 @@ const CreateTiffin = () => {
 
         const payload = {
           ...formData,
-          images: formattedImages,
+          image_url: formattedImages,
         };
 
         await Createtiffin(payload);
         setFormData({
           day: '',
           date: '',
-          BookingEndDate: '',
+          endDate: '',
           description: '',
-          images: [],
+          image_url: [],
           category: '',
           aboutItem: [],
+          totalAmount: '',
           items: [
             {
               name: '',
@@ -110,18 +143,27 @@ const CreateTiffin = () => {
   const renderStepContent = (step: number) => {
     switch (step) {
       case 1:
-        return <TiffinInfo formData={formData} setFormData={setFormData} />;
+        return (
+          <TiffinInfo
+            errors={errors}
+            setErrors={setErrors}
+            formData={formData}
+            setFormData={setFormData}
+          />
+        );
       case 2:
-        return <Items formData={formData} setFormData={setFormData} />;
+        return (
+          <Items
+            errors={errors}
+            setErrors={setErrors}
+            formData={formData}
+            setFormData={setFormData}
+          />
+        );
       default:
         return null;
     }
   };
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  // };
 
   return (
     <div className="flex flex-col items-center justify-center mx-auto p-6 bg-white rounded-xl shadow">

@@ -81,12 +81,12 @@ const SidebarContent: MenuItem[] = [
           },
         ],
       },
-      // {
-      //   name: 'Tiffin',
-      //   icon: getIconByName('Category'),
-      //   id: 'util-category',
-      //   url: '/tiffin',
-      // },
+      {
+        name: 'Tiffin',
+        icon: getIconByName('Category'),
+        id: 'util-category',
+        url: '/tiffin',
+      },
       {
         name: 'Create Tiffin',
         icon: getIconByName('Category'),

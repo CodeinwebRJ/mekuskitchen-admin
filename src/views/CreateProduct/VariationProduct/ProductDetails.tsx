@@ -14,12 +14,10 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { id, value } = e.target;
 
-      // if (['length', 'width', 'height'].includes(id)) {
-      //   if (parseFloat(value) < 0) {
-      //     // setErrors('Dimensions cannot be negative');
-      //     return;
-      //   }
-      // }
+      setErrors((prev: any) => ({
+        ...prev,
+        [id]: undefined,
+      }));
 
       if (['length', 'width', 'height', 'dimensionUnit'].includes(id)) {
         setProduct((prev: any) => ({

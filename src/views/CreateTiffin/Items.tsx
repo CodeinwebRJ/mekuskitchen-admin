@@ -6,29 +6,95 @@ import { FC } from 'react';
 interface Props {
   formData: TiffinFormData;
   setFormData: React.Dispatch<React.SetStateAction<TiffinFormData>>;
+  errors: any;
+  setErrors: any;
 }
 
-const Items: FC<Props> = ({ formData, setFormData }) => {
+interface TiffinItem {
+  name: string;
+  price: string;
+  quantity: string;
+  quantityUnit: string;
+  description: string;
+}
+
+const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
+  const calculateTotal = (items: TiffinItem[]) => {
+    return items.reduce((sum, item) => {
+      const price = parseFloat(item.price);
+      return sum + (isNaN(price) ? 0 : price);
+    }, 0);
+  };
+
   const handleItemChange = (index: number, field: string, value: string) => {
     const updatedItems = [...formData.items];
-    updatedItems[index][field as keyof (typeof updatedItems)[number]] = value;
-    setFormData((prev) => ({ ...prev, items: updatedItems }));
+    updatedItems[index][field as keyof TiffinItem] = value;
+
+    // Clear specific field error for this item
+    setErrors((prevErrors: any) => {
+      const newErrors = { ...prevErrors };
+
+      if (Array.isArray(newErrors.items)) {
+        const itemErrors = [...newErrors.items];
+
+        if (itemErrors[index]) {
+          itemErrors[index] = {
+            ...itemErrors[index],
+            [field]: undefined,
+          };
+
+          // Remove the error object if all fields are cleared
+          if (Object.values(itemErrors[index]).every((v) => !v)) {
+            itemErrors[index] = undefined;
+          }
+        }
+
+        newErrors.items = itemErrors.filter((e) => e !== undefined);
+      }
+
+      return newErrors;
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      items: updatedItems,
+      totalAmount: calculateTotal(updatedItems).toFixed(2),
+    }));
   };
 
   const addItem = () => {
+    const updatedItems = [
+      ...formData.items,
+      { name: '', price: '', quantity: '', quantityUnit: '', description: '' },
+    ];
+
     setFormData((prev) => ({
       ...prev,
-      items: [
-        ...prev.items,
-        { name: '', price: '', quantity: '', quantityUnit: '', description: '' },
-      ],
+      items: updatedItems,
+      totalAmount: calculateTotal(updatedItems).toFixed(2),
     }));
   };
 
   const removeItem = (index: number) => {
     const updatedItems = [...formData.items];
     updatedItems.splice(index, 1);
-    setFormData((prev) => ({ ...prev, items: updatedItems }));
+
+    setFormData((prev) => ({
+      ...prev,
+      items: updatedItems,
+      totalAmount: calculateTotal(updatedItems).toFixed(2),
+    }));
+
+    // Also remove corresponding error
+    setErrors((prevErrors: any) => {
+      const newErrors = { ...prevErrors };
+      if (Array.isArray(newErrors.items)) {
+        const itemErrors = [...newErrors.items];
+        itemErrors.splice(index, 1);
+        newErrors.items = itemErrors;
+      }
+      return newErrors;
+    });
   };
 
   const totalAmount = formData.items.reduce((sum, item) => {
@@ -53,6 +119,9 @@ const Items: FC<Props> = ({ formData, setFormData }) => {
               onChange={(e) => handleItemChange(index, 'name', e.target.value)}
               placeholder="e.g. Aloo Gobi"
             />
+            {errors.items?.[index]?.name && (
+              <p className="text-red-600 text-sm">{errors.items[index].name}</p>
+            )}
           </div>
 
           <div>
@@ -64,6 +133,9 @@ const Items: FC<Props> = ({ formData, setFormData }) => {
               onChange={(e) => handleItemChange(index, 'price', e.target.value)}
               placeholder="e.g. 90"
             />
+            {errors.items?.[index]?.price && (
+              <p className="text-red-600 text-sm">{errors.items[index].price}</p>
+            )}
           </div>
 
           <div>
@@ -74,6 +146,9 @@ const Items: FC<Props> = ({ formData, setFormData }) => {
               onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
               placeholder="e.g. 1"
             />
+            {errors.items?.[index]?.quantity && (
+              <p className="text-red-600 text-sm">{errors.items[index].quantity}</p>
+            )}
           </div>
 
           <div>
@@ -84,16 +159,19 @@ const Items: FC<Props> = ({ formData, setFormData }) => {
               onChange={(e) => handleItemChange(index, 'quantityUnit', e.target.value)}
             >
               <option value="">Select Unit</option>
-              <option value="plate">Plate</option>
               <option value="piece">Piece</option>
+              <option value="plate">Plate</option>
               <option value="bowl">Bowl</option>
               <option value="box">Box</option>
               <option value="oz">OZ</option>
-              <option value="kg">Kg</option>
-              <option value="g">g</option>
-              <option value="ml">ml</option>
-              <option value="l">L</option>
+              <option value="kg">Kg (Kilogram)</option>
+              <option value="g">g (gram)</option>
+              <option value="ml">ml (milliliter)</option>
+              <option value="l">L (liter)</option>
             </Select>
+            {errors.items?.[index]?.quantityUnit && (
+              <p className="text-red-600 text-sm">{errors.items[index].quantityUnit}</p>
+            )}
           </div>
 
           <div>
@@ -118,8 +196,8 @@ const Items: FC<Props> = ({ formData, setFormData }) => {
         <Button type="button" color="gray" onClick={addItem}>
           + Add Item
         </Button>
-        <div className="text-right text-lg font-semibold text-gray-700">
-          Total Amount: ₹{totalAmount.toFixed(2)}
+        <div className="text-right font-semibold text-gray-700">
+          Total Amount: ${totalAmount.toFixed(2)}
         </div>
       </div>
     </form>

@@ -8,7 +8,7 @@ const FullLogo = () => {
         <img
           src={Logo}
           alt="logo"
-          className="w-full max-w-[230px] h-auto max-h-24 object-contain rounded-sm border p-3"
+          className="w-full max-w-[230px] h-auto max-h-24 object-cover rounded-sm border p-3"
         />
       </div>
     </Link>

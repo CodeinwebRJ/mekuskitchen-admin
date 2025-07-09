@@ -99,7 +99,7 @@ const VariationsProduct = () => {
   const renderStepContent = (step: number) => {
     switch (step) {
       case 1:
-        return <BasicInfo errors={errors} product={product} setProduct={setProduct} />;
+        return <BasicInfo errors={errors} setErrors={setErrors} product={product} setProduct={setProduct} />;
       case 2:
         return <SKU errors={errors} product={product} setProduct={setProduct} />;
       case 3:

@@ -8,9 +8,10 @@ interface BasicInfoProps {
   product: any;
   setProduct: any;
   errors: any;
+  setErrors: any;
 }
 
-const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) => {
+const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, errors }) => {
   const category = useSelector((state: any) => state.category.categoryList);
   const [subCategory, setSubCategory] = useState<any[]>([]);
   const [subsubCategory, setSubSubCategory] = useState<any[]>([]);
@@ -21,6 +22,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
       const { id, value, type } = e.target;
 
       if (!id) return;
+
+      setErrors((prev: any) => ({
+        ...prev,
+        [id]: undefined,
+      }));
 
       const inputValue: string | boolean =
         type === 'checkbox' && 'checked' in e.target
@@ -57,11 +63,17 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
         return updatedProduct;
       });
     },
-    [setProduct],
+    [setProduct, setErrors],
   );
 
   const handleSelectCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { id, value } = e.target;
+
+    setErrors((prev: any) => ({
+      ...prev,
+      [id]: undefined,
+    }));
+
     setProduct((prev: any) => ({
       ...prev,
       [id]: value,
@@ -75,6 +87,12 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
 
   const handleSelectSubCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { id, value } = e.target;
+
+    setErrors((prev: any) => ({
+      ...prev,
+      [id]: undefined,
+    }));
+
     setProduct((prev: any) => ({
       ...prev,
       [id]: value,
@@ -121,7 +139,9 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct, errors }) =>
             <Label value="Upload Product Images" className="text-sm font-medium text-gray-700" />
             <div>
               <TableFileUploader images={product.images} setProduct={setProduct} />
-              {errors.images && <span className="text-red-500">{errors.images}</span>}
+              {errors.images && product.images.length === 0 && (
+                <span className="text-red-500">{errors.images}</span>
+              )}
             </div>
           </div>
 

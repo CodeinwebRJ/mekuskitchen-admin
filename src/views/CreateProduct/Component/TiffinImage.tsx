@@ -7,30 +7,17 @@ export interface ImageItem {
   isPrimary?: boolean;
 }
 
-export interface Product {
-  name: string;
-  category: string;
-  subCategory: string;
-  subsubCategory: string;
-  currency: string;
-  price: string;
-  sellingPrice: string;
-  discount?: string;
-  SKUName: string;
-  stock: string;
-  brand: string;
-  shortDescription: string;
-  description: string;
-  images: ImageItem[];
-  [key: string]: any;
-}
-
 interface TableFileUploaderProps {
   images: ImageItem[];
-  setProduct: any;
+  setProduct: React.Dispatch<React.SetStateAction<any>>;
+  fieldKey?: string;
 }
 
-export default function TableFileUploader({ images, setProduct }: TableFileUploaderProps) {
+export default function TiffinImage({
+  images,
+  setProduct,
+  fieldKey = 'images',
+}: TableFileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +26,7 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
 
       setProduct((prev: any) => {
         const existingFiles = new Set(
-          (prev.images || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
+          (prev[fieldKey] || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
         );
 
         const newImages: ImageItem[] = selectedFiles
@@ -48,9 +35,10 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
 
         return {
           ...prev,
-          images: [...(prev.images || []), ...newImages],
+          [fieldKey]: [...(prev[fieldKey] || []), ...newImages],
         };
       });
+
       e.target.value = '';
     }
   };
@@ -61,7 +49,7 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
 
     setProduct((prev: any) => {
       const existingFiles = new Set(
-        (prev.images || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
+        (prev[fieldKey] || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
       );
 
       const newImages: ImageItem[] = droppedFiles
@@ -70,7 +58,7 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
 
       return {
         ...prev,
-        images: [...(prev.images || []), ...newImages],
+        [fieldKey]: [...(prev[fieldKey] || []), ...newImages],
       };
     });
   };
@@ -81,10 +69,10 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
 
   const removeImage = (index: number) => {
     setProduct((prev: any) => {
-      const updatedImages = (prev.images || []).filter((_: any, idx: number) => idx !== index);
+      const updatedImages = (prev[fieldKey] || []).filter((_: any, idx: number) => idx !== index);
       return {
         ...prev,
-        images: updatedImages,
+        [fieldKey]: updatedImages,
       };
     });
   };
@@ -106,7 +94,9 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
                 src={image.file ? URL.createObjectURL(image.file) : image.url}
                 alt="preview"
                 className="w-full h-24 object-cover"
-                onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
+                onLoad={(e) => {
+                  if (image.file) URL.revokeObjectURL((e.target as HTMLImageElement).src);
+                }}
               />
               {index === 0 && (
                 <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-1 rounded-full z-0">
@@ -178,7 +168,6 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
 
       <input
         type="file"
-        id="fileInput"
         className="hidden"
         multiple
         accept="image/*"

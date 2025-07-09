@@ -385,10 +385,9 @@ const SimpleProduct = () => {
         <Loading />
       ) : (
         <div>
-          <BasicInfo product={product} setProduct={setProduct} errors={errors} />
+          <BasicInfo product={product} setErrors={setErrors} setProduct={setProduct} errors={errors} />
           <div className="mt-6">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">Features & Specifications</h3>
-
             <div>
               <h4 className="text-lg font-medium text-gray-700">Tags</h4>
               <div className="flex gap-4 mb-4">
