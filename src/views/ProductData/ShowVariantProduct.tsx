@@ -112,7 +112,7 @@ const ShowVariantProduct = () => {
     <div className="mx-auto">
       <h1 className="text-2xl font-bold mb-3 text-primary">Products</h1>
 
-      <form className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-3">
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-3">
         <div className="w-full lg:w-1/3">
           <TextInput
             value={search}
@@ -127,7 +127,7 @@ const ShowVariantProduct = () => {
             <ToggleSwitch onChange={() => dispatch(setIsActive(!isActive))} checked={isActive} />
           </div>
         </div>
-      </form>
+      </div>
 
       <div className="overflow-x-auto bg-white rounded-md shadow-md">
         <table className="min-w-full text-sm text-left text-gray-800 border border-gray-200">

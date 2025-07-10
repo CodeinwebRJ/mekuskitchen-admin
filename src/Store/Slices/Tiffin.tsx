@@ -5,8 +5,14 @@ export interface TiffinItem {
   name: string;
   price: string;
   quantity: number;
-  quantityUnit: string;
+  weightUnit: string;
+  weight: string;
   description: string;
+}
+
+export interface TiffinImage {
+  url: string;
+  isPrimary: boolean;
 }
 
 export interface Tiffin {
@@ -18,13 +24,13 @@ export interface Tiffin {
   totalAmount: string;
   description: string;
   category: string;
-  aboutItem: any[];
+  aboutItem: string[];
   Active: boolean;
-  image_url: string[];
+  image_url: TiffinImage[];
 }
 
 interface TiffinState {
-  data: Tiffin | [];
+  data: Tiffin[];
   search: string;
   dat: string;
   Active: string;
@@ -41,11 +47,20 @@ const tiffinSlice = createSlice({
   name: 'tiffin',
   initialState,
   reducers: {
-    setTiffin: (state, action: PayloadAction<Tiffin>) => {
+    setTiffin: (state, action: PayloadAction<Tiffin[]>) => {
       state.data = action.payload;
+    },
+    setSearch: (state, action: PayloadAction<string>) => {
+      state.search = action.payload;
+    },
+    setDat: (state, action: PayloadAction<string>) => {
+      state.dat = action.payload;
+    },
+    setActive: (state, action: PayloadAction<string>) => {
+      state.Active = action.payload;
     },
   },
 });
 
-export const { setTiffin } = tiffinSlice.actions;
+export const { setTiffin, setSearch, setDat, setActive } = tiffinSlice.actions;
 export default tiffinSlice.reducer;

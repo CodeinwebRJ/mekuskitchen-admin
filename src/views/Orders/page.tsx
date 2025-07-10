@@ -99,11 +99,6 @@ const Page: React.FC = () => {
     fetchOrders();
   }, [filterData]);
 
-  const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    fetchOrders();
-  };
-
   const handleReset = () => {
     setFilter({
       search: '',
@@ -120,10 +115,7 @@ const Page: React.FC = () => {
     <div>
       <h1 className="text-2xl font-bold mb-3 text-primary">Orders</h1>
 
-      <form
-        onSubmit={handleFilterSubmit}
-        className="flex flex-col lg:flex-row items-end flex-wrap gap-4 mb-3 justify-between"
-      >
+      <div className="flex flex-col lg:flex-row items-end flex-wrap gap-4 mb-3 justify-between">
         <div className="w-full lg:w-1/4">
           <TextInput
             placeholder="Search"
@@ -157,7 +149,7 @@ const Page: React.FC = () => {
             </Button>
           </div>
         </div>
-      </form>
+      </div>
 
       <div className="overflow-x-auto bg-white rounded-md shadow-md">
         <table className="min-w-full text-sm text-left text-gray-800 border border-gray-200">

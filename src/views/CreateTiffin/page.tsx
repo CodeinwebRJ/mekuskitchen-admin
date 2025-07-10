@@ -18,7 +18,8 @@ export interface TiffinItem {
   name: string;
   price: string;
   quantity: string;
-  quantityUnit: string;
+  weightUnit: string;
+  weight: string;
   description: string;
 }
 
@@ -62,7 +63,8 @@ const CreateTiffin = () => {
         name: '',
         price: '',
         quantity: '',
-        quantityUnit: '',
+        weightUnit: '',
+        weight: '',
         description: '',
       },
     ],
@@ -118,8 +120,8 @@ const CreateTiffin = () => {
         if (!item.name.trim()) newErrors[`item_name_${index}`] = 'Item name is required';
         if (!item.price.trim()) newErrors[`item_price_${index}`] = 'Price is required';
         if (!item.quantity) newErrors[`item_quantity_${index}`] = 'Quantity is required';
-        if (!item.quantityUnit.trim())
-          newErrors[`item_quantityUnit_${index}`] = 'Quantity unit is required';
+        if (!item.weightUnit.trim())
+          newErrors[`item_weightUnit_${index}`] = 'Weight unit is required';
       });
     }
     setErrors(newErrors);
@@ -196,7 +198,8 @@ const CreateTiffin = () => {
               name: '',
               price: '',
               quantity: '',
-              quantityUnit: '',
+              weightUnit: '',
+              weight: '',
               description: '',
             },
           ],

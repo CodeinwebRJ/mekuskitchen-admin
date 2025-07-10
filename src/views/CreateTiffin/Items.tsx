@@ -14,7 +14,8 @@ interface TiffinItem {
   name: string;
   price: string;
   quantity: string;
-  quantityUnit: string;
+  weight: string;
+  weightUnit: string;
   description: string;
 }
 
@@ -30,7 +31,6 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
     const updatedItems = [...formData.items];
     updatedItems[index][field as keyof TiffinItem] = value;
 
-    // Clear specific field error for this item
     setErrors((prevErrors: any) => {
       const newErrors = { ...prevErrors };
 
@@ -43,7 +43,6 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
             [field]: undefined,
           };
 
-          // Remove the error object if all fields are cleared
           if (Object.values(itemErrors[index]).every((v) => !v)) {
             itemErrors[index] = undefined;
           }
@@ -65,7 +64,14 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
   const addItem = () => {
     const updatedItems = [
       ...formData.items,
-      { name: '', price: '', quantity: '', quantityUnit: '', description: '' },
+      {
+        name: '',
+        price: '',
+        quantity: '',
+        weight: '',
+        weightUnit: '',
+        description: '',
+      },
     ];
 
     setFormData((prev) => ({
@@ -85,7 +91,6 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
       totalAmount: calculateTotal(updatedItems).toFixed(2),
     }));
 
-    // Also remove corresponding error
     setErrors((prevErrors: any) => {
       const newErrors = { ...prevErrors };
       if (Array.isArray(newErrors.items)) {
@@ -152,29 +157,32 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
           </div>
 
           <div>
-            <Label htmlFor={`item-quantityUnit-${index}`} value="Unit" />
-            <Select
-              id={`item-quantityUnit-${index}`}
-              value={item.quantityUnit}
-              onChange={(e) => handleItemChange(index, 'quantityUnit', e.target.value)}
-            >
-              <option value="">Select Unit</option>
-              <option value="piece">Piece</option>
-              <option value="plate">Plate</option>
-              <option value="bowl">Bowl</option>
-              <option value="box">Box</option>
-              <option value="oz">OZ</option>
-              <option value="kg">Kg (Kilogram)</option>
-              <option value="g">g (gram)</option>
-              <option value="ml">ml (milliliter)</option>
-              <option value="l">L (liter)</option>
-            </Select>
-            {errors.items?.[index]?.quantityUnit && (
-              <p className="text-red-600 text-sm">{errors.items[index].quantityUnit}</p>
-            )}
+            <Label htmlFor={`item-weight-${index}`} value="Weight" />
+            <TextInput
+              id={`item-weight-${index}`}
+              value={item.weight || ''}
+              onChange={(e) => handleItemChange(index, 'weight', e.target.value)}
+              placeholder="e.g. 250"
+            />
           </div>
 
           <div>
+            <Label htmlFor={`item-weightUnit-${index}`} value="Weight Unit" />
+            <Select
+              id={`item-weightUnit-${index}`}
+              value={item.weightUnit || ''}
+              onChange={(e) => handleItemChange(index, 'weightUnit', e.target.value)}
+            >
+              <option value="">Select Unit</option>
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="ml">ml</option>
+              <option value="l">l</option>
+              <option value="oz">oz</option>
+            </Select>
+          </div>
+
+          <div className="md:col-span-6">
             <Label htmlFor={`item-description-${index}`} value="Description" />
             <TextInput
               id={`item-description-${index}`}
@@ -184,7 +192,7 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
             />
           </div>
 
-          <div className="col-span-5 flex justify-end mt-2">
+          <div className="col-span-6 flex justify-end mt-2">
             <div className="cursor-pointer text-red-600" onClick={() => removeItem(index)}>
               <MdDelete size={20} />
             </div>
