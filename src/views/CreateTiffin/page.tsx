@@ -35,7 +35,7 @@ export interface TiffinFormData {
   endDate: string;
   description: string;
   image_url: ImageItem[];
-  category: string;
+  tiffinCategory: string;
   aboutItem: string[];
   items: TiffinItem[];
   totalAmount: string;
@@ -54,7 +54,7 @@ const CreateTiffin = () => {
     endDate: '',
     description: '',
     image_url: [],
-    category: '',
+    tiffinCategory: '',
     aboutItem: [],
     totalAmount: '',
     items: [
@@ -88,7 +88,7 @@ const CreateTiffin = () => {
           endDate: formatDate(tiffin.endDate),
           description: tiffin.description || '',
           image_url: tiffin.image_url || [],
-          category: tiffin.category || '',
+          tiffinCategory: tiffin.tiffinCategory || '',
           aboutItem: tiffin.aboutItem || [],
           totalAmount: tiffin.totalAmount || '',
           items: tiffin.items || [],
@@ -110,7 +110,7 @@ const CreateTiffin = () => {
       if (!formData.date.trim()) newErrors.date = 'Date is required';
       if (!formData.endDate.trim()) newErrors.endDate = 'BookingDate is required';
       if (!formData.description.trim()) newErrors.description = 'Description is required';
-      if (!formData.category.trim()) newErrors.category = 'Category is required';
+      if (!formData.tiffinCategory.trim()) newErrors.tiffinCategory = 'TiffinCategory is required';
       if (formData.image_url.length === 0) newErrors.image_url = 'Tiffin Image is required';
     }
     if (step === 2) {
@@ -188,7 +188,7 @@ const CreateTiffin = () => {
           endDate: '',
           description: '',
           image_url: [],
-          category: '',
+          tiffinCategory: '',
           aboutItem: [],
           totalAmount: '',
           items: [
@@ -250,7 +250,17 @@ const CreateTiffin = () => {
         <div>{renderStepContent(currentStep)}</div>
 
         <div className="w-full flex justify-between mt-8">
-          <Button onClick={handleBack} disabled={currentStep === 1} color="gray" type="button">
+          <Button
+            onClick={() => {
+              if (isEditMode) {
+                navigate('/tiffin');
+              } else {
+                handleBack();
+              }
+            }}
+            color="gray"
+            type="button"
+          >
             Back
           </Button>
 

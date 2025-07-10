@@ -8,14 +8,19 @@ import { ProductSchema } from '../interface';
 import {
   CreateProduct,
   EditProduct,
+  getAllProduct,
   getProductById,
   UploadImage,
 } from 'src/AxiosConfig/AxiosConfig';
 import { useLocation, useNavigate } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from 'src/Store/Store';
+import { setProducts } from 'src/Store/Slices/ProductData';
 
 const VariationsProduct = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isEdit, setIsEdit] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [product, setProduct] = useState<ProductSchema>({
@@ -58,6 +63,7 @@ const VariationsProduct = () => {
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const steps = [1, 2, 3];
+  const filterData = useSelector((state: RootState) => state.filterData);
 
   const validateStep = (step: number): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -96,10 +102,32 @@ const VariationsProduct = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const fetchProducts = async () => {
+    try {
+      const data = {
+        page: filterData.page,
+        limit: '10',
+        variation: filterData.variation,
+      };
+      const res = await getAllProduct(data);
+      dispatch(setProducts(res?.data?.data));
+    } catch (error: any) {
+      console.error('Error fetching products:', error);
+    } finally {
+    }
+  };
+
   const renderStepContent = (step: number) => {
     switch (step) {
       case 1:
-        return <BasicInfo errors={errors} setErrors={setErrors} product={product} setProduct={setProduct} />;
+        return (
+          <BasicInfo
+            errors={errors}
+            setErrors={setErrors}
+            product={product}
+            setProduct={setProduct}
+          />
+        );
       case 2:
         return <SKU errors={errors} product={product} setProduct={setProduct} />;
       case 3:
@@ -278,8 +306,8 @@ const VariationsProduct = () => {
       } else {
         await CreateProduct(data);
       }
-
       navigate('/');
+      fetchProducts();
     } catch (error) {
       console.error('Error while submitting product:', error);
     }

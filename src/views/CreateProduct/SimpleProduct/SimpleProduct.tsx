@@ -4,12 +4,16 @@ import BasicInfo from '../BasicInfo';
 import {
   CreateProduct,
   EditProduct,
+  getAllProduct,
   getProductById,
   UploadImage,
 } from 'src/AxiosConfig/AxiosConfig';
 import { MdDelete } from 'react-icons/md';
 import Loading from 'src/components/Loading';
 import { useLocation, useNavigate } from 'react-router';
+import { setProducts } from 'src/Store/Slices/ProductData';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from 'src/Store/Store';
 
 interface Dimension {
   length: string;
@@ -80,6 +84,7 @@ const SimpleProduct = () => {
   });
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [newFeature, setNewFeature] = useState<string>('');
   const [aboutItem, setAboutItem] = useState<string>('');
   const [newTag, setNewTag] = useState<string>('');
@@ -87,6 +92,7 @@ const SimpleProduct = () => {
   const [specValue, setSpecValue] = useState<string>('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
+  const filterData = useSelector((state: RootState) => state.filterData);
 
   const resetForm = () => {
     setProduct({
@@ -126,6 +132,21 @@ const SimpleProduct = () => {
     setSpecKey('');
     setSpecValue('');
     setErrors({});
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const data = {
+        page: filterData.page,
+        limit: '10',
+        variation: filterData.variation,
+      };
+      const res = await getAllProduct(data);
+      dispatch(setProducts(res?.data?.data));
+    } catch (error: any) {
+      console.error('Error fetching products:', error);
+    } finally {
+    }
   };
 
   const fetchProduct = async () => {
@@ -278,6 +299,7 @@ const SimpleProduct = () => {
       if (res?.status === 200) {
         navigate('/');
         resetForm();
+        fetchProducts();
       }
     } catch (error) {
       console.error('Error while submitting product:', error);

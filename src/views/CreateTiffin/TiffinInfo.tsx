@@ -62,13 +62,13 @@ const TiffinInfo: React.FC<Props> = ({ errors, setErrors, formData, setFormData 
               </div>
 
               <div>
-                <Label htmlFor="category" value="Tiffin Category*" />
-                <Select id="category" value={formData.category} onChange={handleSelectChange}>
+                <Label htmlFor="tiffinCategory" value="Tiffin Category*" />
+                <Select id="tiffinCategory" value={formData.tiffinCategory} onChange={handleSelectChange}>
                   <option value="">Select Category</option>
                   <option value="Regular">Regular</option>
                   <option value="Customize">Customize</option>
                 </Select>
-                {errors.category && <p className="text-red-500">{errors.category}</p>}
+                {errors.tiffinCategory && <p className="text-red-500">{errors.tiffinCategory}</p>}
               </div>
 
               <div>

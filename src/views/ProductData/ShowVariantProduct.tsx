@@ -8,8 +8,8 @@ import { setIsActive, setPage, setSearch, setVariation } from 'src/Store/Slices/
 import NoDataFound from 'src/components/NoDataFound';
 import { RootState } from 'src/Store/Store';
 import Loading from 'src/components/Loading';
-import { DeleteProduct, EditProduct } from 'src/AxiosConfig/AxiosConfig';
-import { updateProductStatus } from 'src/Store/Slices/ProductData';
+import { DeleteProduct, EditProduct, getAllProduct } from 'src/AxiosConfig/AxiosConfig';
+import { setProducts, updateProductStatus } from 'src/Store/Slices/ProductData';
 import DeleteDialog from 'src/components/DeleteDialog';
 import Pagination from 'src/components/Pagination/Pagination';
 
@@ -25,6 +25,22 @@ const ShowVariantProduct = () => {
 
   const toggleExpand = (index: number) => {
     setExpandedIndex((prev) => (prev === index ? null : index));
+  };
+  const filterData = useSelector((state: RootState) => state.filterData);
+
+  const fetchProducts = async () => {
+    try {
+      const data = {
+        page: filterData.page,
+        limit: '10',
+        variation: filterData.variation,
+      };
+      const res = await getAllProduct(data);
+      dispatch(setProducts(res?.data?.data));
+    } catch (error: any) {
+      console.error('Error fetching products:', error);
+    } finally {
+    }
   };
 
   const fetchdata = () => {
@@ -61,6 +77,7 @@ const ShowVariantProduct = () => {
       await DeleteProduct(selectedProductId);
       setIsDeleteDialogOpen(false);
       setSelectedProductId(null);
+      fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
     }
