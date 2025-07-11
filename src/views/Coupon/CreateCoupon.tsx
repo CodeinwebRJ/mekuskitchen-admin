@@ -112,14 +112,14 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
     }
 
     if (!formData.expiresAt) {
-      newErrors.expiresAt = 'Expiration date is required';
+      newErrors.expiresAt = 'Expiry date is required';
     }
 
     if (formData.startAt && formData.expiresAt) {
       const start = new Date(formData.startAt);
       const end = new Date(formData.expiresAt);
       if (end < start) {
-        newErrors.expiresAt = 'Expiration date must be after the start date';
+        newErrors.expiresAt = 'Expiry date must be after the start date';
       }
     }
 

@@ -204,7 +204,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
           </div>
           <div>
             <Label
-              value="Product Subcategory"
+              value="Product category"
               className="block text-sm font-medium text-gray-700 mb-1"
             />
             <Select

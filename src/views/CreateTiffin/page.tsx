@@ -31,12 +31,13 @@ export interface ImageItem {
 }
 
 export interface TiffinFormData {
+  name: string;
   day: string;
   date: string;
   endDate: string;
   description: string;
   image_url: ImageItem[];
-  tiffinCategory: string;
+  isCustomized: boolean;
   aboutItem: string[];
   items: TiffinItem[];
   totalAmount: string;
@@ -50,12 +51,13 @@ const CreateTiffin = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [formData, setFormData] = useState<TiffinFormData>({
+    name: '',
     day: '',
     date: '',
     endDate: '',
     description: '',
     image_url: [],
-    tiffinCategory: '',
+    isCustomized: true,
     aboutItem: [],
     totalAmount: '',
     items: [
@@ -84,17 +86,22 @@ const CreateTiffin = () => {
           return dateStr ? new Date(dateStr).toISOString().split('T')[0] : '';
         };
 
-        setFormData({
+        const updatedForm = {
+          name: tiffin.name || '',
           day: tiffin.day || '',
           date: formatDate(tiffin.date),
           endDate: formatDate(tiffin.endDate),
           description: tiffin.description || '',
           image_url: tiffin.image_url || [],
-          tiffinCategory: tiffin.tiffinCategory || '',
+          isCustomized: tiffin.isCustomized || false,
           aboutItem: tiffin.aboutItem || [],
           totalAmount: tiffin.totalAmount || '',
           items: tiffin.items || [],
-        });
+        };
+        setFormData(updatedForm);
+        if (!tiffin.description?.trim()) {
+          setErrors((prev) => ({ ...prev, description: 'Description is required' }));
+        }
       }
     } catch (error) {
       console.error('Error fetching tiffin data:', error);
@@ -106,24 +113,38 @@ const CreateTiffin = () => {
   }, [location?.state?.id]);
 
   const validateForm = (step: number): boolean => {
-    const newErrors: { [key: string]: string } = {};
+    const newErrors: { [key: string]: any } = {};
+
     if (step === 1) {
+      if (!formData.name.trim()) newErrors.name = 'Name is required';
       if (!formData.day.trim()) newErrors.day = 'Day is required';
       if (!formData.date.trim()) newErrors.date = 'Date is required';
-      if (!formData.endDate.trim()) newErrors.endDate = 'BookingDate is required';
+      if (!formData.endDate.trim()) newErrors.endDate = 'Booking Date is required';
       if (!formData.description.trim()) newErrors.description = 'Description is required';
-      if (!formData.tiffinCategory.trim()) newErrors.tiffinCategory = 'TiffinCategory is required';
       if (formData.image_url.length === 0) newErrors.image_url = 'Tiffin Image is required';
     }
+
     if (step === 2) {
+      const itemErrorsArray: any[] = [];
       formData.items.forEach((item, index) => {
-        if (!item.name.trim()) newErrors[`item_name_${index}`] = 'Item name is required';
-        if (!item.price.trim()) newErrors[`item_price_${index}`] = 'Price is required';
-        if (!item.quantity) newErrors[`item_quantity_${index}`] = 'Quantity is required';
-        if (!item.weightUnit.trim())
-          newErrors[`item_weightUnit_${index}`] = 'Weight unit is required';
+        const itemErrors: any = {};
+
+        if (!item.name.trim()) itemErrors.name = 'Item name is required';
+        if (!item.price.trim()) itemErrors.price = 'Price is required';
+        if (!item.quantity) itemErrors.quantity = 'Quantity is required';
+        if (!item.weight.trim()) itemErrors.weight = 'Weight is required';
+        if (!item.weightUnit.trim()) itemErrors.weightUnit = 'Weight unit is required';
+        if (!item.description.trim()) itemErrors.description = 'Description is required';
+        itemErrorsArray[index] = itemErrors;
       });
+
+      const hasErrors = itemErrorsArray.some((err) => err && Object.keys(err).length > 0);
+
+      if (hasErrors) {
+        newErrors.items = itemErrorsArray;
+      }
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -185,12 +206,13 @@ const CreateTiffin = () => {
           await Createtiffin(payload);
         }
         setFormData({
+          name: '',
           day: '',
           date: '',
           endDate: '',
           description: '',
           image_url: [],
-          tiffinCategory: '',
+          isCustomized: true,
           aboutItem: [],
           totalAmount: '',
           items: [
@@ -204,6 +226,7 @@ const CreateTiffin = () => {
             },
           ],
         });
+
         navigate('/tiffin');
         fetchAllTiffin();
       } catch (error) {

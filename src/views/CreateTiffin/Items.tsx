@@ -108,14 +108,15 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
   }, 0);
 
   return (
-    <form className="p-6 space-y-6">
-      <h3 className="text-2xl font-bold text-primary">Tiffin Items</h3>
+    <form className="p-4 sm:p-6 space-y-6">
+      <h3 className="text-xl sm:text-2xl font-bold text-primary">Tiffin Items</h3>
 
       {formData.items.map((item, index) => (
         <div
           key={index}
-          className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end border border-gray-200 p-4 rounded-md bg-gray-50"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 border border-gray-200 p-4 rounded-md bg-gray-50"
         >
+          {/* Name */}
           <div>
             <Label htmlFor={`item-name-${index}`} value="Name" />
             <TextInput
@@ -129,6 +130,7 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
             )}
           </div>
 
+          {/* Price */}
           <div>
             <Label htmlFor={`item-price-${index}`} value="Price" />
             <TextInput
@@ -156,6 +158,7 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
             )}
           </div>
 
+          {/* Weight */}
           <div>
             <Label htmlFor={`item-weight-${index}`} value="Weight" />
             <TextInput
@@ -164,8 +167,12 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
               onChange={(e) => handleItemChange(index, 'weight', e.target.value)}
               placeholder="e.g. 250"
             />
+            {errors.items?.[index]?.weight && (
+              <p className="text-red-600 text-sm">{errors.items[index].weight}</p>
+            )}
           </div>
 
+          {/* Weight Unit */}
           <div>
             <Label htmlFor={`item-weightUnit-${index}`} value="Weight Unit" />
             <Select
@@ -174,15 +181,22 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
               onChange={(e) => handleItemChange(index, 'weightUnit', e.target.value)}
             >
               <option value="">Select Unit</option>
+              <option value="piece">Piece</option>
+              <option value="bowl">Bowl</option>
+              <option value="plate">Plate</option>
+              <option value="box">Box</option>
               <option value="g">g</option>
               <option value="kg">kg</option>
               <option value="ml">ml</option>
               <option value="l">l</option>
               <option value="oz">oz</option>
             </Select>
+            {errors.items?.[index]?.weightUnit && (
+              <p className="text-red-600 text-sm">{errors.items[index].weightUnit}</p>
+            )}
           </div>
 
-          <div className="md:col-span-6">
+          <div className="sm:col-span-2 md:col-span-3 lg:col-span-5">
             <Label htmlFor={`item-description-${index}`} value="Description" />
             <TextInput
               id={`item-description-${index}`}
@@ -190,21 +204,27 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
               onChange={(e) => handleItemChange(index, 'description', e.target.value)}
               placeholder="e.g. Classic aloo gobi with spices"
             />
+            {errors.items?.[index]?.description && (
+              <p className="text-red-600 text-sm">{errors.items[index].description}</p>
+            )}
           </div>
 
-          <div className="col-span-6 flex justify-end mt-2">
-            <div className="cursor-pointer text-red-600" onClick={() => removeItem(index)}>
+          <div className="col-span-full flex justify-end mt-2">
+            <div
+              className="cursor-pointer text-red-600 hover:text-red-800 transition"
+              onClick={() => removeItem(index)}
+            >
               <MdDelete size={20} />
             </div>
           </div>
         </div>
       ))}
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <Button type="button" color="gray" onClick={addItem}>
           + Add Item
         </Button>
-        <div className="text-right font-semibold text-gray-700">
+        <div className="text-right font-semibold text-gray-700 text-md">
           Total Amount: ${totalAmount.toFixed(2)}
         </div>
       </div>

@@ -15,6 +15,8 @@ const TiffinCompo = () => {
   const dispatch = useDispatch();
   const { data } = useSelector((state: RootState) => state.tiffin);
 
+  console.log(data);
+
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTiffinId, setSelectedTiffinId] = useState<string | null>(null);
@@ -65,7 +67,7 @@ const TiffinCompo = () => {
 
   const handleToggleActive = async (id: string, currentStatus: boolean) => {
     try {
-      await updateTiffin(id, { Active: !currentStatus });
+      await updateTiffin(id, { Active: currentStatus });
       await fetchAllTiffin();
     } catch (error) {
       console.error('Error toggling tiffin active status:', error);
@@ -97,11 +99,13 @@ const TiffinCompo = () => {
         <table className="min-w-full text-sm text-left text-gray-800 border border-gray-200">
           <thead className="text-xs uppercase bg-gray-50 text-primary">
             <tr>
-              <th className="px-4 py-3">#</th>
+              <th className="px-4 py-3">Index</th>
               <th className="px-4 py-3">Image</th>
-              <th className="px-4 py-3">Day</th>
-              <th className="px-4 py-3">Start Date</th>
-              <th className="px-4 py-3">End Date</th>
+              <th className="px-4 py-3">Name</th>
+              <th className="px-4 py-3">Tiffin Day</th>
+              <th className="px-4 py-3">Tiffin Date</th>
+              <th className="px-4 py-3">Bookin End Date</th>
+              <th className="px-4 py-3">Price</th>
               <th className="px-4 py-3 text-center">Actions</th>
               <th className="px-4 py-3"></th>
             </tr>
@@ -124,6 +128,7 @@ const TiffinCompo = () => {
                           className="w-14 h-14 object-cover rounded"
                         />
                       </td>
+                      <td className="px-4 py-3 max-w-xs truncate">{tiffin?.name}</td>
                       <td className="px-4 py-3 max-w-xs truncate">{tiffin?.day?.toUpperCase()}</td>
                       <td className="px-4 py-3">
                         {tiffin.date && !isNaN(new Date(tiffin.date).getTime())
@@ -135,6 +140,7 @@ const TiffinCompo = () => {
                           ? format(new Date(tiffin.endDate), 'dd/MM/yyyy')
                           : '—'}
                       </td>
+                      <td className="px-4 py-3">${tiffin.totalAmount}</td>
                       <td className="px-4 py-3">
                         <div
                           className="flex gap-4 items-center justify-center"
@@ -153,8 +159,8 @@ const TiffinCompo = () => {
                             size={20}
                           />
                           <ToggleSwitch
-                            checked={tiffin.Active}
-                            onChange={() => handleToggleActive(tiffin._id, tiffin.Active)}
+                            checked={tiffin?.Active}
+                            onChange={(checked) => handleToggleActive(tiffin._id, checked)}
                           />
                         </div>
                       </td>
@@ -172,7 +178,7 @@ const TiffinCompo = () => {
                                 <table className="min-w-full text-sm text-left text-gray-700">
                                   <thead className="text-primary text-xs uppercase">
                                     <tr>
-                                      <th className="px-3 py-2">#</th>
+                                      <th className="px-3 py-2">Index</th>
                                       <th className="px-3 py-2">Name</th>
                                       <th className="px-3 py-2">Price</th>
                                       <th className="px-3 py-2">Quantity</th>
