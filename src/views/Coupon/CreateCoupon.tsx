@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { CreateCoupon, EditCoupons, UploadImage } from 'src/AxiosConfig/AxiosConfig';
 import MultiSelect from 'src/components/MultiSelect';
+import { Toast } from 'src/components/Toast';
 import { RootState } from 'src/Store/Store';
 
 interface SubSubCategoryType {
@@ -251,6 +252,10 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
         category: [],
         subCategory: [],
         ProductCategory: [],
+      });
+      Toast({
+        message: isEdit ? 'Coupon updated successfully!' : 'Coupon created successfully!',
+        type: 'success',
       });
       setIsEdit(false);
       setShowForm(false);

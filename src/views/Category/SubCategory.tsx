@@ -12,6 +12,7 @@ import { MdDelete, MdModeEdit } from 'react-icons/md';
 import NoDataFound from 'src/components/NoDataFound';
 import DeleteDialog from 'src/components/DeleteDialog';
 import Loading from 'src/components/Loading';
+import { Toast } from 'src/components/Toast';
 
 interface SubSubCategoryType {
   _id: string;
@@ -68,7 +69,7 @@ const SubCategory = () => {
       }
 
       setLoading('create', true);
-      setError({}); 
+      setError({});
 
       try {
         const data = { name: trimmedName, categoryId: selectedCategory };
@@ -85,6 +86,7 @@ const SubCategory = () => {
 
         setSubCategoryName('');
         setShowForm(false);
+        Toast({ message: 'SubCategory created successfully!', type: 'success' });
       } catch (error: any) {
         console.error('Failed to create subcategory:', error);
         setError((prev) => ({
@@ -190,6 +192,7 @@ const SubCategory = () => {
 
         setEditSubCategoryId(null);
         setEditSubCategoryName('');
+        Toast({ message: 'SubCategory updated successfully!', type: 'success' });
       } catch (error: any) {
         console.error('Failed to update subcategory:', error);
         setError((prev) => ({

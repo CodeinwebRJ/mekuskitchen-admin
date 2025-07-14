@@ -12,6 +12,7 @@ import { MdDelete, MdModeEdit } from 'react-icons/md';
 import NoDataFound from 'src/components/NoDataFound';
 import DeleteDialog from 'src/components/DeleteDialog';
 import Loading from 'src/components/Loading';
+import { Toast } from 'src/components/Toast';
 
 // Define constants
 const ERROR_MESSAGES = {
@@ -126,6 +127,7 @@ const ProductCategory = () => {
         );
         setSubSubCategoryName('');
         setShowForm(false);
+        Toast({ message: 'Product Category created successfully!', type: 'success' });
       } catch (error: any) {
         console.error('Failed to create sub-subcategory:', error);
         setError((prev) => ({
@@ -200,6 +202,7 @@ const ProductCategory = () => {
         );
         setEditSubSubCategoryId(null);
         setEditSubSubCategoryName('');
+        Toast({ message: 'Product Category updated successfully!', type: 'success' });
       } catch (error: any) {
         console.error('Failed to update sub-subcategory:', error);
         setError((prev) => ({

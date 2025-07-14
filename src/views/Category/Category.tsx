@@ -4,11 +4,11 @@ import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { CreateCategory, DeleteCategory, UpdateCategory } from 'src/AxiosConfig/AxiosConfig'; // Fixed typo
 import DeleteDialog from 'src/components/DeleteDialog';
-import { toast } from 'react-hot-toast';
 import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
 import { setCategoryList, setSearchCategory } from 'src/Store/Slices/Categories';
 import { RootState } from 'src/Store/Store';
+import { Toast } from 'src/components/Toast';
 
 interface SubSubCategoryType {
   _id: string;
@@ -102,7 +102,7 @@ const Category = () => {
         dispatch(setCategoryList([...categoryList, res.data.data]));
         setCategoryInput('');
         setShowCategoryForm(false);
-        toast.success('Category created successfully!');
+        Toast({ message: 'Category created successfully!', type: 'success' });
       } catch (error: any) {
         console.log(error);
         setError((prev) => ({
@@ -183,6 +183,7 @@ const Category = () => {
         );
         setEditCategoryId(null);
         setEditCategoryName('');
+        Toast({ message: 'Category updated successfully!', type: 'success' });
       } catch (error: any) {
         console.error('Failed to update category:', error);
         setError((prev) => ({

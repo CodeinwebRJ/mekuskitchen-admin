@@ -8,6 +8,7 @@ import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosC
 import DeleteDialog from 'src/components/DeleteDialog';
 import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
+import { Toast } from 'src/components/Toast';
 import useDebounce from 'src/Hook/useDebounce';
 import { RootState } from 'src/Store/Store';
 
@@ -148,6 +149,7 @@ const Page = () => {
       }
       resetForm();
       await fetchTax();
+      Toast({ message: 'Tax created successfully!', type: 'success' });
     } catch (error) {
       console.error(`${editId ? 'Update' : 'Create'} Tax Error:`, error);
     }
@@ -165,6 +167,7 @@ const Page = () => {
       })),
     );
     setShowForm(true);
+    Toast({ message: 'Tax updated successfully!', type: 'success' });
   };
 
   const handleOpenDelete = (provinceCode: string) => {

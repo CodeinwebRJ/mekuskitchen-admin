@@ -13,6 +13,7 @@ import {
 import { useLocation, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { setTiffin } from 'src/Store/Slices/Tiffin';
+import { Toast } from 'src/components/Toast';
 
 export interface TiffinItem {
   name: string;
@@ -128,7 +129,6 @@ const CreateTiffin = () => {
       const itemErrorsArray: any[] = [];
       formData.items.forEach((item, index) => {
         const itemErrors: any = {};
-
         if (!item.name.trim()) itemErrors.name = 'Item name is required';
         if (!item.price.trim()) itemErrors.price = 'Price is required';
         if (!item.quantity) itemErrors.quantity = 'Quantity is required';
@@ -229,6 +229,10 @@ const CreateTiffin = () => {
 
         navigate('/tiffin');
         fetchAllTiffin();
+        Toast({
+          message: isEditMode ? 'Tiffin updated successfully!' : 'Tiffin created successfully!',
+          type: 'success',
+        });
       } catch (error) {
         console.error('Failed to submit tiffin items:', error);
       }

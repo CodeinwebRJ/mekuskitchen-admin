@@ -16,6 +16,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/Store/Store';
 import { setProducts } from 'src/Store/Slices/ProductData';
+import { Toast } from 'src/components/Toast';
 
 const VariationsProduct = () => {
   const location = useLocation();
@@ -308,6 +309,10 @@ const VariationsProduct = () => {
       }
       navigate('/');
       fetchProducts();
+      Toast({
+        message: isEdit ? 'Product updated successfully!' : 'Product created successfully!',
+        type: 'success',
+      });
     } catch (error) {
       console.error('Error while submitting product:', error);
     }

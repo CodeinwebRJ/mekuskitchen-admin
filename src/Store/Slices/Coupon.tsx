@@ -36,7 +36,6 @@ const couponSlice = createSlice({
     createCoupon: (state, action: PayloadAction<CouponType>) => {
       state.coupons.push(action.payload);
     },
-    // Add other reducers as needed
   },
 });
 

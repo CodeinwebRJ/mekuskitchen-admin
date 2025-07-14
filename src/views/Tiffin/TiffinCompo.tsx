@@ -14,9 +14,6 @@ const TiffinCompo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { data } = useSelector((state: RootState) => state.tiffin);
-
-  console.log(data);
-
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTiffinId, setSelectedTiffinId] = useState<string | null>(null);

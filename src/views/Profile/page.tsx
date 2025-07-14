@@ -1,5 +1,8 @@
 import { Button, Label, TextInput } from 'flowbite-react';
 import React, { useEffect, useState } from 'react';
+import { HiEye, HiEyeOff } from 'react-icons/hi';
+import { UpdateProfile } from 'src/AxiosConfig/AxiosConfig';
+import { Toast } from 'src/components/Toast';
 
 type UserProfile = {
   _id: string;
@@ -17,14 +20,15 @@ const Profile: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [formData, setFormData] = useState<
-    Omit<UserProfile, '_id' | 'uniqueId' | 'createdAt' | 'updatedAt' | 'lastLogin'>
-  >({
+  const [formData, setFormData] = useState({
+    id: '',
     name: '',
     email: '',
     phone: '',
     avatar: '',
   });
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
@@ -84,6 +88,7 @@ const Profile: React.FC = () => {
         const parsed: UserProfile = JSON.parse(stored);
         setProfile(parsed);
         setFormData({
+          id: parsed._id,
           name: parsed.name,
           email: parsed.email,
           phone: parsed.phone,
@@ -103,30 +108,44 @@ const Profile: React.FC = () => {
     setPasswordData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!profile) return;
     if (!validateForm()) return;
-
-    const updatedProfile: UserProfile = {
-      ...profile,
-      ...formData,
-      updatedAt: new Date().toISOString(),
-    };
-
-    localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
-    setProfile(updatedProfile);
-    setIsEditing(false);
+    try {
+      const payload = { ...formData };
+      const response = await UpdateProfile(payload);
+      localStorage.setItem('admin', JSON.stringify(response.data.data));
+      setProfile(response.data.data);
+      setIsEditing(false);
+      Toast({ message: 'Profile updated successfully', type: 'success' });
+    } catch (error: any) {
+      Toast({
+        message: error.response?.data?.message || 'Failed to update profile',
+        type: 'error',
+      });
+    }
   };
 
-  const handlePasswordSubmit = () => {
+  const handlePasswordSubmit = async () => {
     if (!validatePasswordForm()) return;
-
-    console.log('Old Password:', passwordData.oldPassword);
-    console.log('New Password:', passwordData.newPassword);
-
-    setPasswordData({ oldPassword: '', newPassword: '' });
-    setErrors((prev) => ({ ...prev, oldPassword: '', newPassword: '' }));
-    setIsChangingPassword(false);
+    try {
+      const payload = {
+        email: formData.email,
+        oldPassword: passwordData.oldPassword,
+        newPassword: passwordData.newPassword,
+      };
+      const response = await UpdateProfile(payload);
+      localStorage.setItem('admin', JSON.stringify(response.data.data));
+      setProfile(response.data.data);
+      setPasswordData({ oldPassword: '', newPassword: '' });
+      setIsChangingPassword(false);
+      Toast({ message: 'Password updated successfully', type: 'success' });
+    } catch (error: any) {
+      Toast({
+        message: error.response?.data?.message || 'Failed to update password',
+        type: 'success',
+      });
+    }
   };
 
   if (!profile) {
@@ -200,28 +219,57 @@ const Profile: React.FC = () => {
           <div className="space-y-4">
             <div>
               <Label>Old Password</Label>
-              <TextInput
-                type="password"
-                name="oldPassword"
-                value={passwordData.oldPassword}
-                onChange={handlePasswordChange}
-              />
+              <div className="relative">
+                <TextInput
+                  id="oldPassword"
+                  type={showOldPassword ? 'text' : 'password'}
+                  name="oldPassword"
+                  value={passwordData.oldPassword}
+                  onChange={handlePasswordChange}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                  onClick={() => setShowOldPassword(!showOldPassword)}
+                >
+                  {showOldPassword ? (
+                    <HiEye className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <HiEyeOff className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
               {errors.oldPassword && (
                 <p className="text-sm text-red-500 mt-1">{errors.oldPassword}</p>
               )}
             </div>
             <div>
               <Label>New Password</Label>
-              <TextInput
-                type="password"
-                name="newPassword"
-                value={passwordData.newPassword}
-                onChange={handlePasswordChange}
-              />
+              <div className="relative">
+                <TextInput
+                  id="newPassword"
+                  type={showNewPassword ? 'text' : 'password'}
+                  name="newPassword"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordChange}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                >
+                  {showNewPassword ? (
+                    <HiEye className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <HiEyeOff className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
               {errors.newPassword && (
                 <p className="text-sm text-red-500 mt-1">{errors.newPassword}</p>
               )}
             </div>
+
             <div className="flex gap-3 mt-6">
               <Button color="primary" onClick={handlePasswordSubmit}>
                 Change Password
@@ -240,7 +288,7 @@ const Profile: React.FC = () => {
               src={profile.avatar}
               alt="Profile Avatar"
             />
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-3">
               <h1 className="text-3xl font-bold text-gray-800">{profile.name}</h1>
               <p className="text-sm text-gray-700">
                 <span className="font-semibold">ID:</span> {profile.uniqueId}

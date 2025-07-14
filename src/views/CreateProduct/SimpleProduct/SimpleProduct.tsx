@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button, TextInput } from 'flowbite-react';
-import { toast } from 'react-hot-toast';
 import BasicInfo from '../BasicInfo';
 import {
   CreateProduct,
@@ -15,6 +14,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { setProducts } from 'src/Store/Slices/ProductData';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/Store/Store';
+import { Toast } from 'src/components/Toast';
 
 interface Dimension {
   length: string;
@@ -302,7 +302,10 @@ const SimpleProduct = () => {
         resetForm();
         fetchProducts();
       }
-      toast.success('Product created successfully!');
+      Toast({
+        message: isEdit ? 'Product updated successfully!' : 'Product created successfully!',
+        type: 'success',
+      });
     } catch (error) {
       console.error('Error while submitting product:', error);
     } finally {
