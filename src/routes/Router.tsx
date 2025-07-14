@@ -14,6 +14,7 @@ import Productdata from 'src/views/ProductData/page';
 import ShowVariantProduct from 'src/views/ProductData/ShowVariantProduct';
 import CreateTiffin from 'src/views/CreateTiffin/page';
 import TiffinCompo from 'src/views/Tiffin/TiffinCompo';
+import Profile from 'src/views/Profile/page';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -95,6 +96,14 @@ const Router = [
         element: (
           <ProtectedRoute>
             <Coupon />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/profile',
+        element: (
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         ),
       },

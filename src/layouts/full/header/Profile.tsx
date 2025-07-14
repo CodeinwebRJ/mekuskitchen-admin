@@ -1,4 +1,4 @@
-import { Button, Dropdown } from 'flowbite-react';
+import { Dropdown } from 'flowbite-react';
 import { Icon } from '@iconify/react';
 import user1 from '/src/assets/images/profile/user-1.jpg';
 import { Link, useNavigate } from 'react-router';
@@ -29,7 +29,7 @@ const Profile = () => {
       >
         <Dropdown.Item
           as={Link}
-          to="#"
+          to="/profile"
           className="px-3 py-3 flex items-center bg-hover group/link w-full gap-3 text-dark"
         >
           <Icon icon="solar:user-circle-outline" height={20} />
@@ -51,15 +51,13 @@ const Profile = () => {
           <Icon icon="solar:checklist-linear" height={20} />
           My Task
         </Dropdown.Item> */}
-        <div className="p-3 pt-0">
-          <Button
-            size={'sm'}
-            onClick={handleLogout}
-            className="mt-2 border border-primary text-primary bg-transparent hover:bg-lightprimary outline-none focus:outline-none"
-          >
-            Logout
-          </Button>
-        </div>
+        <Dropdown.Item
+          onClick={handleLogout}
+          className="flex items-center bg-hover group/link w-full gap-3 text-dark"
+        >
+          <Icon icon="solar:logout-outline" height={20} />
+          Logout
+        </Dropdown.Item>
       </Dropdown>
     </div>
   );

@@ -115,7 +115,16 @@ export const DeleteTax = async (data: any) => {
 };
 
 export const getAllOrders = async (data: any) => {
-  const { search, startDate, endDate, dateRange, specificDate, orderStatus, orderId } = data;
+  const {
+    search,
+    startDate,
+    endDate,
+    dateRange,
+    specificDate,
+    orderStatus,
+    orderId,
+    orderFilters,
+  } = data;
   const params = new URLSearchParams();
   if (search) params.append('orderId', search);
   if (startDate) params.append('startDate', startDate);
@@ -124,6 +133,7 @@ export const getAllOrders = async (data: any) => {
   if (specificDate) params.append('specificDate', specificDate);
   if (orderStatus) params.append('orderStatus', orderStatus);
   if (orderId) params.append('orderId', orderId);
+  if (orderFilters) params.append('orderFilters', orderFilters);
 
   return axiosInstance.get(`/api/v1/order/admin/orders?${params.toString()}`);
 };

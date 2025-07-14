@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button, TextInput } from 'flowbite-react';
+import { toast } from 'react-hot-toast';
 import BasicInfo from '../BasicInfo';
 import {
   CreateProduct,
@@ -301,6 +302,7 @@ const SimpleProduct = () => {
         resetForm();
         fetchProducts();
       }
+      toast.success('Product created successfully!');
     } catch (error) {
       console.error('Error while submitting product:', error);
     } finally {

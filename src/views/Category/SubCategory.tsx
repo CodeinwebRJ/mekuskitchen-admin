@@ -68,7 +68,7 @@ const SubCategory = () => {
       }
 
       setLoading('create', true);
-      setError({}); // reset all
+      setError({}); 
 
       try {
         const data = { name: trimmedName, categoryId: selectedCategory };

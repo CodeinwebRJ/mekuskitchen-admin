@@ -4,6 +4,7 @@ import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { CreateCategory, DeleteCategory, UpdateCategory } from 'src/AxiosConfig/AxiosConfig'; // Fixed typo
 import DeleteDialog from 'src/components/DeleteDialog';
+import { toast } from 'react-hot-toast';
 import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
 import { setCategoryList, setSearchCategory } from 'src/Store/Slices/Categories';
@@ -101,9 +102,14 @@ const Category = () => {
         dispatch(setCategoryList([...categoryList, res.data.data]));
         setCategoryInput('');
         setShowCategoryForm(false);
+        toast.success('Category created successfully!');
       } catch (error: any) {
-        console.error('Failed to create category:', error);
-        setError((prev) => ({ ...prev, create: 'Failed to create category. Please try again.' }));
+        console.log(error);
+        setError((prev) => ({
+          ...prev,
+          create:
+            error?.response?.data?.errorData || 'Failed to create category. Please try again.',
+        }));
       } finally {
         setLoading('create', false);
       }

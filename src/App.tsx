@@ -11,6 +11,7 @@ import { setTiffin } from './Store/Slices/Tiffin';
 
 import { getAllProduct, getAllTiffin, getCategory } from './AxiosConfig/AxiosConfig';
 import useDebounce from './Hook/useDebounce';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -111,6 +112,27 @@ function App() {
     <>
       <ThemeModeScript />
       <Flowbite theme={{ theme: customTheme }}>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              padding: '12px 16px',
+              color: '#fff',
+              borderRadius: '8px',
+              fontSize: '14px',
+            },
+            success: {
+              style: {
+                background: '#22c55e',
+              },
+            },
+            error: {
+              style: {
+                background: '#ef4444',
+              },
+            },
+          }}
+        />
         <RouterProvider router={router} />
       </Flowbite>
     </>

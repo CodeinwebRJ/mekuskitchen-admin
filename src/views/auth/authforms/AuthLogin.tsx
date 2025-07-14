@@ -47,10 +47,8 @@ const AuthLogin = () => {
       const response = await Login({ uniqueId: trimmedUniqueId, password: trimmedPassword });
       const { token, admin } = response.data.data;
       dispatch(login(response.data.data));
-      if (rememberMe) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('admin', JSON.stringify(admin));
-      }
+      localStorage.setItem('token', token);
+      localStorage.setItem('admin', JSON.stringify(admin));
       navigate('/');
       setIsLoading(false);
     } catch (error: any) {
