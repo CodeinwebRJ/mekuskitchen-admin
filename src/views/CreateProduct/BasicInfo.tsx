@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Select, TextInput, Label, Textarea, Checkbox } from 'flowbite-react';
 import TableFileUploader from './Component/fileUploader';
 import { useSelector } from 'react-redux';
@@ -129,6 +129,20 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
   const preventScroll = (e: PreventScrollEvent) => {
     e.target.blur();
   };
+
+  useEffect(() => {
+    if (product.category && category.length > 0) {
+      const selectedCategory = category.find((cat: any) => cat.name === product.category);
+      setSubCategory(selectedCategory?.subCategories || []);
+    }
+  }, [product.category, category]);
+
+  useEffect(() => {
+    if (product.subCategory && subCategory.length > 0) {
+      const selectedSubCategory = subCategory.find((sub: any) => sub.name === product.subCategory);
+      setSubSubCategory(selectedSubCategory?.subSubCategories || []);
+    }
+  }, [product.subCategory, subCategory]);
 
   return (
     <div>

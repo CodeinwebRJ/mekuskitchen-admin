@@ -121,7 +121,7 @@ const Page = () => {
         </div>
         <div className="px-4">
           <div className="flex gap-2">
-            <Label>Active</Label>
+            <Label>{isActive ? 'Active' : 'Inactive'}</Label>
             <ToggleSwitch onChange={() => dispatch(setIsActive(!isActive))} checked={isActive} />
           </div>
         </div>

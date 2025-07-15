@@ -148,7 +148,7 @@ const Profile: React.FC = () => {
     setIsLoading(true);
     try {
       const payload = {
-        email: formData.email,
+        id: formData.id,
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword,
       };
@@ -162,7 +162,7 @@ const Profile: React.FC = () => {
     } catch (error: any) {
       Toast({
         message: error.response?.data?.message || 'Failed to update password',
-        type: 'success',
+        type: 'error',
       });
     } finally {
       setIsLoading(false);

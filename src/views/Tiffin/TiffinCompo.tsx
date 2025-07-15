@@ -97,7 +97,7 @@ const TiffinCompo = () => {
         </div>
         <div className="px-4">
           <div className="flex gap-2 items-center">
-            <Label>Active</Label>
+            <Label>{activeOnly ? "Active" : "Inactive"}</Label>
             <ToggleSwitch checked={activeOnly} onChange={setActiveOnly} />
           </div>
         </div>
