@@ -12,6 +12,7 @@ import { DeleteProduct, EditProduct, getAllProduct } from 'src/AxiosConfig/Axios
 import { setProducts, updateProductStatus } from 'src/Store/Slices/ProductData';
 import DeleteDialog from 'src/components/DeleteDialog';
 import Pagination from 'src/components/Pagination/Pagination';
+import { Toast } from 'src/components/Toast';
 
 const ShowVariantProduct = () => {
   const location = useLocation();
@@ -78,6 +79,7 @@ const ShowVariantProduct = () => {
       setIsDeleteDialogOpen(false);
       setSelectedProductId(null);
       fetchProducts();
+      Toast({ message: 'Product deleted successfully', type: 'success' });
     } catch (error) {
       console.error('Error deleting product:', error);
     }

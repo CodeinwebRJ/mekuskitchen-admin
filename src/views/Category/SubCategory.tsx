@@ -246,6 +246,8 @@ const SubCategory = () => {
       );
       setIsDeleteDialogOpen(false);
       setSelectedSubCategory(null);
+      Toast({ message: 'SubCategory deleted successfully', type: 'success' });
+
     } catch (error: any) {
       console.error('Failed to delete subcategory:', error);
       setError((prev) => ({

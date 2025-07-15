@@ -307,6 +307,8 @@ const ProductCategory = () => {
       );
       setIsDeleteDialogOpen(false);
       setSelectedSubSubCategory(null);
+      Toast({ message: 'Product Category deleted successfully', type: 'success' });
+
     } catch (error: any) {
       console.error('Failed to delete product category:', error);
       setError((prev) => ({

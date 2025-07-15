@@ -70,6 +70,7 @@ const Category = () => {
       dispatch(setCategoryList(categoryList.filter((cat) => cat._id !== selectedCategory._id)));
       setIsDeleteDialogOpen(false);
       setSelectedCategory(null);
+      Toast({ message: 'Category deleted successfully', type: 'success' });
     } catch (error: any) {
       console.error('Failed to delete category:', error);
       setError((prev) => ({ ...prev, delete: 'Failed to delete category.' }));

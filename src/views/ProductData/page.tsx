@@ -11,6 +11,7 @@ import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
 import { useNavigate } from 'react-router';
 import DeleteDialog from 'src/components/DeleteDialog';
+import { Toast } from 'src/components/Toast';
 
 interface RootState {
   product: any;
@@ -86,6 +87,7 @@ const Page = () => {
       setIsDeleteDialogOpen(false);
       setSelectedProductId(null);
       fetchProducts();
+      Toast({ message: 'Product deleted successfully', type: 'success' });
     } catch (error) {
       console.error('Error deleting product:', error);
     }

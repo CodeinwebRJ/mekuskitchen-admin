@@ -9,6 +9,9 @@ import { format } from 'date-fns';
 import DeleteDialog from 'src/components/DeleteDialog';
 import { deleteTiffin, getAllTiffin, updateTiffin } from 'src/AxiosConfig/AxiosConfig';
 import { setTiffin } from 'src/Store/Slices/Tiffin';
+import useDebounce from 'src/Hook/useDebounce';
+import Loading from 'src/components/Loading';
+import { Toast } from 'src/components/Toast';
 
 const TiffinCompo = () => {
   const navigate = useNavigate();
@@ -19,23 +22,30 @@ const TiffinCompo = () => {
   const [selectedTiffinId, setSelectedTiffinId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [activeOnly, setActiveOnly] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const debounceSearch = useDebounce(search, 500);
 
   const fetchAllTiffin = async () => {
     try {
+      setLoading(true);
       const res = await getAllTiffin({
         day: '',
         Active: activeOnly.toString(),
-        search,
+        search: debounceSearch,
       });
       dispatch(setTiffin(res?.data?.data));
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching tiffins:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchAllTiffin();
-  }, [search, activeOnly]);
+  }, [debounceSearch, activeOnly]);
 
   const toggleExpand = (index: number) => {
     setExpandedIndex((prev) => (prev === index ? null : index));
@@ -57,6 +67,7 @@ const TiffinCompo = () => {
       await deleteTiffin(selectedTiffinId);
       handleCancelDelete();
       await fetchAllTiffin();
+      Toast({ message: 'Tiffin deleted successfully', type: 'success' });
     } catch (error) {
       console.error('Error deleting tiffin:', error);
     }
@@ -108,7 +119,14 @@ const TiffinCompo = () => {
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(data) &&
+            {loading ? (
+              <tr>
+                <td colSpan={8} className="text-center py-6">
+                  <Loading />
+                </td>
+              </tr>
+            ) : (
+              Array.isArray(data) &&
               data.map((tiffin: any, index: number) => {
                 const isExpanded = expandedIndex === index;
                 return (
@@ -208,7 +226,8 @@ const TiffinCompo = () => {
                     )}
                   </Fragment>
                 );
-              })}
+              })
+            )}
           </tbody>
         </table>
       </div>

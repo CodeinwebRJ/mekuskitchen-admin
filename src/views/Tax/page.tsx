@@ -185,6 +185,7 @@ const Page = () => {
     try {
       await DeleteTax(selectedProvinceCode);
       fetchTax();
+      Toast({ message: 'Tax deleted successfully', type: 'success' });
     } catch (error) {
       console.error('Delete Tax Error:', error);
     } finally {

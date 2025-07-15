@@ -66,6 +66,25 @@ interface TiffinItem {
   deliveryDate: string;
 }
 
+interface AddressDetails {
+  shipping?: {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    postCode: string;
+  };
+  billing: {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    postCode: string;
+  };
+}
+
 interface Order {
   _id: string;
   orderId: string | number;
@@ -75,6 +94,7 @@ interface Order {
   user: string;
   cartItems?: CartItem[];
   tiffinItems?: TiffinItem[];
+  address?: AddressDetails;
 }
 
 const Page: React.FC = () => {
@@ -176,7 +196,10 @@ const Page: React.FC = () => {
           <thead className="text-xs uppercase bg-gray-50 text-blue-800">
             <tr>
               <th className="px-4 py-3">User</th>
+              <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Order ID</th>
+              <th className="px-4 py-3">Address</th>
+              <th className="px-4 py-3">Post Code</th>
               <th className="px-4 py-3">Ordered Date</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Total</th>
@@ -213,7 +236,21 @@ const Page: React.FC = () => {
                         />
                         <span>{order.user}</span>
                       </td>
+                      <td className="px-4 py-3">{order.address?.billing.name}</td>
                       <td className="px-4 py-3">{order.orderId}</td>
+                      <td className="px-4 py-3">
+                        {order.address?.shipping?.address ||
+                          order.address?.billing?.address ||
+                          'N/A'}
+                        ,{order.address?.shipping?.city || order.address?.billing?.city || ''},{' '}
+                        {order.address?.shipping?.state || order.address?.billing?.state || ''},{' '}
+                        {order.address?.shipping?.country || order.address?.billing?.country || ''}
+                      </td>
+                      <td className="px-4 py-3">
+                        {order.address?.shipping?.postCode ||
+                          order.address?.billing?.postCode ||
+                          ''}
+                      </td>
                       <td className="px-4 py-3">
                         {dayjs(order.Orderdate).format('DD MMM YYYY, hh:mm A')}
                       </td>
@@ -235,7 +272,7 @@ const Page: React.FC = () => {
                     {isExpanded &&
                       (filter.orderFilters === 'product' ? (
                         <tr>
-                          <td colSpan={6} className="p-0 border-0">
+                          <td colSpan={9} className="p-0 border-0">
                             <div className="bg-white px-4 py-3 border border-t-0 border-gray-200">
                               <table className="min-w-full text-sm text-left text-gray-700">
                                 <thead className="text-blue-800 text-xs uppercase">
@@ -290,7 +327,7 @@ const Page: React.FC = () => {
                         </tr>
                       ) : (
                         <tr>
-                          <td colSpan={6} className="p-0 border-0">
+                          <td colSpan={9} className="p-0 border-0">
                             <div className="bg-white px-4 py-3 border border-t-0 border-gray-200">
                               <table className="min-w-full text-sm text-left text-gray-700">
                                 <thead className="text-blue-800 text-xs uppercase">

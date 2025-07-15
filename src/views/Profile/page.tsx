@@ -1,7 +1,8 @@
 import { Button, Label, TextInput } from 'flowbite-react';
 import React, { useEffect, useState } from 'react';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
-import { UpdateProfile } from 'src/AxiosConfig/AxiosConfig';
+import { UpdateProfile, UploadImage } from 'src/AxiosConfig/AxiosConfig';
+import Loading from 'src/components/Loading';
 import { Toast } from 'src/components/Toast';
 
 type UserProfile = {
@@ -29,7 +30,7 @@ const Profile: React.FC = () => {
   });
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
     newPassword: '',
@@ -111,23 +112,40 @@ const Profile: React.FC = () => {
   const handleUpdate = async () => {
     if (!profile) return;
     if (!validateForm()) return;
+    setIsLoading(true);
     try {
+      let avatarURL = formData.avatar;
+
+      if (avatarURL.startsWith('blob:') || avatarURL.startsWith('data:image')) {
+        const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]');
+        const file = fileInput?.files?.[0];
+
+        if (file) {
+          console.log(file);
+          const res = await UploadImage([file]);
+          console.log(res);
+        }
+      }
       const payload = { ...formData };
       const response = await UpdateProfile(payload);
       localStorage.setItem('admin', JSON.stringify(response.data.data));
       setProfile(response.data.data);
       setIsEditing(false);
+      setIsLoading(false);
       Toast({ message: 'Profile updated successfully', type: 'success' });
     } catch (error: any) {
       Toast({
         message: error.response?.data?.message || 'Failed to update profile',
         type: 'error',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handlePasswordSubmit = async () => {
     if (!validatePasswordForm()) return;
+    setIsLoading(true);
     try {
       const payload = {
         email: formData.email,
@@ -139,12 +157,15 @@ const Profile: React.FC = () => {
       setProfile(response.data.data);
       setPasswordData({ oldPassword: '', newPassword: '' });
       setIsChangingPassword(false);
+      setIsLoading(false);
       Toast({ message: 'Password updated successfully', type: 'success' });
     } catch (error: any) {
       Toast({
         message: error.response?.data?.message || 'Failed to update password',
         type: 'success',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -154,7 +175,9 @@ const Profile: React.FC = () => {
 
   return (
     <div className="flex justify-start px-4 py-8">
-      {isEditing ? (
+      {isLoading ? (
+        <Loading />
+      ) : isEditing ? (
         <div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Update Profile</h2>
           <div className="space-y-4">

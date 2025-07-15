@@ -136,7 +136,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
       <form className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
           <div>
-            <Label value="Upload Product Images" className="text-sm font-medium text-gray-700" />
+            <Label value="Upload Product Images*" className="text-sm font-medium text-gray-700" />
             <div>
               <TableFileUploader images={product.images} setProduct={setProduct} />
               {errors.images && product.images.length === 0 && (

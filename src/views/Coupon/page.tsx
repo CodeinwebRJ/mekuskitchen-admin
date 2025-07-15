@@ -8,6 +8,7 @@ import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
 import useDebounce from 'src/Hook/useDebounce';
 import DeleteDialog from 'src/components/DeleteDialog';
+import { Toast } from 'src/components/Toast';
 
 interface CouponFormData {
   _id?: string;
@@ -123,6 +124,7 @@ const Page: FC = () => {
       setData((prev) => prev.filter((coupon) => coupon._id !== selectedCoupon._id));
       setIsDeleteDialogOpen(false);
       setSelectedCoupon(null);
+      Toast({ message: 'Coupon deleted successfully', type: 'success' });
     } catch (error) {
       console.error('Failed to delete coupon:', error);
       setError('Failed to delete coupon. Please try again.');
