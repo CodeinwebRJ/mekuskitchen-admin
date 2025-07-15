@@ -28,9 +28,14 @@ export interface Product {
 interface TableFileUploaderProps {
   images: ImageItem[];
   setProduct: any;
+  setErrors: any;
 }
 
-export default function TableFileUploader({ images, setProduct }: TableFileUploaderProps) {
+export default function TableFileUploader({
+  images,
+  setProduct,
+  setErrors,
+}: TableFileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -79,9 +84,17 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
     e.preventDefault();
   };
 
+  const clearImageErrors = () => {
+    setErrors((prev: any) => ({
+      ...prev,
+      images: undefined,
+    }));
+  };
+
   const removeImage = (index: number) => {
     setProduct((prev: any) => {
       const updatedImages = (prev.images || []).filter((_: any, idx: number) => idx !== index);
+      clearImageErrors();
       return {
         ...prev,
         images: updatedImages,

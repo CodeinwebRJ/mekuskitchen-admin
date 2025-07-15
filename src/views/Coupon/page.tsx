@@ -22,6 +22,7 @@ interface CouponFormData {
   image: string;
   isActive: boolean;
   allProducts: boolean;
+  isTiffin: boolean;
   isMultiple: boolean;
   termsAndConditions: string;
   description: string;
@@ -45,6 +46,7 @@ const Page: FC = () => {
     isActive: true,
     allProducts: false,
     isMultiple: false,
+    isTiffin: false,
     termsAndConditions: '',
     description: '',
     category: [],
@@ -58,7 +60,6 @@ const Page: FC = () => {
   const [search, setSearch] = useState<string>('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState<CouponFormData | null>(null);
-
   const code = useDebounce(search, 500);
 
   const fetchCoupons = useCallback(async () => {
@@ -163,6 +164,7 @@ const Page: FC = () => {
                   isActive: true,
                   allProducts: false,
                   isMultiple: false,
+                  isTiffin: false,
                   termsAndConditions: '',
                   description: '',
                   category: [],
@@ -193,7 +195,7 @@ const Page: FC = () => {
         <div className="divide-y">
           <div className="bg-white shadow-md rounded-md overflow-x-auto">
             <table className="min-w-full text-sm text-left text-gray-700">
-              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-blue-700">
                 <tr>
                   <th className="px-4 py-3">Index</th>
                   <th className="px-4 py-3">Image</th>

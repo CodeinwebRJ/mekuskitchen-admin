@@ -1,10 +1,11 @@
 import { Button, Checkbox, Label, Textarea, TextInput } from 'flowbite-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { CreateCoupon, EditCoupons, UploadImage } from 'src/AxiosConfig/AxiosConfig';
 import MultiSelect from 'src/components/MultiSelect';
 import { Toast } from 'src/components/Toast';
 import { RootState } from 'src/Store/Store';
+import { MdDelete } from 'react-icons/md';
 
 interface SubSubCategoryType {
   _id: string;
@@ -88,6 +89,8 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
   const [subCategories, setSubCategories] = useState<SubCategoryType[]>([]);
   const [subSubCategories, setSubSubCategories] = useState<SubSubCategoryType[]>([]);
   const [formErrors, setFormErrors] = useState<CouponFormErrors>({});
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -196,6 +199,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
       if (formData.image && typeof formData.image !== 'string') {
         const uploadResult = await UploadImage([formData.image]);
         uploadedImageUrl = uploadResult?.data?.data?.images[0]?.url || '';
+        formData.image = uploadedImageUrl;
       }
       const payload = {
         ...formData,
@@ -247,6 +251,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
         isActive: true,
         allProducts: false,
         isMultiple: false,
+        isTiffin: false,
         termsAndConditions: '',
         description: '',
         category: [],
@@ -264,6 +269,12 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (isEdit && typeof formData.image === 'string') {
+      setPreviewImage(formData.image);
+    }
+  }, [isEdit, formData.image]);
+
   const preventScroll = (e: PreventScrollEvent) => {
     e.target.blur();
   };
@@ -274,7 +285,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="code" value="Coupon Code" />
+            <Label htmlFor="code" value="Coupon Code*" />
             <TextInput
               id="code"
               name="code"
@@ -285,7 +296,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
             {formErrors.code && <p className="text-red-500">{formErrors.code}</p>}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="discountType" value="Discount Type" />
+            <Label htmlFor="discountType" value="Discount Type*" />
             <select
               id="discountType"
               name="discountType"
@@ -301,7 +312,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="discountValue" value="Discount Value" />
+            <Label htmlFor="discountValue" value="Discount Value*" />
             <TextInput
               id="discountValue"
               name="discountValue"
@@ -314,7 +325,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
             {formErrors.discountValue && <p className="text-red-500">{formErrors.discountValue}</p>}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="minOrderAmount" value="Minimum Order Amount" />
+            <Label htmlFor="minOrderAmount" value="Minimum Order Value*" />
             <TextInput
               id="minOrderAmount"
               name="minOrderAmount"
@@ -332,7 +343,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="startAt" value="Start Date" />
+            <Label htmlFor="startAt" value="Start Date*" />
             <TextInput
               id="startAt"
               name="startAt"
@@ -343,7 +354,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
             {formErrors.startAt && <p className="text-red-500">{formErrors.startAt}</p>}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="expiresAt" value="Expiration Date" />
+            <Label htmlFor="expiresAt" value="Expiration Date*" />
             <TextInput
               id="expiresAt"
               name="expiresAt"
@@ -357,7 +368,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="usageLimit" value="Usage Limit" />
+            <Label htmlFor="usageLimit" value="Usage Limit*" />
             <TextInput
               id="usageLimit"
               name="usageLimit"
@@ -371,19 +382,55 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
             {formErrors.usageLimit && <p className="text-red-500">{formErrors.usageLimit}</p>}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="image" value="Image" />
-            <input
-              type="file"
-              id="image"
-              name="image"
-              className="border rounded-md p-2"
-              onChange={(e) =>
-                setFormData((prev: any) => ({
-                  ...prev,
-                  image: e.target.files?.[0] || '',
-                }))
-              }
-            />
+            <Label htmlFor="image" value="Image*" />
+            <div className="flex items-center w-full gap-5">
+              {previewImage && (
+                <div>
+                  <div className="relative w-20 h-20 mt-2">
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      className="w-full h-full object-cover rounded-md border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev: any) => ({
+                          ...prev,
+                          image: '',
+                        }));
+                        setPreviewImage(null);
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = '';
+                        }
+                      }}
+                      className="absolute top-0 right-0 text-red-600 rounded-lg p-1 bg-white"
+                      title="Remove Image"
+                    >
+                      <MdDelete size={20} />
+                    </button>
+                  </div>
+                </div>
+              )}
+              <TextInput
+                ref={fileInputRef}
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+                className="w-full"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      image: file,
+                    }));
+                    setPreviewImage(URL.createObjectURL(file));
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -393,7 +440,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               id="category"
               label="Category"
               options={categories.map((cat: CategoryType) => cat.name)}
-              disabled={formData?.allProducts === true ? true : false}
+              disabled={formData.isTiffin || formData.allProducts}
               selectedValues={formData.category}
               onChange={(selected) => handleMultiSelectChange(selected, 'category')}
             />
@@ -403,7 +450,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           <MultiSelect
             id="subCategory"
             label="Sub Category"
-            disabled={formData?.allProducts === true ? true : false}
+            disabled={formData.isTiffin || formData.allProducts}
             options={subCategories.map((sub: SubCategoryType) => sub.name)}
             selectedValues={formData.subCategory}
             onChange={(selected) => handleMultiSelectChange(selected, 'subCategory')}
@@ -414,13 +461,14 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
           <MultiSelect
             id="ProductCategory"
             label="Product Category"
-            disabled={formData?.allProducts === true ? true : false}
+            disabled={formData.isTiffin || formData.allProducts}
             options={subSubCategories.map((subSub: SubSubCategoryType) => subSub.name)}
             selectedValues={formData.ProductCategory}
             onChange={(selected) => handleMultiSelectChange(selected, 'ProductCategory')}
           />
-          <div className="flex flex-col sm:flex-row gap-10 items-start sm:items-center mt-2 sm:mt-6">
-            <div className="flex items-start sm:items-center gap-3">
+
+          <div className="flex flex-wrap gap-x-6 gap-y-4 mt-2 sm:mt-6">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Checkbox
                 id="isActive"
                 name="isActive"
@@ -434,7 +482,8 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               />
               <Label htmlFor="isActive" value="Is Active" />
             </div>
-            <div className="flex items-start sm:items-center gap-3">
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Checkbox
                 id="isMultiple"
                 name="isMultiple"
@@ -448,11 +497,13 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
               />
               <Label htmlFor="isMultiple" value="Is Multiple" />
             </div>
-            <div className="flex items-start sm:items-center gap-3">
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Checkbox
                 id="allProducts"
                 name="allProducts"
                 checked={formData.allProducts}
+                disabled={formData.isTiffin}
                 onChange={(e) => {
                   const isChecked = e.target.checked;
                   setFormData((prev: any) => ({
@@ -471,6 +522,32 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
                 }}
               />
               <Label htmlFor="allProducts" value="All Products" />
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Checkbox
+                id="isTiffin"
+                name="isTiffin"
+                checked={formData.isTiffin}
+                onChange={(e) => {
+                  const isChecked = e.target.checked;
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    isTiffin: isChecked,
+                    allProducts: isChecked ? false : prev.allProducts,
+                    ...(isChecked && {
+                      category: [],
+                      subCategory: [],
+                      ProductCategory: [],
+                    }),
+                  }));
+                  if (isChecked) {
+                    setSubCategories([]);
+                    setSubSubCategories([]);
+                  }
+                }}
+              />
+              <Label htmlFor="isTiffin" value="Is Tiffin" />
             </div>
           </div>
         </div>

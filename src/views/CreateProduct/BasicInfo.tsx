@@ -138,9 +138,13 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
           <div>
             <Label value="Upload Product Images*" className="text-sm font-medium text-gray-700" />
             <div>
-              <TableFileUploader images={product.images} setProduct={setProduct} />
-              {errors.images && product.images.length === 0 && (
-                <span className="text-red-500">{errors.images}</span>
+              <TableFileUploader
+                setErrors={setErrors}
+                images={product.images}
+                setProduct={setProduct}
+              />
+              {errors?.images && product.images.length === 0 && (
+                <p className="text-red-600 text-sm mt-2 w-full text-left">{errors.images}</p>
               )}
             </div>
           </div>
