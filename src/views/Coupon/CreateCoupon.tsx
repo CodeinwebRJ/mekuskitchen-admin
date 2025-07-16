@@ -127,7 +127,11 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
       }
     }
 
-    if (!formData.allProducts && (!formData.category || formData.category.length === 0)) {
+    if (
+      !formData.allProducts &&
+      !formData.isTiffin &&
+      (!formData.category || formData.category.length === 0)
+    ) {
       newErrors.category = 'At least one category is required';
     }
 

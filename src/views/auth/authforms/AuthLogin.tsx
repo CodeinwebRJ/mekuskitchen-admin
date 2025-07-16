@@ -69,8 +69,14 @@ const AuthLogin = () => {
           type="text"
           sizing="md"
           value={uniqueId}
-          onChange={(e) => setUniqueId(e.target.value)}
+          onChange={(e) => {
+            setUniqueId(e.target.value);
+            if (formErrors.uniqueId) {
+              setFormErrors((prev) => ({ ...prev, uniqueId: undefined }));
+            }
+          }}
         />
+
         {formErrors.uniqueId && <p className="text-red-600">{formErrors.uniqueId}</p>}
       </div>
 
@@ -84,7 +90,12 @@ const AuthLogin = () => {
             type={showPassword ? 'text' : 'password'}
             sizing="md"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (formErrors.password) {
+                setFormErrors((prev) => ({ ...prev, password: undefined }));
+              }
+            }}
           />
           <button
             type="button"
