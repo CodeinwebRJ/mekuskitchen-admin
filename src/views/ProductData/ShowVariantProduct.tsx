@@ -133,7 +133,7 @@ const ShowVariantProduct = () => {
 
       <div className="overflow-x-auto bg-white rounded-md shadow-md">
         <table className="min-w-full text-sm text-left text-gray-800 border border-gray-200">
-          <thead className="text-xs uppercase bg-gray-50 text-primary">
+          <thead className="text-xs uppercase bg-gray-50 text-blue-800">
             <tr>
               <th className="px-4 py-3">Index</th>
               <th className="px-4 py-3">Image</th>

@@ -6,6 +6,7 @@ import MultiSelect from 'src/components/MultiSelect';
 import { Toast } from 'src/components/Toast';
 import { RootState } from 'src/Store/Store';
 import { MdDelete } from 'react-icons/md';
+import Loading from 'src/components/Loading';
 
 interface SubSubCategoryType {
   _id: string;
@@ -91,6 +92,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
   const [formErrors, setFormErrors] = useState<CouponFormErrors>({});
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -186,6 +188,7 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
     e.preventDefault();
     if (!validateForm()) return;
     try {
+      setLoading(true);
       const requiredNumbers = ['discountValue', 'minOrderAmount', 'usageLimit'];
       for (const field of requiredNumbers) {
         if (!formData[field] || Number(formData[field]) <= 0) {
@@ -268,8 +271,11 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
       });
       setIsEdit(false);
       setShowForm(false);
+      setLoading(false);
     } catch (error) {
       console.error('Coupon submission failed:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -286,310 +292,316 @@ export const CreateCoupons: React.FC<CreateCouponsProps> = ({
   return (
     <div className="bg-white shadow-md rounded-md p-4 sm:p-6">
       <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-4">Create New Coupon</h3>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="code" value="Coupon Code*" />
-            <TextInput
-              id="code"
-              name="code"
-              value={formData.code}
-              onChange={handleInputChange}
-              placeholder="e.g., SAVE10"
-            />
-            {formErrors.code && <p className="text-red-500">{formErrors.code}</p>}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="discountType" value="Discount Type*" />
-            <select
-              id="discountType"
-              name="discountType"
-              value={formData.discountType}
-              onChange={handleInputChange}
-              className="border rounded-md p-2"
-            >
-              <option value="percentage">Percentage</option>
-              <option value="fixed">Fixed Amount</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="discountValue" value="Discount Value*" />
-            <TextInput
-              id="discountValue"
-              name="discountValue"
-              type="number"
-              onWheel={preventScroll}
-              value={formData.discountValue}
-              onChange={handleInputChange}
-              placeholder="e.g., 25"
-            />
-            {formErrors.discountValue && <p className="text-red-500">{formErrors.discountValue}</p>}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="minOrderAmount" value="Minimum Order Value*" />
-            <TextInput
-              id="minOrderAmount"
-              name="minOrderAmount"
-              type="number"
-              onWheel={preventScroll}
-              value={formData.minOrderAmount}
-              onChange={handleInputChange}
-              placeholder="e.g., 500"
-            />
-            {formErrors.minOrderAmount && (
-              <p className="text-red-500">{formErrors.minOrderAmount}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="startAt" value="Start Date*" />
-            <TextInput
-              id="startAt"
-              name="startAt"
-              type="date"
-              value={formData.startAt}
-              onChange={handleInputChange}
-            />
-            {formErrors.startAt && <p className="text-red-500">{formErrors.startAt}</p>}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="expiresAt" value="Expiration Date*" />
-            <TextInput
-              id="expiresAt"
-              name="expiresAt"
-              type="date"
-              value={formData.expiresAt}
-              onChange={handleInputChange}
-            />
-            {formErrors.expiresAt && <p className="text-red-500">{formErrors.expiresAt}</p>}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="usageLimit" value="Usage Limit*" />
-            <TextInput
-              id="usageLimit"
-              name="usageLimit"
-              type="number"
-              min="1"
-              value={formData.usageLimit}
-              onWheel={preventScroll}
-              onChange={handleInputChange}
-              placeholder="e.g., 100"
-            />
-            {formErrors.usageLimit && <p className="text-red-500">{formErrors.usageLimit}</p>}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="image" value="Image*" />
-            <div className="flex items-center w-full gap-5">
-              {previewImage && (
-                <div>
-                  <div className="relative w-20 h-20 mt-2">
-                    <img
-                      src={previewImage}
-                      alt="Preview"
-                      className="w-full h-full object-cover rounded-md border"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData((prev: any) => ({
-                          ...prev,
-                          image: '',
-                        }));
-                        setPreviewImage(null);
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = '';
-                        }
-                      }}
-                      className="absolute top-0 right-0 text-red-600 rounded-lg p-1 bg-white"
-                      title="Remove Image"
-                    >
-                      <MdDelete size={20} />
-                    </button>
-                  </div>
-                </div>
-              )}
+      {loading ? (
+        <Loading />
+      ) : (
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="code" value="Coupon Code*" />
               <TextInput
-                ref={fileInputRef}
-                type="file"
-                id="image"
-                name="image"
-                accept="image/*"
-                className="w-full"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
+                id="code"
+                name="code"
+                value={formData.code}
+                onChange={handleInputChange}
+                placeholder="e.g., SAVE10"
+              />
+              {formErrors.code && <p className="text-red-500">{formErrors.code}</p>}
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="discountType" value="Discount Type*" />
+              <select
+                id="discountType"
+                name="discountType"
+                value={formData.discountType}
+                onChange={handleInputChange}
+                className="border rounded-md p-2"
+              >
+                <option value="percentage">Percentage</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="discountValue" value="Discount Value*" />
+              <TextInput
+                id="discountValue"
+                name="discountValue"
+                type="number"
+                onWheel={preventScroll}
+                value={formData.discountValue}
+                onChange={handleInputChange}
+                placeholder="e.g., 25"
+              />
+              {formErrors.discountValue && (
+                <p className="text-red-500">{formErrors.discountValue}</p>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="minOrderAmount" value="Minimum Order Value*" />
+              <TextInput
+                id="minOrderAmount"
+                name="minOrderAmount"
+                type="number"
+                onWheel={preventScroll}
+                value={formData.minOrderAmount}
+                onChange={handleInputChange}
+                placeholder="e.g., 500"
+              />
+              {formErrors.minOrderAmount && (
+                <p className="text-red-500">{formErrors.minOrderAmount}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="startAt" value="Start Date*" />
+              <TextInput
+                id="startAt"
+                name="startAt"
+                type="date"
+                value={formData.startAt}
+                onChange={handleInputChange}
+              />
+              {formErrors.startAt && <p className="text-red-500">{formErrors.startAt}</p>}
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="expiresAt" value="Expiration Date*" />
+              <TextInput
+                id="expiresAt"
+                name="expiresAt"
+                type="date"
+                value={formData.expiresAt}
+                onChange={handleInputChange}
+              />
+              {formErrors.expiresAt && <p className="text-red-500">{formErrors.expiresAt}</p>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="usageLimit" value="Usage Limit*" />
+              <TextInput
+                id="usageLimit"
+                name="usageLimit"
+                type="number"
+                min="1"
+                value={formData.usageLimit}
+                onWheel={preventScroll}
+                onChange={handleInputChange}
+                placeholder="e.g., 100"
+              />
+              {formErrors.usageLimit && <p className="text-red-500">{formErrors.usageLimit}</p>}
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="image" value="Image*" />
+              <div className="flex items-center w-full gap-5">
+                {previewImage && (
+                  <div>
+                    <div className="relative w-20 h-20 mt-2">
+                      <img
+                        src={previewImage}
+                        alt="Preview"
+                        className="w-full h-full object-cover rounded-md border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev: any) => ({
+                            ...prev,
+                            image: '',
+                          }));
+                          setPreviewImage(null);
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = '';
+                          }
+                        }}
+                        className="absolute top-0 right-0 text-red-600 rounded-lg p-1 bg-white"
+                        title="Remove Image"
+                      >
+                        <MdDelete size={20} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <TextInput
+                  ref={fileInputRef}
+                  type="file"
+                  id="image"
+                  name="image"
+                  accept="image/*"
+                  className="w-full"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        image: file,
+                      }));
+                      setPreviewImage(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <MultiSelect
+                id="category"
+                label="Category"
+                options={categories.map((cat: CategoryType) => cat.name)}
+                disabled={formData.isTiffin || formData.allProducts}
+                selectedValues={formData.category}
+                onChange={(selected) => handleMultiSelectChange(selected, 'category')}
+              />
+              {formErrors.category && <p className="text-red-500">{formErrors.category}</p>}
+            </div>
+
+            <MultiSelect
+              id="subCategory"
+              label="Sub Category"
+              disabled={formData.isTiffin || formData.allProducts}
+              options={subCategories.map((sub: SubCategoryType) => sub.name)}
+              selectedValues={formData.subCategory}
+              onChange={(selected) => handleMultiSelectChange(selected, 'subCategory')}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <MultiSelect
+              id="ProductCategory"
+              label="Product Category"
+              disabled={formData.isTiffin || formData.allProducts}
+              options={subSubCategories.map((subSub: SubSubCategoryType) => subSub.name)}
+              selectedValues={formData.ProductCategory}
+              onChange={(selected) => handleMultiSelectChange(selected, 'ProductCategory')}
+            />
+
+            <div className="flex flex-wrap gap-x-6 gap-y-4 mt-2 sm:mt-6">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Checkbox
+                  id="isActive"
+                  name="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) =>
                     setFormData((prev: any) => ({
                       ...prev,
-                      image: file,
+                      isActive: e.target.checked,
+                    }))
+                  }
+                />
+                <Label htmlFor="isActive" value="Is Active" />
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Checkbox
+                  id="isMultiple"
+                  name="isMultiple"
+                  checked={formData.isMultiple}
+                  onChange={(e) =>
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      isMultiple: e.target.checked,
+                    }))
+                  }
+                />
+                <Label htmlFor="isMultiple" value="Is Multiple" />
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Checkbox
+                  id="allProducts"
+                  name="allProducts"
+                  checked={formData.allProducts}
+                  disabled={formData.isTiffin}
+                  onChange={(e) => {
+                    const isChecked = e.target.checked;
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      allProducts: isChecked,
+                      ...(isChecked && {
+                        category: [],
+                        subCategory: [],
+                        ProductCategory: [],
+                      }),
                     }));
-                    setPreviewImage(URL.createObjectURL(file));
-                  }
-                }}
+                    if (isChecked) {
+                      setSubCategories([]);
+                      setSubSubCategories([]);
+                    }
+                  }}
+                />
+                <Label htmlFor="allProducts" value="All Products" />
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Checkbox
+                  id="isTiffin"
+                  name="isTiffin"
+                  checked={formData.isTiffin}
+                  onChange={(e) => {
+                    const isChecked = e.target.checked;
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      isTiffin: isChecked,
+                      allProducts: isChecked ? false : prev.allProducts,
+                      ...(isChecked && {
+                        category: [],
+                        subCategory: [],
+                        ProductCategory: [],
+                      }),
+                    }));
+                    if (isChecked) {
+                      setSubCategories([]);
+                      setSubSubCategories([]);
+                    }
+                  }}
+                />
+                <Label htmlFor="isTiffin" value="Is Tiffin" />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="termsAndConditions" value="Terms and Conditions" />
+              <Textarea
+                id="termsAndConditions"
+                name="termsAndConditions"
+                value={formData.termsAndConditions}
+                onChange={handleInputChange}
+                placeholder="e.g., Valid only on selected items."
+                rows={4}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="description" value="Description" />
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="e.g., Save 25% on orders above ₹500 this May!"
+                rows={4}
               />
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <MultiSelect
-              id="category"
-              label="Category"
-              options={categories.map((cat: CategoryType) => cat.name)}
-              disabled={formData.isTiffin || formData.allProducts}
-              selectedValues={formData.category}
-              onChange={(selected) => handleMultiSelectChange(selected, 'category')}
-            />
-            {formErrors.category && <p className="text-red-500">{formErrors.category}</p>}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-4">
+            <Button color="gray" onClick={() => setShowForm(false)} className="w-full sm:w-auto">
+              Cancel
+            </Button>
+            <Button color="primary" type="submit" className="w-full sm:w-auto">
+              Submit
+            </Button>
           </div>
-
-          <MultiSelect
-            id="subCategory"
-            label="Sub Category"
-            disabled={formData.isTiffin || formData.allProducts}
-            options={subCategories.map((sub: SubCategoryType) => sub.name)}
-            selectedValues={formData.subCategory}
-            onChange={(selected) => handleMultiSelectChange(selected, 'subCategory')}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <MultiSelect
-            id="ProductCategory"
-            label="Product Category"
-            disabled={formData.isTiffin || formData.allProducts}
-            options={subSubCategories.map((subSub: SubSubCategoryType) => subSub.name)}
-            selectedValues={formData.ProductCategory}
-            onChange={(selected) => handleMultiSelectChange(selected, 'ProductCategory')}
-          />
-
-          <div className="flex flex-wrap gap-x-6 gap-y-4 mt-2 sm:mt-6">
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Checkbox
-                id="isActive"
-                name="isActive"
-                checked={formData.isActive}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    isActive: e.target.checked,
-                  }))
-                }
-              />
-              <Label htmlFor="isActive" value="Is Active" />
-            </div>
-
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Checkbox
-                id="isMultiple"
-                name="isMultiple"
-                checked={formData.isMultiple}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    isMultiple: e.target.checked,
-                  }))
-                }
-              />
-              <Label htmlFor="isMultiple" value="Is Multiple" />
-            </div>
-
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Checkbox
-                id="allProducts"
-                name="allProducts"
-                checked={formData.allProducts}
-                disabled={formData.isTiffin}
-                onChange={(e) => {
-                  const isChecked = e.target.checked;
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    allProducts: isChecked,
-                    ...(isChecked && {
-                      category: [],
-                      subCategory: [],
-                      ProductCategory: [],
-                    }),
-                  }));
-                  if (isChecked) {
-                    setSubCategories([]);
-                    setSubSubCategories([]);
-                  }
-                }}
-              />
-              <Label htmlFor="allProducts" value="All Products" />
-            </div>
-
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Checkbox
-                id="isTiffin"
-                name="isTiffin"
-                checked={formData.isTiffin}
-                onChange={(e) => {
-                  const isChecked = e.target.checked;
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    isTiffin: isChecked,
-                    allProducts: isChecked ? false : prev.allProducts,
-                    ...(isChecked && {
-                      category: [],
-                      subCategory: [],
-                      ProductCategory: [],
-                    }),
-                  }));
-                  if (isChecked) {
-                    setSubCategories([]);
-                    setSubSubCategories([]);
-                  }
-                }}
-              />
-              <Label htmlFor="isTiffin" value="Is Tiffin" />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="termsAndConditions" value="Terms and Conditions" />
-            <Textarea
-              id="termsAndConditions"
-              name="termsAndConditions"
-              value={formData.termsAndConditions}
-              onChange={handleInputChange}
-              placeholder="e.g., Valid only on selected items."
-              rows={4}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="description" value="Description" />
-            <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="e.g., Save 25% on orders above ₹500 this May!"
-              rows={4}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row justify-end gap-3 mt-4">
-          <Button color="gray" onClick={() => setShowForm(false)} className="w-full sm:w-auto">
-            Cancel
-          </Button>
-          <Button color="primary" type="submit" className="w-full sm:w-auto">
-            Submit
-          </Button>
-        </div>
-      </form>
+        </form>
+      )}
     </div>
   );
 };

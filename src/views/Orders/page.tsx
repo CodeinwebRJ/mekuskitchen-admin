@@ -7,7 +7,6 @@ import user1 from '/src/assets/images/profile/user-1.jpg';
 import Loading from 'src/components/Loading';
 import NoDataFound from 'src/components/NoDataFound';
 import useDebounce from 'src/Hook/useDebounce';
-
 import { getAllOrders } from 'src/AxiosConfig/AxiosConfig';
 import {
   setOrders,
@@ -129,8 +128,6 @@ const Page: React.FC = () => {
 
   const handleReset = () => dispatch(resetFilter());
 
-  console.log(orders);
-
   return (
     <div>
       <h1 className="text-2xl font-bold mb-3 text-primary">Orders</h1>
@@ -215,7 +212,7 @@ const Page: React.FC = () => {
               </tr>
             ) : orders.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-6">
+                <td colSpan={8} className="text-center py-6">
                   <NoDataFound />
                 </td>
               </tr>
@@ -344,14 +341,16 @@ const Page: React.FC = () => {
                                   {order.tiffinItems?.map((item, i) => (
                                     <tr key={i} className="hover:bg-gray-50">
                                       <td className="px-3 py-2">
-                                        <img
-                                          src={
-                                            item.tiffinMenuDetails?.image_url?.[0]?.url ||
-                                            'https://via.placeholder.com/50'
-                                          }
-                                          className="w-12 h-12 object-cover"
-                                          alt={item.tiffinMenuDetails?.name}
-                                        />
+                                        <div className="w-12 h-12 overflow-hidden">
+                                          <img
+                                            src={
+                                              item.tiffinMenuDetails?.image_url?.[0]?.url ||
+                                              'https://via.placeholder.com/50'
+                                            }
+                                            className="w-full h-full object-cover"
+                                            alt={item.tiffinMenuDetails?.name}
+                                          />
+                                        </div>
                                       </td>
                                       <td className="px-3 py-2">{item.tiffinMenuDetails?.name}</td>
                                       <td className="px-3 py-2">{item.tiffinMenuDetails?.day}</td>

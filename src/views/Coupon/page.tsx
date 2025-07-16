@@ -24,6 +24,7 @@ interface CouponFormData {
   allProducts: boolean;
   isTiffin: boolean;
   isMultiple: boolean;
+  usedCount?: string;
   termsAndConditions: string;
   description: string;
   category: string[];
@@ -195,7 +196,7 @@ const Page: FC = () => {
         <div className="divide-y">
           <div className="bg-white shadow-md rounded-md overflow-x-auto">
             <table className="min-w-full text-sm text-left text-gray-700">
-              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-blue-700">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-blue-800">
                 <tr>
                   <th className="px-4 py-3">Index</th>
                   <th className="px-4 py-3">Image</th>
@@ -203,6 +204,8 @@ const Page: FC = () => {
                   <th className="px-4 py-3">Start Date</th>
                   <th className="px-4 py-3">End Date</th>
                   <th className="px-4 py-3">Discount</th>
+                  <th className="px-4 py-3">Multiple</th>
+                  <th className="px-4 py-3">Used</th>
                   <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
@@ -242,6 +245,12 @@ const Page: FC = () => {
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {coupon.discountValue} {coupon.discountType === 'percentage' ? '%' : '$'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {coupon.isMultiple ? "True" : "False"}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {coupon.isMultiple ? `${coupon?.usedCount} / ${coupon?.usageLimit}` : 'NA'}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div className="flex gap-3 items-center">

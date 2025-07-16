@@ -156,6 +156,7 @@ const SimpleProduct = () => {
       const res = await getProductById({ id: location?.state?.id });
       const edit = res?.data?.data;
       if (edit) {
+        console.log(res.data.data)
         setProduct({
           name: edit.name || '',
           price: edit.price || '',
@@ -167,7 +168,7 @@ const SimpleProduct = () => {
           stock: edit.stock || '',
           category: edit.category || '',
           subCategory: edit.subCategory || '',
-          subsubCategory: edit.subsubCategory || '',
+          subsubCategory: edit.ProductCategory || '',
           SKUName: edit.SKUName || '',
           discount: edit.discount || '',
           brand: edit.brand || '',
