@@ -148,7 +148,7 @@ const Profile: React.FC = () => {
     setIsLoading(true);
     try {
       const payload = {
-        id: formData.id,
+        ...formData,
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword,
       };
