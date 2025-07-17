@@ -17,6 +17,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
   const [subsubCategory, setSubSubCategory] = useState<any[]>([]);
   const location = useLocation();
 
+  console.log(errors)
+
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
       const { id, value, type } = e.target;
@@ -470,7 +472,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
 
         <div>
           <Label
-            value="Short Description"
+            value="Short Description*"
             className="block text-sm font-medium text-gray-700 mb-1"
           />
           <Textarea
@@ -480,10 +482,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
             onChange={handleInputChange}
             placeholder="Short Description"
           />
+          {errors.shortDescription && <span className="text-red-500">{errors.shortDescription}</span>}
         </div>
 
         <div>
-          <Label value="Description" className="block text-sm font-medium text-gray-700 mb-1" />
+          <Label value="Description*" className="block text-sm font-medium text-gray-700 mb-1" />
           <Textarea
             id="description"
             value={product.description}
@@ -491,6 +494,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
             onChange={handleInputChange}
             placeholder="Description"
           />
+          {errors.description && <span className="text-red-500">{errors.description}</span>}
         </div>
       </form>
     </div>
