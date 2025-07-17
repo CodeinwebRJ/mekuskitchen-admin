@@ -156,7 +156,6 @@ const SimpleProduct = () => {
       const res = await getProductById({ id: location?.state?.id });
       const edit = res?.data?.data;
       if (edit) {
-        console.log(res.data.data)
         setProduct({
           name: edit.name || '',
           price: edit.price || '',

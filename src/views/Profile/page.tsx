@@ -43,6 +43,7 @@ const Profile: React.FC = () => {
     oldPassword: '',
     newPassword: '',
   });
+  const [apiPasswordError, setApiPasswordError] = useState('');
 
   const validateForm = () => {
     const newErrors = { ...errors };
@@ -121,9 +122,7 @@ const Profile: React.FC = () => {
         const file = fileInput?.files?.[0];
 
         if (file) {
-          console.log(file);
-          const res = await UploadImage([file]);
-          console.log(res);
+          await UploadImage([file]);
         }
       }
       const payload = { ...formData };
@@ -146,31 +145,35 @@ const Profile: React.FC = () => {
   const handlePasswordSubmit = async () => {
     if (!validatePasswordForm()) return;
     setIsLoading(true);
+    setApiPasswordError('');
+
     try {
       const payload = {
         ...formData,
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword,
       };
+
       const response = await UpdateProfile(payload);
       localStorage.setItem('admin', JSON.stringify(response.data.data));
       setProfile(response.data.data);
       setPasswordData({ oldPassword: '', newPassword: '' });
       setIsChangingPassword(false);
-      setIsLoading(false);
       Toast({ message: 'Password updated successfully', type: 'success' });
     } catch (error: any) {
-      Toast({
-        message: error.response?.data?.message || 'Failed to update password',
-        type: 'error',
-      });
+      const message = error.response?.data?.errorData || 'Failed to update password';
+      setApiPasswordError(message);
     } finally {
       setIsLoading(false);
     }
   };
 
   if (!profile) {
-    return <p className="text-center mt-10 text-gray-500">Loading profile...</p>;
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
   }
 
   return (
@@ -292,6 +295,8 @@ const Profile: React.FC = () => {
                 <p className="text-sm text-red-500 mt-1">{errors.newPassword}</p>
               )}
             </div>
+
+            {apiPasswordError && <p className="text-sm text-red-600 mt-2">{apiPasswordError}</p>}
 
             <div className="flex gap-3 mt-6">
               <Button color="primary" onClick={handlePasswordSubmit}>
