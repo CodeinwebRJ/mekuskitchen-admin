@@ -17,8 +17,6 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
   const [subsubCategory, setSubSubCategory] = useState<any[]>([]);
   const location = useLocation();
 
-  console.log(errors)
-
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
       const { id, value, type } = e.target;
@@ -145,6 +143,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
       setSubSubCategory(selectedSubCategory?.subSubCategories || []);
     }
   }, [product.subCategory, subCategory]);
+
+  console.log(errors);
 
   return (
     <div>
@@ -331,6 +331,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
               placeholder="Enter stock quantity"
               className="w-full"
             />
+            {errors.stock && <span className="text-red-500">{errors.stock}</span>}
           </div>
 
           <div>
@@ -482,7 +483,9 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
             onChange={handleInputChange}
             placeholder="Short Description"
           />
-          {errors.shortDescription && <span className="text-red-500">{errors.shortDescription}</span>}
+          {errors.shortDescription && (
+            <span className="text-red-500">{errors.shortDescription}</span>
+          )}
         </div>
 
         <div>

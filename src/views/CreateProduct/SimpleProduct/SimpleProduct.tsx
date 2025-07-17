@@ -60,7 +60,7 @@ const SimpleProduct = () => {
     description: '',
     shortDescription: '',
     images: [],
-    stock: '',
+    stock: '0',
     category: '',
     subCategory: '',
     subsubCategory: '',
@@ -208,6 +208,11 @@ const SimpleProduct = () => {
     if (!product.images || product.images.length === 0) {
       newErrors.images = 'Product images are required';
     }
+    if (product.manageInventory) {
+      if (product.stock === '' || isNaN(Number(product.stock)) || Number(product.stock) < 0) {
+        newErrors.stock = 'Stock quantity is required';
+      }
+    }
     if (!product.name || product.name.trim() === '') newErrors.name = 'Product name is required';
     if (!product.category) newErrors.category = 'Category is required';
     if (!product.subCategory) newErrors.subCategory = 'Subcategory is required';
@@ -298,9 +303,9 @@ const SimpleProduct = () => {
       }
 
       if (res?.status === 200) {
-        navigate('/');
         resetForm();
         fetchProducts();
+        navigate('/');
       }
       Toast({
         message: isEdit ? 'Product updated successfully!' : 'Product created successfully!',

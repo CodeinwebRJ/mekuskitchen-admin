@@ -73,6 +73,11 @@ const VariationsProduct = () => {
       if (!product.images || product.images.length === 0) {
         newErrors.images = 'Product images are required';
       }
+      if (product.manageInventory) {
+        if (product.stock === '' || isNaN(Number(product.stock)) || Number(product.stock) < 0) {
+          newErrors.stock = 'Stock quantity is required';
+        }
+      }
       if (!product.name || product.name.trim() === '') newErrors.name = 'Product name is required';
       if (!product.category) newErrors.category = 'Category is required';
       if (!product.subCategory) newErrors.subCategory = 'Subcategory is required';
