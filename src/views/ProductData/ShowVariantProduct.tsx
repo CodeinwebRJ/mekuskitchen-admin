@@ -28,6 +28,10 @@ const ShowVariantProduct = () => {
     setExpandedIndex((prev) => (prev === index ? null : index));
   };
   const filterData = useSelector((state: RootState) => state.filterData);
+  
+  useEffect(() => {
+    dispatch(setIsActive(true));
+  }, []);
 
   const fetchProducts = async () => {
     try {
@@ -125,7 +129,7 @@ const ShowVariantProduct = () => {
         </div>
         <div className="px-4">
           <div className="flex gap-2">
-            <Label>{isActive ? "Active" : "Inactive"}</Label>
+            <Label>{isActive ? 'Active' : 'Inactive'}</Label>
             <ToggleSwitch onChange={() => dispatch(setIsActive(!isActive))} checked={isActive} />
           </div>
         </div>

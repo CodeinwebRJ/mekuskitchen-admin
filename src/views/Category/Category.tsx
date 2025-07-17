@@ -80,7 +80,7 @@ const Category = () => {
   }, [selectedCategory, categoryList, dispatch]);
 
   const validateCategory = (name: string): string | null => {
-    if (!name || name.trim() === '') return 'This field can not be empty.';
+    if (!name || name.trim() === '') return 'This field cannot be empty.';
     return null;
   };
 

@@ -104,6 +104,10 @@ const Page = () => {
   };
 
   useEffect(() => {
+    dispatch(setIsActive(true));
+  }, []);
+
+  useEffect(() => {
     fetchdata();
   }, [location.pathname]);
 
