@@ -188,3 +188,13 @@ export const deleteTiffin = async (id: string) => {
 export const UpdateProfile = async (data: any) => {
   return axiosInstance.patch('/api/v1/admin/update', data);
 };
+
+export const getAllTiffinOrders = async (data: any) => {
+  const { search, date, page, limit } = data;
+  const params = new URLSearchParams();
+  if (search) params.append('orderId', search);
+  if (date) params.append('date', date);
+  if (page) params.append('page', page);
+  if (limit) params.append('limit', limit);
+  return axiosInstance.get(`/api/v1/order/admin/tiffin/orders?${params.toString()}`);
+};

@@ -2,6 +2,7 @@ import { TextInput, Label, Textarea, Select, Checkbox } from 'flowbite-react';
 import { ChangeEvent } from 'react';
 import { TiffinFormData } from './page';
 import TiffinImage from '../CreateProduct/Component/TiffinImage';
+import dayjs from 'dayjs';
 
 interface Props {
   formData: TiffinFormData;
@@ -11,12 +12,27 @@ interface Props {
 }
 
 const TiffinInfo: React.FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
+  
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
 
-    if (errors[id]) {
-      setErrors((prev) => ({ ...prev, [id]: '' }));
+    if (id === 'date') {
+      const selectedDay = dayjs(value).format('dddd');
+      setFormData((prev) => ({
+        ...prev,
+        date: value,
+        day: selectedDay,
+      }));
+
+      if (errors.date || errors.day) {
+        setErrors((prev) => ({ ...prev, date: '', day: '' }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [id]: value }));
+
+      if (errors[id]) {
+        setErrors((prev) => ({ ...prev, [id]: '' }));
+      }
     }
   };
 
@@ -40,9 +56,11 @@ const TiffinInfo: React.FC<Props> = ({ errors, setErrors, formData, setFormData 
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <Label value="Upload Tiffin Images" className="mb-1" />
-          <TiffinImage images={formData.image_url} setProduct={setFormData} fieldKey="image_url" />
-          {errors.image_url && <p className="text-red-500 text-sm mt-1">{errors.image_url}</p>}
+          <Label value="Upload Tiffin Images*" className="mb-1" />
+          <TiffinImage setErrors={setErrors} images={formData.image_url} setProduct={setFormData} fieldKey="image_url" />
+          {errors.image_url && formData.image_url.length === 0 && (
+            <p className="text-red-500 text-sm mt-1">{errors.image_url}</p>
+          )}
         </div>
 
         <div className="md:col-span-2 space-y-6">

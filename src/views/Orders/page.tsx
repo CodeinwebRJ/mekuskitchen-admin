@@ -206,7 +206,7 @@ const Page: React.FC = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="text-center py-6">
+                <td colSpan={8} className="text-center py-6">
                   <Loading />
                 </td>
               </tr>

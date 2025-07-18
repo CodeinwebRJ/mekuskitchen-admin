@@ -11,11 +11,13 @@ interface TableFileUploaderProps {
   images: ImageItem[];
   setProduct: React.Dispatch<React.SetStateAction<any>>;
   fieldKey?: string;
+  setErrors: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export default function TiffinImage({
   images,
   setProduct,
+  setErrors,
   fieldKey = 'images',
 }: TableFileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -23,14 +25,15 @@ export default function TiffinImage({
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-
       setProduct((prev: any) => {
         const existingFiles = new Set(
-          (prev[fieldKey] || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
+          (prev[fieldKey] || []).map(
+            (img: ImageItem) => `${img.file?.name ?? ''}${img.file?.size ?? ''}`,
+          ),
         );
 
         const newImages: ImageItem[] = selectedFiles
-          .filter((file) => !existingFiles.has(file.name + file.size))
+          .filter((file) => !existingFiles.has(`${file.name}${file.size}`))
           .map((file) => ({ file }));
 
         return {
@@ -49,11 +52,13 @@ export default function TiffinImage({
 
     setProduct((prev: any) => {
       const existingFiles = new Set(
-        (prev[fieldKey] || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
+        (prev[fieldKey] || []).map(
+          (img: ImageItem) => `${img.file?.name ?? ''}${img.file?.size ?? ''}`,
+        ),
       );
 
       const newImages: ImageItem[] = droppedFiles
-        .filter((file) => !existingFiles.has(file.name + file.size))
+        .filter((file) => !existingFiles.has(`${file.name}${file.size}`))
         .map((file) => ({ file }));
 
       return {
@@ -69,12 +74,17 @@ export default function TiffinImage({
 
   const removeImage = (index: number) => {
     setProduct((prev: any) => {
-      const updatedImages = (prev[fieldKey] || []).filter((_: any, idx: number) => idx !== index);
+      const updatedImages = (prev[fieldKey] || []).filter((_: any, i: number) => i !== index);
       return {
         ...prev,
         [fieldKey]: updatedImages,
       };
     });
+
+    setErrors((prev: any) => ({
+      ...prev,
+      image_url: undefined,
+    }));
   };
 
   const handleContainerClick = () => {
@@ -85,7 +95,7 @@ export default function TiffinImage({
     <div className="flex flex-col items-center w-full px-4 py-4 sm:px-6 sm:py-6 bg-white rounded-xl">
       {images?.length > 0 && (
         <div className="mb-6 w-full grid grid-cols-2 gap-3 sm:gap-4">
-          {images?.map((image, index) => (
+          {images.map((image, index) => (
             <div
               key={index}
               className="relative group rounded-md overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
@@ -95,7 +105,10 @@ export default function TiffinImage({
                 alt="preview"
                 className="w-full h-24 sm:h-28 md:h-32 object-cover"
                 onLoad={(e) => {
-                  if (image.file) URL.revokeObjectURL((e.target as HTMLImageElement).src);
+                  if (image.file) {
+                    const url = (e.target as HTMLImageElement).src;
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                  }
                 }}
               />
               {index === 0 && (
@@ -105,7 +118,7 @@ export default function TiffinImage({
               )}
               <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity duration-200">
                 <Button
-                  onClick={(e: any) => {
+                  onClick={(e) => {
                     e.stopPropagation();
                     removeImage(index);
                   }}

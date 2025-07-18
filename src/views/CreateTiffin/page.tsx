@@ -14,6 +14,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { setTiffin } from 'src/Store/Slices/Tiffin';
 import { Toast } from 'src/components/Toast';
+import Loading from 'src/components/Loading';
 
 export interface TiffinItem {
   name: string;
@@ -72,6 +73,7 @@ const CreateTiffin = () => {
       },
     ],
   });
+  const [loading, setLoading] = useState<boolean>(false);
 
   const steps = [1, 2];
 
@@ -160,6 +162,7 @@ const CreateTiffin = () => {
   };
 
   const handleNext = async () => {
+    setErrors((prev) => ({ ...prev, apiError: '' }));
     const isValid = validateForm(currentStep);
     if (!isValid) return;
 
@@ -167,6 +170,7 @@ const CreateTiffin = () => {
       setCurrentStep((prev) => prev + 1);
     } else {
       try {
+        setLoading(true);
         const imageFiles: File[] = formData.image_url
           .filter((img) => img.file instanceof File)
           .map((img) => img.file as File);
@@ -229,12 +233,15 @@ const CreateTiffin = () => {
 
         navigate('/tiffin');
         fetchAllTiffin();
+        setLoading(false);
+        setErrors({});
         Toast({
           message: isEditMode ? 'Tiffin updated successfully!' : 'Tiffin created successfully!',
           type: 'success',
         });
       } catch (error) {
         console.error('Failed to submit tiffin items:', error);
+        console.log(error);
       }
     }
   };
@@ -273,7 +280,7 @@ const CreateTiffin = () => {
   return (
     <div className="flex flex-col items-center justify-center mx-auto p-6 bg-white rounded-xl shadow">
       <div className="w-full mb-8">
-        <Stepper currentStep={currentStep} steps={steps} />
+        {loading ? <Loading /> : <Stepper currentStep={currentStep} steps={steps} />}
       </div>
 
       <form className="w-full">
