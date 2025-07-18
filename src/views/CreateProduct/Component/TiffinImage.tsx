@@ -118,7 +118,7 @@ export default function TiffinImage({
               )}
               <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity duration-200">
                 <Button
-                  onClick={(e) => {
+                  onClick={(e :any) => {
                     e.stopPropagation();
                     removeImage(index);
                   }}
