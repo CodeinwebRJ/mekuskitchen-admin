@@ -31,7 +31,7 @@ const getIconByName = (name: string): string => {
     Register: 'solar:shield-user-outline',
     Icons: 'solar:smile-circle-outline',
     'Sample Page': 'solar:notes-minimalistic-outline',
-    'Manage Quarry': 'solar:chat-round-line-duotone',
+    'Manage query': 'solar:chat-round-line-duotone',
   };
 
   return iconMap[name] || 'solar:question-circle-linear';
@@ -44,18 +44,49 @@ const SidebarContent: MenuItem[] = [
         name: 'Products',
       },
       {
-        name: 'Products',
+        name: 'Dashboard',
+        icon: getIconByName('Category'),
+        id: 'util-category',
+        url: '/',
+      },
+      {
+        name: 'Create Category',
+        icon: getIconByName('Category'),
+        id: 'util-category',
+        url: '/category',
+      },
+      {
+        name: 'Simple Products',
         icon: getIconByName('Simple Product'),
         id: 'util-product',
         children: [
           {
-            name: 'Products',
+            name: 'Create Simple Product',
             id: 'util-category',
-            url: '/',
+            url: '/create-product',
             icon: getIconByName('Simple Product'),
           },
           {
-            name: 'Variations Products',
+            name: 'View Simple Product',
+            id: 'product-view',
+            url: '/',
+            icon: getIconByName('Simple Product'),
+          },
+        ],
+      },
+      {
+        name: 'Create Variation Product',
+        icon: getIconByName('Product'),
+        id: 'util-product',
+        children: [
+          {
+            name: 'Create Variation Product',
+            id: 'product-add',
+            url: '/create-variations-product',
+            icon: getIconByName('Variations Product'),
+          },
+          {
+            name: 'View Variations Product',
             id: 'product-add',
             url: '/variations-product',
             icon: getIconByName('Variations Product'),
@@ -63,20 +94,20 @@ const SidebarContent: MenuItem[] = [
         ],
       },
       {
-        name: 'Create Product',
+        name: 'Manage Tiffin',
         icon: getIconByName('Product'),
         id: 'util-product',
         children: [
           {
-            name: 'Simple Product',
-            id: 'product-view',
-            url: '/create-product',
-            icon: getIconByName('Simple Product'),
+            name: 'Create Tiffin',
+            id: 'product-add',
+            url: '/create-tiffin',
+            icon: getIconByName('Variations Product'),
           },
           {
-            name: 'Variations Product',
+            name: 'View Tiffin',
             id: 'product-add',
-            url: '/create-variations-product',
+            url: '/tiffin',
             icon: getIconByName('Variations Product'),
           },
         ],
@@ -88,22 +119,10 @@ const SidebarContent: MenuItem[] = [
         url: '/dailyTiffin',
       },
       {
-        name: 'Tiffin List',
-        icon: getIconByName('Category'),
-        id: 'util-category',
-        url: '/tiffin',
-      },
-      {
-        name: 'Create Tiffin',
-        icon: getIconByName('Category'),
-        id: 'util-category',
-        url: '/create-tiffin',
-      },
-      {
-        name: 'Create Category',
-        icon: getIconByName('Category'),
-        id: 'util-category',
-        url: '/category',
+        name: 'Orders',
+        icon: getIconByName('Orders'),
+        id: 'util-orders',
+        url: '/orders',
       },
       {
         name: 'Create Coupon',
@@ -112,22 +131,16 @@ const SidebarContent: MenuItem[] = [
         url: '/coupon',
       },
       {
-        name: 'Orders',
-        icon: getIconByName('Orders'),
-        id: 'util-orders',
-        url: '/orders',
-      },
-      {
         name: 'Manage Tax',
         icon: getIconByName('Tax'),
         id: 'util-tax',
         url: '/tax',
       },
       {
-        name: 'Manage Quarry',
+        name: 'Manage Query',
         icon: getIconByName('Manage Quarry'),
         id: 'util-tax',
-        url: '/quarry',
+        url: '/query',
       },
     ],
   },

@@ -14,7 +14,6 @@ import { useLocation, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { setTiffin } from 'src/Store/Slices/Tiffin';
 import { Toast } from 'src/components/Toast';
-import Loading from 'src/components/Loading';
 
 export interface TiffinItem {
   name: string;
@@ -266,6 +265,7 @@ const CreateTiffin = () => {
       case 2:
         return (
           <Items
+            loading={loading}
             errors={errors}
             setErrors={setErrors}
             formData={formData}
@@ -280,7 +280,7 @@ const CreateTiffin = () => {
   return (
     <div className="flex flex-col items-center justify-center mx-auto p-6 bg-white rounded-xl shadow">
       <div className="w-full mb-8">
-        {loading ? <Loading /> : <Stepper currentStep={currentStep} steps={steps} />}
+        <Stepper currentStep={currentStep} steps={steps} />
       </div>
 
       <form className="w-full">

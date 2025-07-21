@@ -128,6 +128,8 @@ const Page: React.FC = () => {
 
   const handleReset = () => dispatch(resetFilter());
 
+  console.log(orders);
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-3 text-primary">Orders</h1>

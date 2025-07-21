@@ -2,8 +2,10 @@ import { Button, Label, Select, TextInput } from 'flowbite-react';
 import { MdDelete } from 'react-icons/md';
 import { TiffinFormData } from './page';
 import { FC } from 'react';
+import Loading from 'src/components/Loading';
 
 interface Props {
+  loading: boolean;
   formData: TiffinFormData;
   setFormData: React.Dispatch<React.SetStateAction<TiffinFormData>>;
   errors: any;
@@ -19,7 +21,7 @@ interface TiffinItem {
   description: string;
 }
 
-const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
+const Items: FC<Props> = ({ loading, errors, setErrors, formData, setFormData }) => {
   const calculateTotal = (items: TiffinItem[]) => {
     return items.reduce((sum, item) => {
       const price = parseFloat(item.price);
@@ -107,6 +109,8 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
     return sum + (isNaN(price) ? 0 : price);
   }, 0);
 
+  if (loading) return <Loading />;
+
   return (
     <form className="p-4 sm:p-6 space-y-6">
       <h3 className="text-xl sm:text-2xl font-bold text-primary">Tiffin Items</h3>
@@ -181,15 +185,15 @@ const Items: FC<Props> = ({ errors, setErrors, formData, setFormData }) => {
               onChange={(e) => handleItemChange(index, 'weightUnit', e.target.value)}
             >
               <option value="">Select Unit</option>
-              <option value="piece">Piece</option>
-              <option value="bowl">Bowl</option>
-              <option value="plate">Plate</option>
-              <option value="box">Box</option>
-              <option value="g">g</option>
-              <option value="kg">kg</option>
-              <option value="ml">ml</option>
-              <option value="l">l</option>
-              <option value="oz">oz</option>
+              <option value="oz">OZ</option>
+              <option value="g">G</option>
+              <option value="kg">KG</option>
+              <option value="ml">ML</option>
+              <option value="l">L</option>
+              <option value="piece">PIECE</option>
+              <option value="bowl">BOWL</option>
+              <option value="plate">PLATE</option>
+              <option value="box">BOX</option>
             </Select>
             {errors.items?.[index]?.weightUnit && (
               <p className="text-red-600 text-sm">{errors.items[index].weightUnit}</p>

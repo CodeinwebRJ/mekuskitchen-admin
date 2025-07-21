@@ -38,7 +38,7 @@ const ContactPage = () => {
   return (
     <div>
       <div className="mb-3">
-        <h1 className="text-2xl font-bold text-primary mb-3">Quarries</h1>
+        <h1 className="text-2xl font-bold text-primary mb-3">Query</h1>
         <div>
           <TextInput
             placeholder="Search"
