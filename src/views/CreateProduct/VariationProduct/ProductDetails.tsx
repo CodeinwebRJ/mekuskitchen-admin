@@ -3,7 +3,13 @@ import { useCallback, useState, useMemo } from 'react';
 import { BasicInfoProps } from '../interface';
 import { MdDelete } from 'react-icons/md';
 
-const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, setErrors }) => {
+const ProductDetail: React.FC<BasicInfoProps> = ({
+  apiError,
+  errors,
+  product,
+  setProduct,
+  setErrors,
+}) => {
   const [newFeature, setNewFeature] = useState('');
   const [newTag, setNewTag] = useState('');
   const [aboutItem, setAboutItem] = useState<string>('');
@@ -190,6 +196,12 @@ const ProductDetail: React.FC<BasicInfoProps> = ({ errors, product, setProduct, 
   return (
     <div className="mx-auto p-4 sm:p-6 bg-white rounded-xl shadow space-y-6 sm:space-y-8">
       <h2 className="text-2xl sm:text-3xl font-bold text-primary">Product Information</h2>
+
+      {apiError && (
+        <div className="bg-red-100 text-red-800 p-3 rounded mb-4 border border-red-300">
+          {apiError}
+        </div>
+      )}
 
       <form className="space-y-6 sm:space-y-8" onSubmit={(e) => e.preventDefault()}>
         <div>

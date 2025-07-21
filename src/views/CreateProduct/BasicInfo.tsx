@@ -193,8 +193,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
                 className="w-full"
               >
                 <option value="">Select Category</option>
-                {category.map((item: any) => (
-                  <option key={item._id} value={item.name}>
+                {category.map((item: any, index: number) => (
+                  <option key={index} value={item.name}>
                     {item.name}
                   </option>
                 ))}
@@ -214,8 +214,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
               className="w-full"
             >
               <option value="">Select Subcategory</option>
-              {subCategory.map((item: any) => (
-                <option key={item.name} value={item.name}>
+              {subCategory.map((item: any ,index:any) => (
+                <option key={index} value={item.name}>
                   {item.name}
                 </option>
               ))}
@@ -234,8 +234,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
               className="w-full"
             >
               <option value="">Select Sub-subcategory</option>
-              {subsubCategory.map((item: any) => (
-                <option key={item.name} value={item.name}>
+              {subsubCategory.map((item: any ,index:any) => (
+                <option key={index} value={item.name}>
                   {item.name}
                 </option>
               ))}
@@ -361,8 +361,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
                   required
                   aria-required="true"
                 >
-                  {weightUnits.map((unit) => (
-                    <option key={unit.value} value={unit.value}>
+                  {weightUnits.map((unit , index) => (
+                    <option key={index} value={unit.value}>
                       {unit.label}
                     </option>
                   ))}
@@ -395,8 +395,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, e
                   required
                   aria-required="true"
                 >
-                  {dimensionUnits.map((unit) => (
-                    <option key={unit.value} value={unit.value}>
+                  {dimensionUnits.map((unit , index) => (
+                    <option key={index} value={unit.value}>
                       {unit.label}
                     </option>
                   ))}

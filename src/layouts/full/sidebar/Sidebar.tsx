@@ -22,8 +22,8 @@ const SidebarLayout = () => {
                   <h5 className="text-link dark:text-white/70 caption font-semibold leading-6 tracking-widest text-xs pb-2 uppercase">
                     {item.heading}
                   </h5>
-                  {item.children?.map((child) => (
-                    <NavItems key={child.id} item={child} />
+                  {item.children?.map((child, indedx) => (
+                    <NavItems key={indedx} item={child} />
                   ))}
                 </div>
               ))}

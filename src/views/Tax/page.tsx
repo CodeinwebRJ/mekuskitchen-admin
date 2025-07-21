@@ -334,8 +334,8 @@ const Page = () => {
               </div>
             ) : (
               <ul className="bg-white shadow-md rounded-md divide-y">
-                {taxConfigs.map((config) => (
-                  <li key={config._id} className="flex flex-col p-4 gap-2">
+                {taxConfigs.map((config ,index) => (
+                  <li key={index} className="flex flex-col p-4 gap-2">
                     <div className="flex flex-col sm:flex-row justify-between gap-2">
                       <span className="text-gray-600 font-semibold">
                         {config.provinceName} ({config.provinceCode})

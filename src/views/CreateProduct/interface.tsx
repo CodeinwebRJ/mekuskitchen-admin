@@ -71,6 +71,7 @@ export interface ProductSchema {
 }
 
 export interface BasicInfoProps {
+  apiError?: string;
   product: any;
   setProduct: any;
   errors?: any;

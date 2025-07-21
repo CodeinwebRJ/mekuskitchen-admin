@@ -525,9 +525,9 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 <ul className="flex flex-col sm:flex-row flex-wrap gap-2">
                   {product.skuFields
                     .filter((field: any) => !field.isDefault)
-                    .map((field: any) => (
+                    .map((field: any, index: any) => (
                       <li
-                        key={field.name}
+                        key={index}
                         className="flex items-center justify-between gap-4 p-2 rounded-md bg-blue-50 text-sm text-gray-800 w-full sm:w-auto"
                       >
                         <span>
@@ -615,9 +615,9 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Combination Fields</h3>
                 <ul className="flex flex-col sm:flex-row flex-wrap gap-2">
-                  {product.combinationFields.map((field: any) => (
+                  {product.combinationFields.map((field: any, index: any) => (
                     <li
-                      key={field.name}
+                      key={index}
                       className="flex items-center justify-between gap-4 p-2 rounded-md bg-blue-50 text-sm text-gray-800 w-full sm:w-auto"
                     >
                       <span>
@@ -823,8 +823,8 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   >
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {product.combinationFields.map((field: any) => (
-                          <div key={field.name} className="flex flex-col w-full">
+                        {product.combinationFields.map((field: any, index: any) => (
+                          <div key={index} className="flex flex-col w-full">
                             <Label
                               htmlFor={`${field.name}-${index}-${combIndex}`}
                               value={field.name}
@@ -883,8 +883,8 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                 className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                               >
                                 <option value="">Select {field.name}</option>
-                                {field.options?.map((option: any) => (
-                                  <option key={option} value={option}>
+                                {field.options?.map((option: any ,index:number) => (
+                                  <option key={index} value={option}>
                                     {option}
                                   </option>
                                 ))}

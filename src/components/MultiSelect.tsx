@@ -74,9 +74,9 @@ export const MultiSelect: React.FC<CustomMultiSelectProps> = ({
             <span className="text-gray-500">Select {label.toLowerCase()}...</span>
           ) : (
             <div className="flex flex-wrap gap-1">
-              {selectedValues?.map((value) => (
+              {selectedValues?.map((value ,index) => (
                 <span
-                  key={value}
+                  key={index}
                   className="inline-flex items-center bg-blue-50 text-blue-800 text-sm font-medium px-2 py-1 rounded-sm"
                 >
                   {value}
@@ -100,9 +100,9 @@ export const MultiSelect: React.FC<CustomMultiSelectProps> = ({
         {isOpen && !disabled && (
           <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-sm max-h-60 overflow-y-auto">
             {options && options.length > 0 ? (
-              options.map((option) => (
+              options.map((option ,index) => (
                 <div
-                  key={option}
+                  key={index}
                   className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
                     selectedValues?.includes(option) ? 'bg-blue-100' : ''
                   } ${disabled ? 'cursor-not-allowed' : ''}`}

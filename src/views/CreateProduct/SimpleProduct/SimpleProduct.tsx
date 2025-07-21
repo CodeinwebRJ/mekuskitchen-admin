@@ -93,6 +93,7 @@ const SimpleProduct = () => {
   const [specValue, setSpecValue] = useState<string>('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string>('');
   const filterData = useSelector((state: RootState) => state.filterData);
 
   const resetForm = () => {
@@ -302,7 +303,7 @@ const SimpleProduct = () => {
         res = await CreateProduct(data);
       }
 
-      if (res?.status === 200) {
+      if (res?.status === 201 || res?.status === 200) {
         resetForm();
         fetchProducts();
         navigate('/');
@@ -313,6 +314,8 @@ const SimpleProduct = () => {
       });
     } catch (error) {
       console.error('Error while submitting product:', error);
+      const err = error as { response?: { data?: { errorData?: string } } };
+      setApiError(err.response?.data?.errorData || 'Failed to create product. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -434,6 +437,11 @@ const SimpleProduct = () => {
         <Loading />
       ) : (
         <div>
+          {apiError && (
+            <div className="bg-red-100 text-red-800 p-3 rounded mb-4 border border-red-300">
+              {apiError}
+            </div>
+          )}
           <BasicInfo
             product={product}
             setErrors={setErrors}

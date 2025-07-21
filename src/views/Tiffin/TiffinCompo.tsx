@@ -97,7 +97,7 @@ const TiffinCompo = () => {
         </div>
         <div className="px-4">
           <div className="flex gap-2 items-center">
-            <Label>{activeOnly ? "Active" : "Inactive"}</Label>
+            <Label>{activeOnly ? 'Active' : 'Inactive'}</Label>
             <ToggleSwitch checked={activeOnly} onChange={setActiveOnly} />
           </div>
         </div>
@@ -203,7 +203,7 @@ const TiffinCompo = () => {
                                   </thead>
                                   <tbody>
                                     {tiffin.items.map((item: any, i: number) => (
-                                      <tr key={item._id || i} className="hover:bg-gray-50">
+                                      <tr key={i} className="hover:bg-gray-50">
                                         <td className="px-3 py-2">{i + 1}</td>
                                         <td className="px-3 py-2">{item.name}</td>
                                         <td className="px-3 py-2">${item.price}</td>

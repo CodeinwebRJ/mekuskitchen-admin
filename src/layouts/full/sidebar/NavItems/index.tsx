@@ -16,8 +16,8 @@ const NavItems: React.FC<NavItemsProps> = ({ item }) => {
   if (item.children && item.children.length > 0) {
     return (
       <Sidebar.Collapse label={item.name} icon={() => renderIcon(item.icon)}>
-        {item.children.map((child) => (
-          <Sidebar.Item key={child?.id} as={Link} to={child.url} className="pl-8 flex items-center">
+        {item.children.map((child ,index) => (
+          <Sidebar.Item key={index} as={Link} to={child.url} className="pl-8 flex items-center">
             <div className="flex items-center">
               {renderIcon(child.icon, 16)}
               <span>{child.name}</span>

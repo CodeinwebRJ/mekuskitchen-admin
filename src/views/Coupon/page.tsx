@@ -218,7 +218,7 @@ const Page: FC = () => {
                   </tr>
                 ) : data.length > 0 ? (
                   data.map((coupon, index) => (
-                    <tr key={coupon._id}>
+                    <tr key={index}>
                       <td className="px-4 py-3 whitespace-nowrap">{index + 1}</td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {coupon.image ? (

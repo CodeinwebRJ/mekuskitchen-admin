@@ -65,6 +65,7 @@ const VariationsProduct = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const steps = [1, 2, 3];
   const filterData = useSelector((state: RootState) => state.filterData);
+  const [apiError, setApiError] = useState('');
 
   const validateStep = (step: number): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -139,6 +140,7 @@ const VariationsProduct = () => {
       case 3:
         return (
           <ProductDetail
+            apiError={apiError}
             errors={errors}
             product={product}
             setProduct={setProduct}
@@ -320,6 +322,8 @@ const VariationsProduct = () => {
       });
     } catch (error) {
       console.error('Error while submitting product:', error);
+      const err = error as { response?: { data?: { errorData?: string } } };
+      setApiError(err.response?.data?.errorData || 'Failed to create product. Please try again.');
     }
   };
 

@@ -327,8 +327,8 @@ const ProductCategory = () => {
 
   const subSubCategoryListRender = useMemo(
     () =>
-      filteredSubSubCategories.map((ssub: SubSubCategoryType) => (
-        <li key={ssub._id} className="flex justify-between items-center p-4">
+      filteredSubSubCategories.map((ssub: SubSubCategoryType ,index) => (
+        <li key={index} className="flex justify-between items-center p-4">
           {editSubSubCategoryId === ssub._id ? (
             <form
               onSubmit={(e) => handleEditSubmit(e, selectedCategory, selectedSubCategory, ssub)}
@@ -445,8 +445,8 @@ const ProductCategory = () => {
               aria-label="Select category"
             >
               <option value="">Select Category</option>
-              {categoryList.map((cat) => (
-                <option key={cat._id} value={cat._id}>
+              {categoryList.map((cat ,index) => (
+                <option key={index} value={cat._id}>
                   {cat.name}
                 </option>
               ))}
@@ -466,8 +466,8 @@ const ProductCategory = () => {
               aria-label="Select subcategory"
             >
               <option value="">Select SubCategory</option>
-              {filteredSubCategories.map((sub) => (
-                <option key={sub._id} value={sub._id}>
+              {filteredSubCategories.map((sub ,index) => (
+                <option key={index} value={sub._id}>
                   {sub.name}
                 </option>
               ))}

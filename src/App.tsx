@@ -7,9 +7,7 @@ import customTheme from './utils/theme/custom-theme';
 import router from './routes/Router';
 import { setCategoryList, setCategoryLoading, setError } from './Store/Slices/Categories';
 import { setLoading, setProducts } from './Store/Slices/ProductData';
-import { setTiffin } from './Store/Slices/Tiffin';
-
-import { getAllProduct, getAllTiffin, getCategory } from './AxiosConfig/AxiosConfig';
+import { getAllProduct, getCategory } from './AxiosConfig/AxiosConfig';
 import useDebounce from './Hook/useDebounce';
 import { Toaster } from 'react-hot-toast';
 
@@ -86,23 +84,9 @@ function App() {
     filterData.isActive,
   ]);
 
-  const fetchAllTiffin = useCallback(async () => {
-    try {
-      const data = { day: '', Active: '', search: '' };
-      const res = await getAllTiffin(data);
-      dispatch(setTiffin(res?.data?.data));
-    } catch (error) {
-      console.error('Error fetching tiffin:', error);
-    }
-  }, [dispatch]);
-
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
-
-  useEffect(() => {
-    fetchAllTiffin();
-  }, [fetchAllTiffin]);
 
   useEffect(() => {
     fetchProducts();

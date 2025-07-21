@@ -206,8 +206,8 @@ const Category = () => {
 
   const categoryListRender = useMemo(
     () =>
-      categoryList.map((cat: CategoryType) => (
-        <li key={cat._id} className="flex justify-between p-4">
+      categoryList.map((cat: CategoryType ,index) => (
+        <li key={index} className="flex justify-between p-4">
           {editCategoryId === cat._id ? (
             <form
               onSubmit={(e) => handleEditSubmit(e, cat)}
