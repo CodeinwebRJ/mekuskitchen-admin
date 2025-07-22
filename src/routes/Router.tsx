@@ -16,6 +16,7 @@ import CreateTiffin from 'src/views/CreateTiffin/page';
 import TiffinCompo from 'src/views/Tiffin/TiffinCompo';
 import Profile from 'src/views/Profile/page';
 import DailyTiffin from 'src/views/DailyTiffin/page';
+import Dashboard from 'src/views/Dashboard/page';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -28,11 +29,19 @@ const Router = [
     element: <FullLayout />,
     children: [
       {
-        path: '/',
+        path: '/simple-product',
         exact: true,
         element: (
           <ProtectedRoute>
             <Productdata />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/',
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
           </ProtectedRoute>
         ),
       },
@@ -69,7 +78,7 @@ const Router = [
         ),
       },
       {
-        path: '/dailyTiffin',
+        path: '/daily-tiffin',
         element: (
           <ProtectedRoute>
             <DailyTiffin />

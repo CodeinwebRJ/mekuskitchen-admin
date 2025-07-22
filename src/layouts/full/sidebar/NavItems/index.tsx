@@ -9,7 +9,6 @@ interface NavItemsProps {
 }
 
 const NavItems: React.FC<NavItemsProps> = ({ item }) => {
-  // Render icon with consistent gap
   const renderIcon = (icon?: string, size: number = 20) =>
     icon ? <Icon icon={icon} width={size} className="mr-3" /> : null;
 

@@ -198,3 +198,7 @@ export const getAllTiffinOrders = async (data: any) => {
   if (limit) params.append('limit', limit);
   return axiosInstance.get(`/api/v1/order/admin/tiffin/orders?${params.toString()}`);
 };
+
+export const AdminDashboardData = async () => {
+  return axiosInstance.get('/api/v1/product/admin/dashboard');
+}

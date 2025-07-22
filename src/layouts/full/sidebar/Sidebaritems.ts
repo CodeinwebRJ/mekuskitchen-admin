@@ -19,7 +19,7 @@ type MenuItem = {
 
 const getIconByName = (name: string): string => {
   const iconMap: { [key: string]: string } = {
-    Dashboard: 'solar:widget-add-line-duotone',
+    Dashboard: 'solar:home-2-linear',
     Product: 'solar:text-circle-outline',
     'Simple Product': 'solar:box-linear',
     'Variations Product': 'solar:layers-minimalistic-linear',
@@ -41,12 +41,9 @@ const SidebarContent: MenuItem[] = [
   {
     children: [
       {
-        name: 'Products',
-      },
-      {
         name: 'Dashboard',
-        icon: getIconByName('Category'),
-        id: 'util-category',
+        icon: getIconByName('Dashboard'),
+        id: 'util-dashboard',
         url: '/',
       },
       {
@@ -56,38 +53,38 @@ const SidebarContent: MenuItem[] = [
         url: '/category',
       },
       {
-        name: 'Simple Products',
+        name: 'Simple Product',
         icon: getIconByName('Simple Product'),
         id: 'util-product',
         children: [
           {
             name: 'Create Simple Product',
-            id: 'util-category',
+            id: 'product-create-simple',
             url: '/create-product',
             icon: getIconByName('Simple Product'),
           },
           {
             name: 'View Simple Product',
-            id: 'product-view',
-            url: '/',
+            id: 'product-view-simple',
+            url: '/simple-product',
             icon: getIconByName('Simple Product'),
           },
         ],
       },
       {
         name: 'Create Variation Product',
-        icon: getIconByName('Product'),
+        icon: getIconByName('Variations Product'),
         id: 'util-product',
         children: [
           {
             name: 'Create Variation Product',
-            id: 'product-add',
+            id: 'product-create-variation',
             url: '/create-variations-product',
             icon: getIconByName('Variations Product'),
           },
           {
-            name: 'View Variations Product',
-            id: 'product-add',
+            name: 'View Variation Product',
+            id: 'product-view-variation',
             url: '/variations-product',
             icon: getIconByName('Variations Product'),
           },
@@ -96,27 +93,27 @@ const SidebarContent: MenuItem[] = [
       {
         name: 'Manage Tiffin',
         icon: getIconByName('Product'),
-        id: 'util-product',
+        id: 'util-tiffin',
         children: [
           {
             name: 'Create Tiffin',
-            id: 'product-add',
+            id: 'tiffin-create',
             url: '/create-tiffin',
-            icon: getIconByName('Variations Product'),
+            icon: getIconByName('Product'),
           },
           {
             name: 'View Tiffin',
-            id: 'product-add',
+            id: 'tiffin-view',
             url: '/tiffin',
-            icon: getIconByName('Variations Product'),
+            icon: getIconByName('Product'),
           },
         ],
       },
       {
         name: 'Daily Tiffin Orders',
-        icon: getIconByName('Category'),
-        id: 'util-category',
-        url: '/dailyTiffin',
+        icon: getIconByName('Orders'),
+        id: 'util-daily-tiffin',
+        url: '/daily-tiffin',
       },
       {
         name: 'Orders',
@@ -138,8 +135,8 @@ const SidebarContent: MenuItem[] = [
       },
       {
         name: 'Manage Query',
-        icon: getIconByName('Manage Quarry'),
-        id: 'util-tax',
+        icon: getIconByName('Manage query'),
+        id: 'util-query',
         url: '/query',
       },
     ],

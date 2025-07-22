@@ -105,6 +105,7 @@ const Page = () => {
 
   useEffect(() => {
     dispatch(setIsActive(true));
+    dispatch(setVariation('product'));
   }, []);
 
   useEffect(() => {

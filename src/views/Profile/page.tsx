@@ -146,14 +146,12 @@ const Profile: React.FC = () => {
     if (!validatePasswordForm()) return;
     setIsLoading(true);
     setApiPasswordError('');
-
     try {
       const payload = {
         ...formData,
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword,
       };
-
       const response = await UpdateProfile(payload);
       localStorage.setItem('admin', JSON.stringify(response.data.data));
       setProfile(response.data.data);

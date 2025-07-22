@@ -1,8 +1,8 @@
 import { Dropdown } from 'flowbite-react';
 import { Icon } from '@iconify/react';
-import user1 from '/src/assets/images/profile/user-1.jpg';
 import { Link, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
+import Logo from '../../../../public/logo.png';
 import { logout } from 'src/Store/Slices/AdminUser';
 
 const Profile = () => {
@@ -22,8 +22,8 @@ const Profile = () => {
         className="rounded-sm w-44"
         dismissOnClick={false}
         renderTrigger={() => (
-          <span className="h-10 w-10 hover:text-primary hover:bg-lightprimary rounded-full flex justify-center items-center cursor-pointer group-hover/menu:bg-lightprimary group-hover/menu:text-primary">
-            <img src={user1} alt="logo" height="35" width="35" className="rounded-full" />
+          <span className="h-10 w-10 hover:text-primary hover:bg-lightprimary rounded-full border flex justify-center items-center cursor-pointer group-hover/menu:bg-lightprimary group-hover/menu:text-primary">
+            <img src={Logo} alt="logo" height="35" width="35" className="rounded-full " />
           </span>
         )}
       >

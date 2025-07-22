@@ -14,7 +14,7 @@ const DailyTiffin: React.FC = () => {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [filter, setFilter] = useState({
     search: '',
-    date: '',
+    date: dayjs().format('YYYY-MM-DD'),
     page: 1,
     limit: 10,
   });
@@ -153,7 +153,6 @@ const DailyTiffin: React.FC = () => {
               <th className="px-4 py-3">Address</th>
               <th className="px-4 py-3">Post Code</th>
               <th className="px-4 py-3">Ordered Date</th>
-              <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3 text-right"></th>
             </tr>
@@ -196,9 +195,6 @@ const DailyTiffin: React.FC = () => {
                       <td className="px-4 py-3">{address?.postCode || ''}</td>
                       <td className="px-4 py-3">
                         {dayjs(order.Orderdate).format('DD MMM YYYY, hh:mm A')}
-                      </td>
-                      <td className="px-4 py-3 font-semibold text-green-600">
-                        {order.orderStatus}
                       </td>
                       <td className="px-4 py-3">${order.grandTotal?.toFixed(2)}</td>
                       <td className="px-4 py-3 text-right">
