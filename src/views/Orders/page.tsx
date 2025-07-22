@@ -92,6 +92,7 @@ interface Order {
   grandTotal: number;
   user: string;
   cartItems?: CartItem[];
+  trackingNumber?: string;
   tiffinItems?: TiffinItem[];
   address?: AddressDetails;
 }
@@ -127,6 +128,8 @@ const Page: React.FC = () => {
   };
 
   const handleReset = () => dispatch(resetFilter());
+
+  console.log(orders);
 
   return (
     <div>
@@ -198,6 +201,7 @@ const Page: React.FC = () => {
               <th className="px-4 py-3">Address</th>
               <th className="px-4 py-3">Post Code</th>
               <th className="px-4 py-3">Ordered Date</th>
+              <th className="px-4 py-3">Tracking Number</th>
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3 text-right"></th>
             </tr>
@@ -250,6 +254,7 @@ const Page: React.FC = () => {
                       <td className="px-4 py-3">
                         {dayjs(order.Orderdate).format('DD MMM YYYY, hh:mm A')}
                       </td>
+                      <td className="px-4 py-3">{order.trackingNumber}</td>
                       <td className="px-4 py-3">${order.grandTotal?.toFixed(2)}</td>
                       <td className="px-4 py-3 text-right">
                         {isExpanded ? <IoIosArrowUp /> : <IoIosArrowDown />}
