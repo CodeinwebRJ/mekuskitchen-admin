@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button, Checkbox, Label, Spinner, TextInput } from 'flowbite-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Login } from 'src/AxiosConfig/AxiosConfig';
@@ -16,17 +16,6 @@ const AuthLogin = () => {
   const [formErrors, setFormErrors] = useState<{ uniqueId?: string; password?: string }>({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    const storedId = localStorage.getItem('remembered_uniqueId');
-    const storedPwd = localStorage.getItem('remembered_password');
-
-    if (storedId && storedPwd) {
-      setUniqueId(storedId);
-      setPassword(storedPwd);
-      setRememberMe(true);
-    }
-  }, []);
 
   const validateForm = () => {
     const errors: { uniqueId?: string; password?: string } = {};
@@ -47,10 +36,10 @@ const AuthLogin = () => {
       const response = await Login({ uniqueId: trimmedUniqueId, password: trimmedPassword });
       const { token, admin } = response.data.data;
       dispatch(login(response.data.data));
-      localStorage.setItem('token', token);
-      localStorage.setItem('admin', JSON.stringify(admin));
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('admin', JSON.stringify(admin));
+
       navigate('/');
-      setIsLoading(false);
     } catch (error: any) {
       setErrorMsg('Incorrect userId or password. Please try again.');
     } finally {

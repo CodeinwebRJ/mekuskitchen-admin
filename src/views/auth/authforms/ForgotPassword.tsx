@@ -47,7 +47,7 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(true);
     try {
       const res = await SendOtp(email);
-      localStorage.setItem('otp', res.data.data);
+      sessionStorage.setItem('otp', res.data.data);
       setStep(2);
     } catch (error) {
       setErrorMsg('Failed to send OTP');
@@ -66,7 +66,7 @@ const ForgotPassword: React.FC = () => {
     if (Object.keys(errors).length > 0) return;
 
     setIsLoading(true);
-    const originalOtp = localStorage.getItem('otp');
+    const originalOtp = sessionStorage.getItem('otp');
     if (otp === originalOtp) {
       setStep(3);
     } else {

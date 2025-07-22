@@ -84,7 +84,7 @@ const Profile: React.FC = () => {
   };
 
   useEffect(() => {
-    const stored = localStorage.getItem('admin');
+    const stored = sessionStorage.getItem('admin');
     if (stored) {
       try {
         const parsed: UserProfile = JSON.parse(stored);
@@ -127,7 +127,7 @@ const Profile: React.FC = () => {
       }
       const payload = { ...formData };
       const response = await UpdateProfile(payload);
-      localStorage.setItem('admin', JSON.stringify(response.data.data));
+      sessionStorage.setItem('admin', JSON.stringify(response.data.data));
       setProfile(response.data.data);
       setIsEditing(false);
       setIsLoading(false);
@@ -153,7 +153,7 @@ const Profile: React.FC = () => {
         newPassword: passwordData.newPassword,
       };
       const response = await UpdateProfile(payload);
-      localStorage.setItem('admin', JSON.stringify(response.data.data));
+      sessionStorage.setItem('admin', JSON.stringify(response.data.data));
       setProfile(response.data.data);
       setPasswordData({ oldPassword: '', newPassword: '' });
       setIsChangingPassword(false);

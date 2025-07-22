@@ -10,7 +10,7 @@ const Profile = () => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    localStorage.clear();
+    sessionStorage.clear();
     dispatch(logout());
     navigation('/auth/login');
   };

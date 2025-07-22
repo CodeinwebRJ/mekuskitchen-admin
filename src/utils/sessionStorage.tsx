@@ -10,8 +10,8 @@ interface UserDetail {
 let userDetail: UserDetail | null = null;
 
 if (typeof window !== 'undefined') {
-  const adminString = localStorage.getItem('admin');
-  const token = localStorage.getItem('token');
+  const adminString = sessionStorage.getItem('admin');
+  const token = sessionStorage.getItem('token');
 
   if (adminString) {
     try {
@@ -21,7 +21,7 @@ if (typeof window !== 'undefined') {
         token: token || undefined,
       };
     } catch (error) {
-      console.error('Failed to parse user details from localStorage:', error);
+      console.error('Failed to parse user details from sessionStorage:', error);
     }
   }
 }
