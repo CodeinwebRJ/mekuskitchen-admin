@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Select, TextInput, Label, Textarea, Checkbox } from 'flowbite-react';
 import TableFileUploader from './Component/fileUploader';
 import { useSelector } from 'react-redux';
@@ -7,9 +7,11 @@ import { useLocation } from 'react-router';
 interface BasicInfoProps {
   product: any;
   setProduct: any;
+  errors: any;
+  setErrors: any;
 }
 
-const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
+const BasicInfo: React.FC<BasicInfoProps> = ({ product, setErrors, setProduct, errors }) => {
   const category = useSelector((state: any) => state.category.categoryList);
   const [subCategory, setSubCategory] = useState<any[]>([]);
   const [subsubCategory, setSubSubCategory] = useState<any[]>([]);
@@ -20,6 +22,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
       const { id, value, type } = e.target;
 
       if (!id) return;
+
+      setErrors((prev: any) => ({
+        ...prev,
+        [id]: undefined,
+      }));
 
       const inputValue: string | boolean =
         type === 'checkbox' && 'checked' in e.target
@@ -56,11 +63,17 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
         return updatedProduct;
       });
     },
-    [setProduct],
+    [setProduct, setErrors],
   );
 
   const handleSelectCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { id, value } = e.target;
+
+    setErrors((prev: any) => ({
+      ...prev,
+      [id]: undefined,
+    }));
+
     setProduct((prev: any) => ({
       ...prev,
       [id]: value,
@@ -74,6 +87,12 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
 
   const handleSelectSubCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { id, value } = e.target;
+
+    setErrors((prev: any) => ({
+      ...prev,
+      [id]: undefined,
+    }));
+
     setProduct((prev: any) => ({
       ...prev,
       [id]: value,
@@ -103,16 +122,46 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     [],
   );
 
+  interface PreventScrollEvent extends React.WheelEvent<HTMLInputElement> {
+    target: HTMLInputElement;
+  }
+
+  const preventScroll = (e: PreventScrollEvent) => {
+    e.target.blur();
+  };
+
+  useEffect(() => {
+    if (product.category && category.length > 0) {
+      const selectedCategory = category.find((cat: any) => cat.name === product.category);
+      setSubCategory(selectedCategory?.subCategories || []);
+    }
+  }, [product.category, category]);
+
+  useEffect(() => {
+    if (product.subCategory && subCategory.length > 0) {
+      const selectedSubCategory = subCategory.find((sub: any) => sub.name === product.subCategory);
+      setSubSubCategory(selectedSubCategory?.subSubCategories || []);
+    }
+  }, [product.subCategory, subCategory]);
+
+  console.log(errors);
+
   return (
     <div>
-      <h3 className="text-2xl font-bold text-blue-700 mb-6">Product Information</h3>
-
+      <h3 className="text-2xl font-bold text-primary mb-6">Product Information</h3>
       <form className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
           <div>
-            <Label value="Upload Product Images" className="text-sm font-medium text-gray-700" />
-            <div className="bg-gray-50 mt-2">
-              <TableFileUploader images={product.images} setProduct={setProduct} />
+            <Label value="Upload Product Images*" className="text-sm font-medium text-gray-700" />
+            <div>
+              <TableFileUploader
+                setErrors={setErrors}
+                images={product.images}
+                setProduct={setProduct}
+              />
+              {errors?.images && product.images.length === 0 && (
+                <p className="text-red-600 text-sm mt-2 w-full text-left">{errors.images}</p>
+              )}
             </div>
           </div>
 
@@ -130,8 +179,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 required
                 placeholder="Enter product name"
                 className="w-full"
-                color={product.name ? 'success' : 'gray'}
               />
+              {errors.name && <span className="text-red-500">{errors.name}</span>}
             </div>
 
             <div>
@@ -144,12 +193,13 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 className="w-full"
               >
                 <option value="">Select Category</option>
-                {category.map((item: any) => (
-                  <option key={item._id} value={item.name}>
+                {category.map((item: any, index: number) => (
+                  <option key={index} value={item.name}>
                     {item.name}
                   </option>
                 ))}
               </Select>
+              {errors.category && <span className="text-red-500">{errors.category}</span>}
             </div>
           </div>
         </div>
@@ -164,16 +214,17 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               className="w-full"
             >
               <option value="">Select Subcategory</option>
-              {subCategory.map((item: any) => (
-                <option key={item.name} value={item.name}>
+              {subCategory.map((item: any ,index:any) => (
+                <option key={index} value={item.name}>
                   {item.name}
                 </option>
               ))}
             </Select>
+            {errors.subCategory && <span className="text-red-500">{errors.subCategory}</span>}
           </div>
           <div>
             <Label
-              value="Product Subcategory*"
+              value="Product category"
               className="block text-sm font-medium text-gray-700 mb-1"
             />
             <Select
@@ -183,12 +234,13 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               className="w-full"
             >
               <option value="">Select Sub-subcategory</option>
-              {subsubCategory.map((item: any) => (
-                <option key={item.name} value={item.name}>
+              {subsubCategory.map((item: any ,index:any) => (
+                <option key={index} value={item.name}>
                   {item.name}
                 </option>
               ))}
             </Select>
+            {errors.subsubCategory && <span className="text-red-500">{errors.subsubCategory}</span>}
           </div>
 
           <div>
@@ -202,18 +254,21 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               <option value="">Select Currency</option>
               <option value="CAD">$ - CAD</option>
             </Select>
+            {errors.currency && <span className="text-red-500">{errors.currency}</span>}
           </div>
           <div>
             <Label value="Price*" className="block text-sm font-medium text-gray-700 mb-1" />
             <TextInput
               id="price"
               type="number"
+              onWheel={preventScroll}
               value={product.price}
               onChange={handleInputChange}
               required
               placeholder="Enter price"
               className="w-full"
             />
+            {errors.price && <span className="text-red-500">{errors.price}</span>}
           </div>
 
           <div>
@@ -225,11 +280,13 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               id="sellingPrice"
               type="number"
               value={product.sellingPrice}
+              onWheel={preventScroll}
               onChange={handleInputChange}
               required
               placeholder="Enter selling price"
               className="w-full"
             />
+            {errors.sellingPrice && <span className="text-red-500">{errors.sellingPrice}</span>}
           </div>
 
           <div>
@@ -237,9 +294,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             <TextInput
               id="discount"
               type="number"
+              onWheel={preventScroll}
               value={product.discount || '0'}
               readOnly
-              className="w-full bg-gray-100 cursor-not-allowed"
+              disabled
+              className="w-full"
             />
           </div>
 
@@ -254,6 +313,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               placeholder="Enter SKU Name"
               className="w-full"
             />
+            {errors.SKUName && <span className="text-red-500">{errors.SKUName}</span>}
           </div>
 
           <div>
@@ -264,12 +324,14 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             <TextInput
               id="stock"
               type="number"
+              onWheel={preventScroll}
               value={product.stock}
               onChange={handleInputChange}
               required
               placeholder="Enter stock quantity"
               className="w-full"
             />
+            {errors.stock && <span className="text-red-500">{errors.stock}</span>}
           </div>
 
           <div>
@@ -286,7 +348,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           </div>
         </div>
 
-        {location.pathname === '/product' && (
+        {location.pathname === '/create-product' && (
           <div className="flex flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
@@ -299,12 +361,13 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   required
                   aria-required="true"
                 >
-                  {weightUnits.map((unit) => (
-                    <option key={unit.value} value={unit.value}>
+                  {weightUnits.map((unit , index) => (
+                    <option key={index} value={unit.value}>
                       {unit.label}
                     </option>
                   ))}
                 </Select>
+                {errors.weightUnit && <span className="text-red-500">{errors.weightUnit}</span>}
               </div>
               <div>
                 <Label value="Weight*" />
@@ -315,10 +378,12 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={product.weight}
                   onChange={handleInputChange}
                   required
+                  onWheel={preventScroll}
                   placeholder="Enter weight"
                   className="w-full"
                   aria-required="true"
                 />
+                {errors.weight && <span className="text-red-500">{errors.weight}</span>}
               </div>
               <div>
                 <Label value="Dimension Unit" />
@@ -330,8 +395,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   required
                   aria-required="true"
                 >
-                  {dimensionUnits.map((unit) => (
-                    <option key={unit.value} value={unit.value}>
+                  {dimensionUnits.map((unit , index) => (
+                    <option key={index} value={unit.value}>
                       {unit.label}
                     </option>
                   ))}
@@ -348,6 +413,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={product.dimensions.length}
                   onChange={handleInputChange}
                   required
+                  onWheel={preventScroll}
                   placeholder="Enter length"
                   className="w-full"
                   aria-required="true"
@@ -362,6 +428,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={product.dimensions.width}
                   onChange={handleInputChange}
                   required
+                  onWheel={preventScroll}
                   placeholder="Enter width"
                   className="w-full"
                   aria-required="true"
@@ -376,6 +443,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                   value={product.dimensions.height}
                   onChange={handleInputChange}
                   required
+                  onWheel={preventScroll}
                   placeholder="Enter height"
                   className="w-full"
                   aria-required="true"
@@ -385,12 +453,22 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           </div>
         )}
 
-        <div className="flex items-center gap-2 px-1">
-          <div>
-            <Checkbox id="isTaxFree" checked={product.isTaxFree} onChange={handleInputChange} />
+        <div className="flex gap-4 items-center">
+          <div className="flex items-center gap-2 px-1">
+            <Checkbox
+              id="manageInventory"
+              name="manageInventory"
+              checked={product.manageInventory}
+              onChange={handleInputChange}
+            />
+            <Label htmlFor="manageInventory" value="Manage Inventory" />
           </div>
-
-          <Label value={'Tax Free'} />
+          <div className="flex items-center gap-2 px-1">
+            <div>
+              <Checkbox id="isTaxFree" checked={product.isTaxFree} onChange={handleInputChange} />
+            </div>
+            <Label value={'Is Tax Free'} />
+          </div>
         </div>
 
         <div>
@@ -404,20 +482,22 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             rows={2}
             onChange={handleInputChange}
             placeholder="Short Description"
-            required
           />
+          {errors.shortDescription && (
+            <span className="text-red-500">{errors.shortDescription}</span>
+          )}
         </div>
 
         <div>
-          <Label value="Description" className="block text-sm font-medium text-gray-700 mb-1" />
+          <Label value="Description*" className="block text-sm font-medium text-gray-700 mb-1" />
           <Textarea
             id="description"
             value={product.description}
             rows={4}
             onChange={handleInputChange}
             placeholder="Description"
-            required
           />
+          {errors.description && <span className="text-red-500">{errors.description}</span>}
         </div>
       </form>
     </div>

@@ -39,7 +39,7 @@ const productSlice = createSlice({
     ) => {
       const { productId, isActive } = action.payload;
       if (state.products.data) {
-        state.products.data = state.products.data.map((product: any) =>
+        state.products.data = state.products.data?.map((product: any) =>
           product._id === productId ? { ...product, isActive } : product,
         );
       }

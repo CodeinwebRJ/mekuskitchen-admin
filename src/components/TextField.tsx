@@ -4,6 +4,7 @@ interface TextFieldProps {
   label: string;
   name: string;
   type?: string;
+  placeholder?: string;
   value: string;
   onChange: any;
   error?: string;
@@ -16,6 +17,7 @@ const TextField = ({
   name,
   type = 'text',
   value,
+  placeholder,
   onChange,
   error,
   min,
@@ -28,6 +30,7 @@ const TextField = ({
         id={name}
         name={name}
         type={type}
+        placeholder={placeholder}
         min={min}
         step={step}
         value={value}

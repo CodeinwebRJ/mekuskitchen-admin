@@ -2,8 +2,6 @@
 import { IconChevronRight } from "@tabler/icons-react";
 import { Link } from "react-router";
 
-
-
 interface BreadCrumbType {
   title: string;
   link?: string;

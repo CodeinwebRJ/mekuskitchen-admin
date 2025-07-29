@@ -36,9 +36,9 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         <FaArrowLeft />
       </button>
 
-      {pageNumbers.map((number) => (
+      {pageNumbers.map((number ,i) => (
         <button
-          key={number}
+          key={i}
           onClick={() => onPageChange(number)}
           className={`p-2 px-3 rounded-md ${
             Number(currentPage) === number

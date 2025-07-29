@@ -10,6 +10,7 @@ interface NewField {
 }
 
 const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
+  const [fieldErrors, setFieldErrors] = useState<{ variant?: string; combination?: string }>({});
   const [newVariantField, setNewVariantField] = useState<any>({
     name: '',
     type: 'text',
@@ -27,41 +28,53 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
 
   const handleNewVariantFieldChange = useCallback((field: keyof NewField, value: string) => {
     setNewVariantField((prev: any) => {
-      if (field === 'type' && value === 'image') {
-        return { ...prev, type: value, name: 'SKUImage' };
-      } else if (field === 'type' && prev.type === 'image') {
-        return { ...prev, type: value, name: '' };
+      const updated = { ...prev, [field]: value };
+      if (field === 'name') {
+        setFieldErrors((prev) => ({ ...prev, variant: undefined }));
       }
-      return { ...prev, [field]: value };
+      return updated;
     });
   }, []);
 
   const handleNewCombinationFieldChange = useCallback((field: keyof NewField, value: string) => {
     setNewCombinationField((prev: any) => {
+      let updated = { ...prev, [field]: value };
       if (field === 'type' && value === 'image') {
-        return { ...prev, type: value, name: 'CombinationImage' };
+        updated = { ...updated, name: 'CombinationImage' };
       } else if (field === 'type' && prev.type === 'image') {
-        return { ...prev, type: value, name: '' };
+        updated = { ...updated, name: '' };
       }
-      return { ...prev, [field]: value };
+
+      return updated;
     });
+    if (field === 'name' || field === 'type') {
+      setFieldErrors((prev) => ({ ...prev, combination: undefined }));
+    }
   }, []);
 
   const addVariantField = (e: FormEvent) => {
     e.preventDefault();
     const fieldName = newVariantField.type === 'image' ? 'SKUImage' : newVariantField.name?.trim();
+
     if (!fieldName) {
+      setFieldErrors((prev) => ({ ...prev, variant: 'Field name is required' }));
       return;
     }
     if (product.skuFields.some((field: any) => field.name === fieldName)) {
+      setFieldErrors((prev) => ({ ...prev, variant: 'Field already exists' }));
       return;
     }
     if (newVariantField.type === 'select' && !newVariantField.options?.trim()) {
+      setFieldErrors((prev) => ({ ...prev, variant: 'Options required for select field' }));
       return;
     }
     if (newVariantField.type === 'image' && hasImageField) {
+      setFieldErrors((prev) => ({ ...prev, variant: 'Only one image field is allowed' }));
       return;
     }
+
+    setFieldErrors((prev) => ({ ...prev, variant: undefined }));
+
     const field: VariantField = {
       name: fieldName,
       type: newVariantField.type,
@@ -72,6 +85,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           .filter((opt: any) => opt),
       }),
     };
+
     const updatedVariants = product.sku?.map((variant: any) => ({
       ...variant,
       [field.name]:
@@ -85,6 +99,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           ? []
           : '',
     }));
+
     setProduct({
       ...product,
       skuFields: [...product.skuFields, field],
@@ -116,23 +131,31 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     e.preventDefault();
     const fieldName =
       newCombinationField.type === 'image' ? 'CombinationImage' : newCombinationField.name?.trim();
+
     if (!fieldName) {
+      setFieldErrors((prev) => ({ ...prev, combination: 'Field name is required' }));
       return;
     }
     if (product.combinationFields.some((field: any) => field.name === fieldName)) {
+      setFieldErrors((prev) => ({ ...prev, combination: 'Field already exists' }));
       return;
     }
     if (newCombinationField.type === 'select' && !newCombinationField.options?.trim()) {
+      setFieldErrors((prev) => ({ ...prev, combination: 'Options required for select field' }));
       return;
     }
     if (newCombinationField.type === 'image' && hasImageField) {
+      setFieldErrors((prev) => ({ ...prev, combination: 'Only one image field is allowed' }));
       return;
     }
+
+    setFieldErrors((prev) => ({ ...prev, combination: undefined }));
+
     const field: CombinationField = {
       name: fieldName,
       type: newCombinationField.type,
       ...(newCombinationField.type === 'select' && {
-        options: newCombinationField?.options
+        options: newCombinationField.options
           .split(',')
           .map((opt: any) => opt.trim())
           .filter((opt: any) => opt),
@@ -140,7 +163,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     };
     const updatedVariants = product.sku?.map((variant: any) => ({
       ...variant,
-      combinations: variant.combinations.map((comb: any) => ({
+      combinations: variant?.combinations?.map((comb: any) => ({
         ...comb,
         [field.name]:
           field.type === 'checkbox'
@@ -154,6 +177,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             : '',
       })),
     }));
+
     setProduct({
       ...product,
       combinationFields: [...product.combinationFields, field],
@@ -167,9 +191,20 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
       const { [fieldName]: _, ...rest } = variant;
       return rest as Variant & { combinations: Combination[] };
     });
+
+    const updatedFields = product.skuFields.filter((field: any) => field.name !== fieldName);
+
+    // If the error was due to duplicate field name, clear it
+    const shouldClearError =
+      fieldErrors.variant &&
+      (fieldErrors.variant.toLowerCase().includes('already exists') ||
+        fieldErrors.variant.toLowerCase().includes('field'));
+
+    setFieldErrors((prev) => ({ ...prev, variant: shouldClearError ? undefined : prev.variant }));
+
     setProduct({
       ...product,
-      skuFields: product.skuFields.filter((field: any) => field.name !== fieldName),
+      skuFields: updatedFields,
       sku: updatedVariants,
     });
   };
@@ -177,14 +212,29 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
   const removeCombinationField = (fieldName: string) => {
     const updatedVariants = product.sku?.map((variant: any) => ({
       ...variant,
-      combinations: variant.combinations.map((comb: any) => {
+      combinations: variant?.combinations?.map((comb: any) => {
         const { [fieldName]: _, ...rest } = comb;
         return rest as Combination;
       }),
     }));
+
+    const updatedFields = product.combinationFields.filter(
+      (field: any) => field.name !== fieldName,
+    );
+
+    const shouldClearError =
+      fieldErrors.combination &&
+      (fieldErrors.combination.toLowerCase().includes('already exists') ||
+        fieldErrors.combination.toLowerCase().includes('field'));
+
+    setFieldErrors((prev) => ({
+      ...prev,
+      combination: shouldClearError ? undefined : prev.combination,
+    }));
+
     setProduct({
       ...product,
-      combinationFields: product.combinationFields.filter((field: any) => field.name !== fieldName),
+      combinationFields: updatedFields,
       sku: updatedVariants,
     });
   };
@@ -276,6 +326,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
       type: 'number' as const,
     };
     const updatedVariants = [...product?.sku];
+
     updatedVariants[variantIndex].combinations[combinationIndex] = {
       ...updatedVariants[variantIndex].combinations[combinationIndex],
       [fieldName]:
@@ -285,7 +336,22 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             : value
           : value,
     };
-    setProduct({ ...product, sku: updatedVariants });
+
+    const totalStock = updatedVariants[variantIndex].combinations.reduce((sum: any, comb: any) => {
+      return sum + (parseFloat(comb.Stock) || 0);
+    }, 0);
+
+    updatedVariants[variantIndex].Stock = totalStock;
+
+    const totalProductStock = updatedVariants.reduce((sum, variant) => {
+      return sum + (variant.Stock || 0);
+    }, 0);
+
+    setProduct({
+      ...product,
+      sku: updatedVariants,
+      stock: totalProductStock,
+    });
   };
 
   const addVariant = () => {
@@ -333,9 +399,22 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
           ? []
           : '';
     });
+
     const updatedVariants = [...product.sku];
     updatedVariants[variantIndex].combinations.push(newCombination);
-    setProduct({ ...product, sku: updatedVariants });
+
+    const skuStock = updatedVariants[variantIndex].combinations.reduce((sum: any, comb: any) => {
+      return sum + (parseFloat(comb.Stock) || 0);
+    }, 0);
+    updatedVariants[variantIndex].Stock = skuStock;
+
+    const totalStock = updatedVariants.reduce((sum, sku) => sum + (sku.Stock || 0), 0);
+
+    setProduct({
+      ...product,
+      sku: updatedVariants,
+      stock: totalStock,
+    });
   };
 
   const removeVariant = (index: number) => {
@@ -351,12 +430,24 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
     updatedVariants[variantIndex].combinations = updatedVariants[variantIndex].combinations.filter(
       (_: any, i: number) => i !== combinationIndex,
     );
-    setProduct({ ...product, sku: updatedVariants });
+
+    updatedVariants[variantIndex].Stock = updatedVariants[variantIndex].combinations.reduce(
+      (sum: any, comb: any) => sum + (parseFloat(comb.Stock) || 0),
+      0,
+    );
+
+    const totalStock = updatedVariants.reduce((sum, sku) => sum + (sku.Stock || 0), 0);
+
+    setProduct({
+      ...product,
+      sku: updatedVariants,
+      stock: totalStock,
+    });
   };
 
   return (
     <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 bg-white rounded-xl shadow">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">Create Product</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-6">Create Product</h1>
       <form className="space-y-3 sm:space-y-4 md:space-y-6">
         <div className="flex flex-col sm:flex-row items-start gap-4">
           <Card className="w-full p-2 sm:p-4 space-y-4">
@@ -416,7 +507,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               {/* Add Button */}
               <div className="w-full sm:w-auto flex items-end">
                 <Button
-                  color="blue"
+                  color="primary"
                   type="button"
                   size="sm"
                   onClick={addVariantField}
@@ -434,9 +525,9 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 <ul className="flex flex-col sm:flex-row flex-wrap gap-2">
                   {product.skuFields
                     .filter((field: any) => !field.isDefault)
-                    .map((field: any) => (
+                    .map((field: any, index: any) => (
                       <li
-                        key={field.name}
+                        key={index}
                         className="flex items-center justify-between gap-4 p-2 rounded-md bg-blue-50 text-sm text-gray-800 w-full sm:w-auto"
                       >
                         <span>
@@ -453,6 +544,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 </ul>
               </div>
             )}
+            {fieldErrors.variant && <p className="text-red-500">{fieldErrors.variant}</p>}
           </Card>
 
           <Card className="w-full p-2 sm:p-4 space-y-4">
@@ -508,7 +600,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               {/* Add Button */}
               <div className="w-full sm:w-auto flex items-end">
                 <Button
-                  color="blue"
+                  color="primary"
                   type="button"
                   size="sm"
                   onClick={addCombinationField}
@@ -523,9 +615,9 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Combination Fields</h3>
                 <ul className="flex flex-col sm:flex-row flex-wrap gap-2">
-                  {product.combinationFields.map((field: any) => (
+                  {product.combinationFields.map((field: any, index: any) => (
                     <li
-                      key={field.name}
+                      key={index}
                       className="flex items-center justify-between gap-4 p-2 rounded-md bg-blue-50 text-sm text-gray-800 w-full sm:w-auto"
                     >
                       <span>
@@ -542,6 +634,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 </ul>
               </div>
             )}
+            {fieldErrors.combination && <p className="text-red-500">{fieldErrors.combination}</p>}
           </Card>
         </div>
 
@@ -682,15 +775,12 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                         }
                                       }}
                                     />
-                                    <Button
-                                      type="button"
+                                    <div
                                       onClick={() => removeImage(index, field.name, imgIndex)}
-                                      color="failure"
-                                      size="xs"
-                                      className="absolute p-0 top-1 right-0 bg-red-500 hover:bg-red-600 text-white rounded"
+                                      className="absolute top-1 right-0 cursor-pointer"
                                     >
-                                      <MdDelete className="text-red-600" />
-                                    </Button>
+                                      <MdDelete className="text-red-600" size={20} />
+                                    </div>
                                   </div>
                                 );
                               })}
@@ -711,7 +801,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 </div>
                 <div className="w-full sm:w-1/3 flex justify-end">
                   <Button
-                    color="blue"
+                    color="primary"
                     type="button"
                     onClick={() => addCombination(index)}
                     size="sm"
@@ -726,15 +816,15 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                 <h4 className="text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">
                   Combinations
                 </h4>
-                {variant.combinations.map((combination: any, combIndex: number) => (
+                {variant?.combinations?.map((combination: any, combIndex: number) => (
                   <div
                     key={combIndex}
                     className="mt-2 sm:mt-3 px-2 py-2 sm:px-3 sm:py-3 bg-gray-50 rounded-md border border-gray-200"
                   >
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {product.combinationFields.map((field: any) => (
-                          <div key={field.name} className="flex flex-col w-full">
+                        {product.combinationFields.map((field: any, index: any) => (
+                          <div key={index} className="flex flex-col w-full">
                             <Label
                               htmlFor={`${field.name}-${index}-${combIndex}`}
                               value={field.name}
@@ -793,8 +883,8 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
                                 className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                               >
                                 <option value="">Select {field.name}</option>
-                                {field.options?.map((option: any) => (
-                                  <option key={option} value={option}>
+                                {field.options?.map((option: any ,index:number) => (
+                                  <option key={index} value={option}>
                                     {option}
                                   </option>
                                 ))}
@@ -891,7 +981,7 @@ const SKU: React.FC<BasicInfoProps> = ({ product, setProduct }) => {
             </Card>
           ))}
           <Button
-            color="blue"
+            color="primary"
             type="button"
             onClick={addVariant}
             className="mt-3 sm:mt-4 text-sm sm:text-base"

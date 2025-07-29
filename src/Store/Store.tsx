@@ -3,6 +3,8 @@ import categorySlice from './Slices/Categories';
 import authSlice from './Slices/AdminUser';
 import ProductSlice from './Slices/ProductData';
 import FilterSlice from './Slices/FilterData';
+import tiffinReducer from './Slices/Tiffin';
+import orderReducer from './Slices/Orders';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +12,8 @@ export const store = configureStore({
     auth: authSlice,
     product: ProductSlice,
     filterData: FilterSlice,
+    orders: orderReducer,
+    tiffin: tiffinReducer,
   },
 });
 

@@ -1,0 +1,192 @@
+import { Button } from 'flowbite-react';
+import { useRef, ChangeEvent, DragEvent } from 'react';
+
+export interface ImageItem {
+  file?: File;
+  url?: string;
+  isPrimary?: boolean;
+}
+
+interface TableFileUploaderProps {
+  images: ImageItem[];
+  setProduct: React.Dispatch<React.SetStateAction<any>>;
+  fieldKey?: string;
+  setErrors: React.Dispatch<React.SetStateAction<any>>;
+}
+
+export default function TiffinImage({
+  images,
+  setProduct,
+  setErrors,
+  fieldKey = 'images',
+}: TableFileUploaderProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      setProduct((prev: any) => {
+        const existingFiles = new Set(
+          (prev[fieldKey] || []).map(
+            (img: ImageItem) => `${img.file?.name ?? ''}${img.file?.size ?? ''}`,
+          ),
+        );
+
+        const newImages: ImageItem[] = selectedFiles
+          .filter((file) => !existingFiles.has(`${file.name}${file.size}`))
+          .map((file) => ({ file }));
+
+        return {
+          ...prev,
+          [fieldKey]: [...(prev[fieldKey] || []), ...newImages],
+        };
+      });
+
+      e.target.value = '';
+    }
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const droppedFiles = Array.from(e.dataTransfer.files);
+
+    setProduct((prev: any) => {
+      const existingFiles = new Set(
+        (prev[fieldKey] || []).map(
+          (img: ImageItem) => `${img.file?.name ?? ''}${img.file?.size ?? ''}`,
+        ),
+      );
+
+      const newImages: ImageItem[] = droppedFiles
+        .filter((file) => !existingFiles.has(`${file.name}${file.size}`))
+        .map((file) => ({ file }));
+
+      return {
+        ...prev,
+        [fieldKey]: [...(prev[fieldKey] || []), ...newImages],
+      };
+    });
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const removeImage = (index: number) => {
+    setProduct((prev: any) => {
+      const updatedImages = (prev[fieldKey] || []).filter((_: any, i: number) => i !== index);
+      return {
+        ...prev,
+        [fieldKey]: updatedImages,
+      };
+    });
+
+    setErrors((prev: any) => ({
+      ...prev,
+      image_url: undefined,
+    }));
+  };
+
+  const handleContainerClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div className="flex flex-col items-center w-full px-4 py-4 sm:px-6 sm:py-6 bg-white rounded-xl">
+      {images?.length > 0 && (
+        <div className="mb-6 w-full grid grid-cols-2 gap-3 sm:gap-4">
+          {images.map((image, index) => (
+            <div
+              key={index}
+              className="relative group rounded-md overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+            >
+              <img
+                src={image.file ? URL.createObjectURL(image.file) : image.url}
+                alt="preview"
+                className="w-full h-24 sm:h-28 md:h-32 object-cover"
+                onLoad={(e) => {
+                  if (image.file) {
+                    const url = (e.target as HTMLImageElement).src;
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                  }
+                }}
+              />
+              {index === 0 && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-1 rounded-full z-0">
+                  Primary
+                </span>
+              )}
+              <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity duration-200">
+                <Button
+                  onClick={(e :any) => {
+                    e.stopPropagation();
+                    removeImage(index);
+                  }}
+                  className="p-2 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+                  title="Remove"
+                  type="button"
+                >
+                  <svg
+                    className="w-4 h-4 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div
+        className="w-full h-40 sm:h-48 md:h-52 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300 cursor-pointer"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onClick={handleContainerClick}
+      >
+        {images.length === 0 ? (
+          <div className="flex flex-col items-center text-center px-2">
+            <svg
+              className="w-10 h-10 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+              />
+            </svg>
+            <p className="mt-2 text-sm text-gray-600">
+              Drag & Drop or <span className="text-blue-600 hover:underline">Click to Upload</span>
+            </p>
+            <p className="mt-1 text-xs text-gray-400">Supports images (PNG, JPG, etc.)</p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600 px-2 text-center">Drop more images or click to add</p>
+        )}
+      </div>
+
+      <input
+        type="file"
+        className="hidden"
+        multiple
+        accept="image/*"
+        onChange={handleFileChange}
+        ref={fileInputRef}
+      />
+    </div>
+  );
+}

@@ -5,12 +5,21 @@ import { FiPlus } from 'react-icons/fi';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { CreateTax, DeleteTax, EditTax, getallTax } from 'src/AxiosConfig/AxiosConfig';
+import DeleteDialog from 'src/components/DeleteDialog';
+import Loading from 'src/components/Loading';
+import NoDataFound from 'src/components/NoDataFound';
+import { Toast } from 'src/components/Toast';
+import useDebounce from 'src/Hook/useDebounce';
 import { RootState } from 'src/Store/Store';
 
 interface TaxEntry {
   category: string;
   provinceTax: string;
   federalTax: string;
+}
+
+interface PreventScrollEvent extends React.WheelEvent<HTMLInputElement> {
+  target: HTMLInputElement;
 }
 
 interface TaxConfig {
@@ -44,6 +53,13 @@ const Page = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [provinceCode, setProvinceCode] = useState('');
   const [provinceName, setProvinceName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState<string | null>(null);
+  const [filter, setFilter] = useState({
+    search: '',
+    category: '',
+  });
   const [taxes, setTaxes] = useState<TaxEntry[]>([
     { category: '', provinceTax: '', federalTax: '' },
   ]);
@@ -52,14 +68,23 @@ const Page = () => {
 
   const categoryList = useSelector((state: RootState) => state.category.categoryList);
 
+  const filterData = useDebounce(filter, 500);
+
   const fetchTax = useCallback(async () => {
     try {
-      const response = await getallTax({ provinceCode: '', category: '' });
+      setLoading(true);
+      const data = {
+        search: filter.search,
+        category: filter.category,
+      };
+      const response = await getallTax(data);
       setTaxConfigs(response.data.data);
     } catch (error) {
       console.error('Fetch Tax Error:', error);
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [filterData]);
 
   useEffect(() => {
     fetchTax();
@@ -124,6 +149,7 @@ const Page = () => {
       }
       resetForm();
       await fetchTax();
+      Toast({ message: 'Tax created successfully!', type: 'success' });
     } catch (error) {
       console.error(`${editId ? 'Update' : 'Create'} Tax Error:`, error);
     }
@@ -141,32 +167,61 @@ const Page = () => {
       })),
     );
     setShowForm(true);
+    Toast({ message: 'Tax updated successfully!', type: 'success' });
   };
 
-  const handleDelete = async (provinceCode: string) => {
+  const handleOpenDelete = (provinceCode: string) => {
+    setSelectedProvinceCode(provinceCode);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedProvinceCode(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedProvinceCode) return;
     try {
-      await DeleteTax(provinceCode);
+      await DeleteTax(selectedProvinceCode);
       fetchTax();
+      Toast({ message: 'Tax deleted successfully', type: 'success' });
     } catch (error) {
       console.error('Delete Tax Error:', error);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setSelectedProvinceCode(null);
     }
   };
 
+  const preventScroll = (e: PreventScrollEvent) => {
+    e.target.blur();
+  };
+
   return (
-    <div className="flex flex-col items-center gap-6 px-4">
+    <div className="flex flex-col items-center gap-6">
       <div className="w-full">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-          <h2 className="text-xl font-semibold text-primary">Tax</h2>
-          <Button size="sm" color="primary" onClick={() => setShowForm((prev) => !prev)}>
-            {showForm ? 'Cancel' : 'Create Tax'}
-          </Button>
+        <div className="mb-3">
+          <h2 className="text-xl font-semibold text-primary mb-3">Tax</h2>
+
+          <div className="flex justify-between items-center">
+            <TextInput
+              placeholder="Search"
+              className="w-1/3"
+              value={filter.search}
+              onChange={(e) => setFilter({ ...filter, search: e.target.value })}
+            />
+            <Button size="sm" color="primary" onClick={() => setShowForm((prev) => !prev)}>
+              {showForm ? 'Cancel' : 'Create Tax'}
+            </Button>
+          </div>
         </div>
 
         {showForm ? (
           <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-md space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="provinceName" value="Province Name" />
+                <Label htmlFor="provinceName" value="Province Name*" />
                 <TextInput
                   id="provinceName"
                   value={provinceName}
@@ -180,7 +235,7 @@ const Page = () => {
                 )}
               </div>
               <div>
-                <Label htmlFor="provinceCode" value="Province Code" />
+                <Label htmlFor="provinceCode" value="Province Code*" />
                 <TextInput
                   id="provinceCode"
                   value={provinceCode}
@@ -202,7 +257,7 @@ const Page = () => {
                   className="flex flex-col lg:flex-row lg:items-start gap-4 border p-3 rounded-md"
                 >
                   <div className="flex-1">
-                    <Label value="Select Category" />
+                    <Label value="Select Category*" />
                     <Select
                       value={tax.category}
                       onChange={(e) => handleTaxChange(index, 'category', e.target.value)}
@@ -220,9 +275,10 @@ const Page = () => {
                     )}
                   </div>
                   <div className="flex-1">
-                    <Label value="Province Tax (%)" />
+                    <Label value="Province Tax (%)*" />
                     <TextInput
                       type="number"
+                      onWheel={preventScroll}
                       value={tax.provinceTax}
                       onChange={(e) => handleTaxChange(index, 'provinceTax', e.target.value)}
                     />
@@ -231,9 +287,10 @@ const Page = () => {
                     )}
                   </div>
                   <div className="flex-1">
-                    <Label value="Federal Tax (%)" />
+                    <Label value="Federal Tax (%)*" />
                     <TextInput
                       type="number"
+                      onWheel={preventScroll}
                       value={tax.federalTax}
                       onChange={(e) => handleTaxChange(index, 'federalTax', e.target.value)}
                     />
@@ -269,12 +326,16 @@ const Page = () => {
           </form>
         ) : (
           <div className="w-full">
-            {taxConfigs.length === 0 ? (
-              <p className="text-gray-500">No tax configurations found.</p>
+            {loading ? (
+              <Loading />
+            ) : taxConfigs.length === 0 ? (
+              <div className="bg-white rounded-md">
+                <NoDataFound />
+              </div>
             ) : (
               <ul className="bg-white shadow-md rounded-md divide-y">
-                {taxConfigs.map((config) => (
-                  <li key={config._id} className="flex flex-col p-4 gap-2">
+                {taxConfigs.map((config ,index) => (
+                  <li key={index} className="flex flex-col p-4 gap-2">
                     <div className="flex flex-col sm:flex-row justify-between gap-2">
                       <span className="text-gray-600 font-semibold">
                         {config.provinceName} ({config.provinceCode})
@@ -288,7 +349,7 @@ const Page = () => {
                         <MdDelete
                           className="text-red-600 cursor-pointer"
                           size={18}
-                          onClick={() => handleDelete(config.provinceCode)}
+                          onClick={() => handleOpenDelete(config.provinceCode)}
                         />
                       </div>
                     </div>
@@ -312,6 +373,12 @@ const Page = () => {
           </div>
         )}
       </div>
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={confirmDelete}
+        message={`Are you sure you want to delete this Tax?`}
+      />
     </div>
   );
 };

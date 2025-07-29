@@ -19,7 +19,7 @@ type MenuItem = {
 
 const getIconByName = (name: string): string => {
   const iconMap: { [key: string]: string } = {
-    Dashboard: 'solar:widget-add-line-duotone',
+    Dashboard: 'solar:home-2-linear',
     Product: 'solar:text-circle-outline',
     'Simple Product': 'solar:box-linear',
     'Variations Product': 'solar:layers-minimalistic-linear',
@@ -31,7 +31,7 @@ const getIconByName = (name: string): string => {
     Register: 'solar:shield-user-outline',
     Icons: 'solar:smile-circle-outline',
     'Sample Page': 'solar:notes-minimalistic-outline',
-    'Manage Quarry': 'solar:chat-round-line-duotone',
+    'Manage query': 'solar:chat-round-line-duotone',
   };
 
   return iconMap[name] || 'solar:question-circle-linear';
@@ -41,30 +41,10 @@ const SidebarContent: MenuItem[] = [
   {
     children: [
       {
-        name: 'Products',
-        icon: getIconByName('Simple Product'),
-        id: 'util-category',
+        name: 'Dashboard',
+        icon: getIconByName('Dashboard'),
+        id: 'util-dashboard',
         url: '/',
-      },
-      {
-        name: 'Create Product',
-        icon: getIconByName('Product'),
-        id: 'util-product',
-        url: '/product',
-        children: [
-          {
-            name: 'Simple Product',
-            id: 'product-view',
-            url: '/product',
-            icon: getIconByName('Simple Product'),
-          },
-          {
-            name: 'Variations Product',
-            id: 'product-add',
-            url: '/variations-product',
-            icon: getIconByName('Variations Product'),
-          },
-        ],
       },
       {
         name: 'Create Category',
@@ -73,10 +53,67 @@ const SidebarContent: MenuItem[] = [
         url: '/category',
       },
       {
-        name: 'Create Coupon',
-        icon: getIconByName('Coupon'),
-        id: 'util-coupon',
-        url: '/coupon',
+        name: 'Simple Product',
+        icon: getIconByName('Simple Product'),
+        id: 'util-product',
+        children: [
+          {
+            name: 'Create Simple Product',
+            id: 'product-create-simple',
+            url: '/create-product',
+            icon: getIconByName('Simple Product'),
+          },
+          {
+            name: 'View Simple Product',
+            id: 'product-view-simple',
+            url: '/simple-product',
+            icon: getIconByName('Simple Product'),
+          },
+        ],
+      },
+      {
+        name: 'Create Variation Product',
+        icon: getIconByName('Variations Product'),
+        id: 'util-product',
+        children: [
+          {
+            name: 'Create Variation Product',
+            id: 'product-create-variation',
+            url: '/create-variations-product',
+            icon: getIconByName('Variations Product'),
+          },
+          {
+            name: 'View Variation Product',
+            id: 'product-view-variation',
+            url: '/variations-product',
+            icon: getIconByName('Variations Product'),
+          },
+        ],
+      },
+      {
+        name: 'Manage Tiffin',
+        icon: getIconByName('Product'),
+        id: 'util-tiffin',
+        children: [
+          {
+            name: 'Create Tiffin',
+            id: 'tiffin-create',
+            url: '/create-tiffin',
+            icon: getIconByName('Product'),
+          },
+          {
+            name: 'View Tiffin',
+            id: 'tiffin-view',
+            url: '/tiffin',
+            icon: getIconByName('Product'),
+          },
+        ],
+      },
+      {
+        name: 'Daily Tiffin Orders',
+        icon: getIconByName('Orders'),
+        id: 'util-daily-tiffin',
+        url: '/daily-tiffin',
       },
       {
         name: 'Orders',
@@ -85,16 +122,22 @@ const SidebarContent: MenuItem[] = [
         url: '/orders',
       },
       {
+        name: 'Create Coupon',
+        icon: getIconByName('Coupon'),
+        id: 'util-coupon',
+        url: '/coupon',
+      },
+      {
         name: 'Manage Tax',
         icon: getIconByName('Tax'),
         id: 'util-tax',
         url: '/tax',
       },
       {
-        name: 'Manage Quarys',
-        icon: getIconByName('Manage Quarry'),
-        id: 'util-tax',
-        url: '/quarry',
+        name: 'Manage Query',
+        icon: getIconByName('Manage query'),
+        id: 'util-query',
+        url: '/query',
       },
     ],
   },

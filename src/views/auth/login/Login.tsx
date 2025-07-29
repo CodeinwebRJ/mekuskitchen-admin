@@ -1,5 +1,9 @@
 import FullLogo from 'src/layouts/full/shared/logo/FullLogo';
 import AuthLogin from '../authforms/AuthLogin';
+import { useSelector } from 'react-redux';
+import { RootState } from 'src/Store/Store';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 const gradientStyle = {
   background:
@@ -10,6 +14,15 @@ const gradientStyle = {
 };
 
 const Login = () => {
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated]);
+
   return (
     <div style={gradientStyle} className="relative overflow-hidden h-screen">
       <div className="flex h-full justify-center items-center px-4">

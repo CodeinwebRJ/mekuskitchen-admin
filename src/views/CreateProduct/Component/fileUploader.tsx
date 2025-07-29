@@ -1,5 +1,5 @@
 import { Button } from 'flowbite-react';
-import React, { useRef, ChangeEvent, DragEvent } from 'react';
+import { useRef, ChangeEvent, DragEvent } from 'react';
 
 export interface ImageItem {
   file?: File;
@@ -27,42 +27,74 @@ export interface Product {
 
 interface TableFileUploaderProps {
   images: ImageItem[];
-  setProduct: React.Dispatch<React.SetStateAction<Product>>;
+  setProduct: any;
+  setErrors: any;
 }
 
-export default function TableFileUploader({ images, setProduct }: TableFileUploaderProps) {
+export default function TableFileUploader({
+  images,
+  setProduct,
+  setErrors,
+}: TableFileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-      const newImages: ImageItem[] = selectedFiles.map((file) => ({ file }));
 
-      setProduct((prev) => ({
-        ...prev,
-        images: [...(prev.images || []), ...newImages],
-      }));
+      setProduct((prev: any) => {
+        const existingFiles = new Set(
+          (prev.images || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
+        );
+
+        const newImages: ImageItem[] = selectedFiles
+          .filter((file) => !existingFiles.has(file.name + file.size))
+          .map((file) => ({ file }));
+
+        return {
+          ...prev,
+          images: [...(prev.images || []), ...newImages],
+        };
+      });
+      e.target.value = '';
     }
   };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const droppedFiles = Array.from(e.dataTransfer.files);
-    const newImages: ImageItem[] = droppedFiles.map((file) => ({ file }));
 
-    setProduct((prev) => ({
-      ...prev,
-      images: [...(prev.images || []), ...newImages],
-    }));
+    setProduct((prev: any) => {
+      const existingFiles = new Set(
+        (prev.images || []).map((img: any) => (img.file?.name ?? '') + (img.file?.size ?? '')),
+      );
+
+      const newImages: ImageItem[] = droppedFiles
+        .filter((file) => !existingFiles.has(file.name + file.size))
+        .map((file) => ({ file }));
+
+      return {
+        ...prev,
+        images: [...(prev.images || []), ...newImages],
+      };
+    });
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
 
+  const clearImageErrors = () => {
+    setErrors((prev: any) => ({
+      ...prev,
+      images: undefined,
+    }));
+  };
+
   const removeImage = (index: number) => {
-    setProduct((prev) => {
-      const updatedImages = (prev.images || []).filter((_, idx) => idx !== index);
+    setProduct((prev: any) => {
+      const updatedImages = (prev.images || []).filter((_: any, idx: number) => idx !== index);
+      clearImageErrors();
       return {
         ...prev,
         images: updatedImages,
@@ -75,10 +107,10 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
   };
 
   return (
-    <div className="flex flex-col items-center w-full p-6 bg-white rounded-xl">
-      {images.length > 0 && (
-        <div className="mb-6 w-full grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {images.map((image, index) => (
+    <div className="flex flex-col items-center w-full p-4 sm:p-6 bg-white rounded-xl">
+      {images?.length > 0 && (
+        <div className="mb-6 w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+          {images?.map((image, index) => (
             <div
               key={index}
               className="relative group rounded-md overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
@@ -86,11 +118,11 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
               <img
                 src={image.file ? URL.createObjectURL(image.file) : image.url}
                 alt="preview"
-                className="w-full h-24 object-contain"
+                className="w-full h-24 sm:h-28 md:h-32 object-cover"
                 onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
               />
               {index === 0 && (
-                <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-1 rounded-full z-10">
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-[10px] sm:text-xs px-1 rounded-full z-10">
                   Primary
                 </span>
               )}
@@ -126,15 +158,15 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
       )}
 
       <div
-        className="w-full h-52 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300 cursor-pointer"
+        className="w-full h-44 sm:h-52 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300 cursor-pointer text-center px-4"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={handleContainerClick}
       >
         {images.length === 0 ? (
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col items-center justify-center text-center space-y-1">
             <svg
-              className="w-10 h-10 text-gray-400"
+              className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -147,13 +179,13 @@ export default function TableFileUploader({ images, setProduct }: TableFileUploa
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
               />
             </svg>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               Drag & Drop or <span className="text-blue-600 hover:underline">Click to Upload</span>
             </p>
-            <p className="mt-1 text-xs text-gray-400">Supports images (PNG, JPG, etc.)</p>
+            <p className="text-xs text-gray-400">Supports PNG, JPG, JPEG, etc.</p>
           </div>
         ) : (
-          <p className="text-sm text-gray-600">Drop more images or click to add</p>
+          <p className="text-sm sm:text-base text-gray-600">Drop more images or click to add</p>
         )}
       </div>
 

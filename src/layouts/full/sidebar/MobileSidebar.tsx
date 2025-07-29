@@ -1,10 +1,9 @@
-
-import { Sidebar } from "flowbite-react";
-import SidebarContent from "./Sidebaritems";
-import NavItems from "./NavItems";
-import SimpleBar from "simplebar-react";
-import React from "react";
-import FullLogo from "../shared/logo/FullLogo";
+import { Sidebar } from 'flowbite-react';
+import SidebarContent from './Sidebaritems';
+import NavItems from './NavItems';
+import SimpleBar from 'simplebar-react';
+import React from 'react';
+import FullLogo from '../shared/logo/FullLogo';
 import 'simplebar-react/dist/simplebar.min.css';
 
 const MobileSidebar = () => {
@@ -23,14 +22,14 @@ const MobileSidebar = () => {
               <Sidebar.ItemGroup className="sidebar-nav hide-menu">
                 {SidebarContent &&
                   SidebarContent?.map((item, index) => (
-                    <div className="caption" key={item.heading}>
+                    <div className="caption" key={index}>
                       <React.Fragment key={index}>
                         <h5 className="text-link dark:text-white/70 caption font-semibold leading-6 tracking-widest text-xs pb-2 uppercase">
                           {item.heading}
                         </h5>
                         {item.children?.map((child, index) => (
-                          <React.Fragment key={child.id && index}>
-                              <NavItems item={child} />
+                          <React.Fragment key={index}>
+                            <NavItems item={child} />
                           </React.Fragment>
                         ))}
                       </React.Fragment>

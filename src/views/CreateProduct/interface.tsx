@@ -49,6 +49,8 @@ export interface ProductSchema {
   category: string;
   SKUName: string;
   subCategory: string;
+  manageInventory: boolean;
+  isTaxFree: boolean;
   subsubCategory: string;
   brand: string;
   weight: string;
@@ -62,12 +64,16 @@ export interface ProductSchema {
   tags: string[];
   specifications: Record<string, any>;
   features: string[];
+  aboutItem: string[];
   skuFields: VariantField[];
   combinationFields: CombinationField[];
   sku?: any;
 }
 
 export interface BasicInfoProps {
+  apiError?: string;
   product: any;
   setProduct: any;
+  errors?: any;
+  setErrors?: any;
 }

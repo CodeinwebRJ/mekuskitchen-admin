@@ -5,13 +5,18 @@ import Category from 'src/views/Category/page';
 import Coupon from 'src/views/Coupon/page';
 import Tax from 'src/views/Tax/page';
 import Orders from 'src/views/Orders/page';
-import Tiffin from 'src/views/Tiffin/Tiffin';
 import SimpleProduct from 'src/views/CreateProduct/SimpleProduct/SimpleProduct';
 import VariationsProduct from 'src/views/CreateProduct/VariationProduct/VariationsProduct';
 import ProtectedRoute from 'src/components/ProtectedRoute/ProtectedRoute';
 import ForgotPassword from 'src/views/auth/authforms/ForgotPassword';
 import Contact from 'src/views/Contact/page';
 import Productdata from 'src/views/ProductData/page';
+import ShowVariantProduct from 'src/views/ProductData/ShowVariantProduct';
+import CreateTiffin from 'src/views/CreateTiffin/page';
+import TiffinCompo from 'src/views/Tiffin/TiffinCompo';
+import Profile from 'src/views/Profile/page';
+import DailyTiffin from 'src/views/DailyTiffin/page';
+import Dashboard from 'src/views/Dashboard/page';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -24,7 +29,7 @@ const Router = [
     element: <FullLayout />,
     children: [
       {
-        path: '/',
+        path: '/simple-product',
         exact: true,
         element: (
           <ProtectedRoute>
@@ -33,16 +38,23 @@ const Router = [
         ),
       },
       {
-        path: '/product',
+        path: '/',
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/create-product',
         element: (
           <ProtectedRoute>
             <SimpleProduct />
           </ProtectedRoute>
         ),
       },
-
       {
-        path: '/variations-product',
+        path: '/create-variations-product',
         element: (
           <ProtectedRoute>
             <VariationsProduct />
@@ -50,15 +62,39 @@ const Router = [
         ),
       },
       {
-        path: '/tiffin',
+        path: '/variations-product',
         element: (
           <ProtectedRoute>
-            <Tiffin />
+            <ShowVariantProduct />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/quarry',
+        path: '/tiffin',
+        element: (
+          <ProtectedRoute>
+            <TiffinCompo />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/daily-tiffin',
+        element: (
+          <ProtectedRoute>
+            <DailyTiffin />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/create-tiffin',
+        element: (
+          <ProtectedRoute>
+            <CreateTiffin />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/query',
         element: (
           <ProtectedRoute>
             <Contact />
@@ -78,6 +114,14 @@ const Router = [
         element: (
           <ProtectedRoute>
             <Coupon />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/profile',
+        element: (
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         ),
       },

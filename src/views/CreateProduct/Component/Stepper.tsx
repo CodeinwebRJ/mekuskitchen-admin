@@ -9,7 +9,7 @@ const Stepper: React.FC<StepperProps> = ({ currentStep, steps }) => {
   return (
     <div className="flex items-center justify-between">
       {steps.map((step, index) => (
-        <div key={step} className="flex items-center flex-1">
+        <div key={index} className="flex items-center flex-1">
           <div
             className={`relative flex items-center justify-center w-8 h-8 rounded-full border-2
               ${

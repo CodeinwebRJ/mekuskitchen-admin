@@ -1,12 +1,17 @@
 import { Label, TextInput, ToggleSwitch } from 'flowbite-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Pagination from 'src/components/Pagination/Pagination';
-import { setIsActive, setPage, setSearch } from 'src/Store/Slices/FilterData';
+import { setIsActive, setPage, setSearch, setVariation } from 'src/Store/Slices/FilterData';
 import { MdModeEdit } from 'react-icons/md';
 import { MdDelete } from 'react-icons/md';
-import { EditProduct } from 'src/AxiosConfig/AxiosConfig';
-import { updateProductStatus } from 'src/Store/Slices/ProductData';
+import { DeleteProduct, EditProduct, getAllProduct } from 'src/AxiosConfig/AxiosConfig';
+import { setProducts, updateProductStatus } from 'src/Store/Slices/ProductData';
+import Loading from 'src/components/Loading';
+import NoDataFound from 'src/components/NoDataFound';
+import { useNavigate } from 'react-router';
+import DeleteDialog from 'src/components/DeleteDialog';
+import { Toast } from 'src/components/Toast';
 
 interface RootState {
   product: any;
@@ -16,7 +21,26 @@ interface RootState {
 const Page = () => {
   const { products, loading } = useSelector((state: RootState) => state.product);
   const { search, isActive } = useSelector((state: RootState) => state.filterData);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const filterData = useSelector((state: RootState) => state.filterData);
+
+  const fetchProducts = async () => {
+    try {
+      const data = {
+        page: filterData.page,
+        limit: '10',
+        variation: filterData.variation,
+      };
+      const res = await getAllProduct(data);
+      dispatch(setProducts(res?.data?.data));
+    } catch (error: any) {
+      console.error('Error fetching products:', error);
+    } finally {
+    }
+  };
 
   const handlePageChange = useCallback(
     (pageNumber: number) => {
@@ -46,10 +70,52 @@ const Page = () => {
     [dispatch],
   );
 
+  const handleOpenDelete = (productId: string) => {
+    setSelectedProductId(productId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedProductId(null);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedProductId) return;
+    try {
+      await DeleteProduct(selectedProductId);
+      setIsDeleteDialogOpen(false);
+      setSelectedProductId(null);
+      fetchProducts();
+      Toast({ message: 'Product deleted successfully', type: 'success' });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
+  const fetchdata = () => {
+    try {
+      if (location.pathname === '/') {
+        dispatch(setVariation('product'));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(setIsActive(true));
+    dispatch(setVariation('product'));
+  }, []);
+
+  useEffect(() => {
+    fetchdata();
+  }, [location.pathname]);
+
   return (
     <div className="max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-blue-700">Products</h1>
-      <form className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
+      <h1 className="text-2xl font-bold mb-3 text-primary">Products</h1>
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-3">
         <div className="w-full lg:w-1/3">
           <TextInput
             value={search}
@@ -60,92 +126,109 @@ const Page = () => {
         </div>
         <div className="px-4">
           <div className="flex gap-2">
-            <Label>Active</Label>
+            <Label>{isActive ? 'Active' : 'Inactive'}</Label>
             <ToggleSwitch onChange={() => dispatch(setIsActive(!isActive))} checked={isActive} />
           </div>
         </div>
-      </form>
+      </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center py-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-700"></div>
-          <span className="ml-4 text-gray-700">Loading products...</span>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full rounded-md text-sm text-left text-gray-800 border border-gray-200">
-            <thead className="text-xs uppercase bg-white text-blue-800">
+      <div className="overflow-x-auto">
+        <table className="min-w-full rounded-md text-sm text-left text-gray-800 border border-gray-200">
+          <thead className="text-xs uppercase bg-white text-blue-800">
+            <tr>
+              <th className="px-4 py-3">Index</th>
+              <th className="px-4 py-3">Image</th>
+              <th className="px-4 py-3">Name</th>
+              <th className="px-4 py-3">Price</th>
+              <th className="px-4 py-3">Stock</th>
+              <th className="px-4 py-3">Categories</th>
+              <th className="px-4 py-3">Brand</th>
+              <th className="px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white">
+            {loading ? (
               <tr>
-                <th className="px-4 py-3">Index</th>
-                <th className="px-4 py-3">Image</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Price</th>
-                <th className="px-4 py-3">Stock</th>
-                <th className="px-4 py-3">Categories</th>
-                <th className="px-4 py-3">Brand</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <td colSpan={8} className="text-center py-6">
+                  <Loading />
+                </td>
               </tr>
-            </thead>
-            <tbody className="bg-white">
-              {products?.data?.length > 0 &&
-                products?.data?.map((product: any, index: number) => (
-                  <tr key={product?._id} className="hover:bg-gray-50 transition">
-                    <td className="px-4 py-3">{index + 1}</td>
-                    <td className="px-4 py-3">
-                      <img
-                        src={product?.images?.[0]?.url || '/default-product.jpg'}
-                        alt={product?.name}
-                        className="w-14 h-14 object-cover rounded"
+            ) : (
+              products?.data?.length > 0 &&
+              products?.data?.map((product: any, index: number) => (
+                <tr key={product?._id} className="hover:bg-gray-50 transition">
+                  <td className="px-4 py-3">{(products?.page - 1) * 10 + index + 1}</td>
+                  <td className="px-4 py-3">
+                    <img
+                      src={product?.images?.[0]?.url || '/default-product.jpg'}
+                      alt={product?.name}
+                      className="w-14 h-14 object-cover rounded"
+                    />
+                  </td>
+                  <td className="px-4 py-3">{product?.name?.toUpperCase()}</td>
+                  <td className="px-4 py-3">
+                    $ {product?.price?.toFixed(2)} {product.currency}{' '}
+                  </td>
+                  <td className="px-4 py-3">{product?.stock}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col text-sm gap-1">
+                      {product?.category && <span>Category: {product?.category}</span>}
+                      {product?.subCategory && <span>SubCategory: {product?.subCategory}</span>}
+                      {product?.ProductCategory && (
+                        <span>ProductCategory: {product?.ProductCategory}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">{product.brand || '-'}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-4 items-center justify-end">
+                      <MdModeEdit
+                        className="text-black cursor-pointer"
+                        size={20}
+                        onClick={() => navigate('/create-product', { state: { id: product._id } })}
                       />
-                    </td>
-                    <td className="px-4 py-3">{product?.name?.toUpperCase()}</td>
-                    <td className="px-4 py-3">₹{product?.price?.toFixed(2)}</td>
-                    <td className="px-4 py-3">{product?.stock}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col text-sm gap-1">
-                        {product?.category && <span>Category: {product?.category}</span>}
-                        {product?.subCategory && <span>SubCategory: {product?.subCategory}</span>}
-                        {product?.ProductCategory && (
-                          <span>ProductCategory: {product?.ProductCategory}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">{product.brand || '-'}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-4 items-center justify-end">
-                        <MdModeEdit className="text-black cursor-pointer" size={20} />
-                        <MdDelete className="text-red-600 cursor-pointer" size={20} />
-                        <ToggleSwitch
-                          onChange={() => handleToggle(product._id, product.isActive)}
-                          checked={product.isActive || false}
-                          className="focus:ring-0"
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-
-              {products === null && (
-                <tr>
-                  <td colSpan={8} className="text-center py-4">
-                    No products found
+                      <MdDelete
+                        className="text-red-600 cursor-pointer"
+                        size={20}
+                        onClick={() => handleOpenDelete(product._id)}
+                      />
+                      <ToggleSwitch
+                        onChange={() => handleToggle(product._id, product.isActive)}
+                        checked={product.isActive || false}
+                        className="focus:ring-0"
+                      />
+                    </div>
                   </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              ))
+            )}
 
-          {products?.pages > 1 && (
-            <div className="mt-6">
-              <Pagination
-                currentPage={products?.page || 1}
-                totalPages={products.pages || 1}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          )}
+            {products === null ||
+              (products?.data?.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="text-center py-4">
+                    <NoDataFound />
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+      {products?.pages > 1 && (
+        <div className="mt-6">
+          <Pagination
+            currentPage={products?.page || 1}
+            totalPages={products.pages || 1}
+            onPageChange={handlePageChange}
+          />
         </div>
       )}
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={handleDelete}
+        message="Are you sure you want to delete this product?"
+      />
     </div>
   );
 };

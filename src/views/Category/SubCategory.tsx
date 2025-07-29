@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, FormEvent } from 'react';
 import { Button, TextInput, ToggleSwitch, Select } from 'flowbite-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCategoryList } from 'src/Store/Slices/Categories';
+import { setCategoryList, setSearchSubCategory } from 'src/Store/Slices/Categories';
 import { RootState } from 'src/Store/Store';
 import {
   CreateSubCategory,
@@ -9,6 +9,10 @@ import {
   DeleteSubCategory,
 } from 'src/AxiosConfig/AxiosConfig';
 import { MdDelete, MdModeEdit } from 'react-icons/md';
+import NoDataFound from 'src/components/NoDataFound';
+import DeleteDialog from 'src/components/DeleteDialog';
+import Loading from 'src/components/Loading';
+import { Toast } from 'src/components/Toast';
 
 interface SubSubCategoryType {
   _id: string;
@@ -23,39 +27,33 @@ interface SubCategoryType {
   isActive: boolean;
 }
 
-// Define constants
-const ERROR_MESSAGES = {
-  CREATE: 'Failed to create subcategory. Please try again.',
-  UPDATE: 'Failed to update subcategory. Please try again.',
-  DELETE: 'Failed to delete subcategory. Please try again.',
-  DUPLICATE: 'Subcategory name already exists in this category.',
-  INVALID: 'Subcategory name must be at least 3 characters long.',
-  NO_CATEGORY: 'Please select a category.',
-};
-
 const SubCategory = () => {
   const dispatch = useDispatch();
-  const categoryList = useSelector((state: RootState) => state.category.categoryList);
+  const { categoryList, loading, subCategorySearch } = useSelector(
+    (state: RootState) => state.category,
+  );
   const [selectedCategory, setSelectedCategory] = useState('');
   const [subCategoryName, setSubCategoryName] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editSubCategoryId, setEditSubCategoryId] = useState<string | null>(null);
   const [editSubCategoryName, setEditSubCategoryName] = useState('');
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ create?: string; edit?: string; delete?: string }>({});
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategoryType | null>(null);
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }));
   };
 
-  const validateSubCategoryName = (name: string, categoryId: string): string | null => {
-    if (name.trim().length < 3) return ERROR_MESSAGES.INVALID;
+  const validateSubCategory = (name: string, categoryId: string): string | null => {
+    if (!categoryId) return 'Please select a category.';
+    if (!name || name.trim().length < 3) return 'This field can not be empty.';
     const category = categoryList.find((cat) => cat._id === categoryId);
-    if (
-      category?.subCategories.some((sub) => sub.name.toLowerCase() === name.trim().toLowerCase())
-    ) {
-      return ERROR_MESSAGES.DUPLICATE;
-    }
+    const duplicate = category?.subCategories.some(
+      (sub) => sub.name.toLowerCase() === name.trim().toLowerCase(),
+    );
+    if (duplicate) return 'Subcategory name already exists in this category.';
     return null;
   };
 
@@ -63,23 +61,19 @@ const SubCategory = () => {
     async (e: FormEvent) => {
       e.preventDefault();
       const trimmedName = subCategoryName.trim();
-      if (!selectedCategory) {
-        setError(ERROR_MESSAGES.NO_CATEGORY);
-        return;
-      }
-      const validationError = validateSubCategoryName(trimmedName, selectedCategory);
+
+      const validationError = validateSubCategory(trimmedName, selectedCategory);
       if (validationError) {
-        setError(validationError);
+        setError((prev) => ({ ...prev, create: validationError }));
         return;
       }
 
       setLoading('create', true);
-      setError(null);
+      setError({});
+
       try {
         const data = { name: trimmedName, categoryId: selectedCategory };
         const res = await CreateSubCategory(data);
-        if (!res.data?.data) throw new Error('Invalid response format');
-
         dispatch(
           setCategoryList(
             categoryList.map((cat) =>
@@ -89,11 +83,16 @@ const SubCategory = () => {
             ),
           ),
         );
+
         setSubCategoryName('');
         setShowForm(false);
+        Toast({ message: 'SubCategory created successfully!', type: 'success' });
       } catch (error: any) {
         console.error('Failed to create subcategory:', error);
-        setError(error.response?.status === 409 ? ERROR_MESSAGES.DUPLICATE : ERROR_MESSAGES.CREATE);
+        setError((prev) => ({
+          ...prev,
+          create: 'Failed to create subcategory. Please try again.',
+        }));
       } finally {
         setLoading('create', false);
       }
@@ -104,7 +103,6 @@ const SubCategory = () => {
   const handleToggle = useCallback(
     async (catId: string, subCategory: SubCategoryType) => {
       setLoading(`toggle-${subCategory._id}`, true);
-      setError(null);
       try {
         const data = {
           categoryId: catId,
@@ -112,8 +110,6 @@ const SubCategory = () => {
           isActive: !subCategory.isActive,
         };
         const res = await UpdateSubCategory(data);
-        if (!res.data?.data) throw new Error('Invalid response format');
-
         dispatch(
           setCategoryList(
             categoryList.map((cat) =>
@@ -132,7 +128,10 @@ const SubCategory = () => {
         );
       } catch (error: any) {
         console.error('Failed to toggle subcategory:', error);
-        setError(ERROR_MESSAGES.UPDATE);
+        setError((prev) => ({
+          ...prev,
+          edit: 'Failed to toggle subcategory. Please try again.',
+        }));
       } finally {
         setLoading(`toggle-${subCategory._id}`, false);
       }
@@ -143,7 +142,6 @@ const SubCategory = () => {
   const handleEditStart = useCallback((subCatId: string, name: string) => {
     setEditSubCategoryId(subCatId);
     setEditSubCategoryName(name);
-    setError(null);
   }, []);
 
   const handleEditSubmit = useCallback(
@@ -154,15 +152,16 @@ const SubCategory = () => {
         setEditSubCategoryId(null);
         return;
       }
+      setError((prev) => ({ ...prev, edit: undefined }));
 
-      const validationError = validateSubCategoryName(trimmedName, catId);
+      const validationError = validateSubCategory(trimmedName, catId);
       if (validationError) {
-        setError(validationError);
+        setError((prev) => ({ ...prev, edit: validationError }));
         return;
       }
 
       setLoading(`edit-${subCategory._id}`, true);
-      setError(null);
+
       try {
         const data = {
           categoryId: catId,
@@ -170,8 +169,6 @@ const SubCategory = () => {
           name: trimmedName,
         };
         const res = await UpdateSubCategory(data);
-        if (!res.data?.data) throw new Error('Invalid response format');
-
         dispatch(
           setCategoryList(
             categoryList.map((cat) =>
@@ -180,7 +177,11 @@ const SubCategory = () => {
                     ...cat,
                     subCategories: cat.subCategories.map((sub) =>
                       sub._id === subCategory._id
-                        ? { ...sub, name: res.data.data.name, isActive: res.data.data.isActive }
+                        ? {
+                            ...sub,
+                            name: res.data.data.name,
+                            isActive: res.data.data.isActive,
+                          }
                         : sub,
                     ),
                   }
@@ -188,11 +189,16 @@ const SubCategory = () => {
             ),
           ),
         );
+
         setEditSubCategoryId(null);
         setEditSubCategoryName('');
+        Toast({ message: 'SubCategory updated successfully!', type: 'success' });
       } catch (error: any) {
         console.error('Failed to update subcategory:', error);
-        setError(error.response?.status === 409 ? ERROR_MESSAGES.DUPLICATE : ERROR_MESSAGES.UPDATE);
+        setError((prev) => ({
+          ...prev,
+          edit: 'Failed to update subcategory. Please try again.',
+        }));
       } finally {
         setLoading(`edit-${subCategory._id}`, false);
       }
@@ -203,36 +209,55 @@ const SubCategory = () => {
   const handleEditCancel = useCallback(() => {
     setEditSubCategoryId(null);
     setEditSubCategoryName('');
-    setError(null);
   }, []);
 
-  const handleDelete = useCallback(
-    async (catId: string, subCategory: SubCategoryType) => {
-      setLoading(`delete-${subCategory._id}`, true);
-      setError(null);
-      try {
-        await DeleteSubCategory({ categoryId: catId, subCategoryId: subCategory._id });
-        dispatch(
-          setCategoryList(
-            categoryList.map((cat) =>
-              cat._id === catId
-                ? {
-                    ...cat,
-                    subCategories: cat.subCategories.filter((sub) => sub._id !== subCategory._id),
-                  }
-                : cat,
-            ),
+  const handleOpenDelete = useCallback((subCategory: SubCategoryType) => {
+    setSelectedSubCategory(subCategory);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  const handleCancelDelete = useCallback(() => {
+    setIsDeleteDialogOpen(false);
+    setSelectedSubCategory(null);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (!selectedSubCategory || !selectedCategory) return;
+
+    setLoading(`delete-${selectedSubCategory._id}`, true);
+    try {
+      await DeleteSubCategory({
+        categoryId: selectedCategory,
+        subCategoryId: selectedSubCategory._id,
+      });
+      dispatch(
+        setCategoryList(
+          categoryList.map((cat) =>
+            cat._id === selectedCategory
+              ? {
+                  ...cat,
+                  subCategories: cat.subCategories.filter(
+                    (sub) => sub._id !== selectedSubCategory._id,
+                  ),
+                }
+              : cat,
           ),
-        );
-      } catch (error: any) {
-        console.error('Failed to delete subcategory:', error);
-        setError(ERROR_MESSAGES.DELETE);
-      } finally {
-        setLoading(`delete-${subCategory._id}`, false);
-      }
-    },
-    [categoryList, dispatch],
-  );
+        ),
+      );
+      setIsDeleteDialogOpen(false);
+      setSelectedSubCategory(null);
+      Toast({ message: 'SubCategory deleted successfully', type: 'success' });
+
+    } catch (error: any) {
+      console.error('Failed to delete subcategory:', error);
+      setError((prev) => ({
+        ...prev,
+        delete: 'Failed to delete subcategory. Please try again.',
+      }));
+    } finally {
+      setLoading(`delete-${selectedSubCategory._id}`, false);
+    }
+  }, [selectedSubCategory, selectedCategory, categoryList, dispatch]);
 
   const filteredSubCategories = useMemo(
     () => categoryList.find((cat) => cat._id === selectedCategory)?.subCategories || [],
@@ -241,23 +266,30 @@ const SubCategory = () => {
 
   const subCategoryListRender = useMemo(
     () =>
-      filteredSubCategories.map((sub: SubCategoryType) => (
-        <li key={sub._id} className="flex justify-between items-center p-4">
+      filteredSubCategories.map((sub: SubCategoryType ,index) => (
+        <li key={index} className="flex justify-between items-center p-4">
           {editSubCategoryId === sub._id ? (
             <form
               onSubmit={(e) => handleEditSubmit(e, selectedCategory, sub)}
               className="flex items-center gap-2 w-full"
             >
-              <TextInput
-                value={editSubCategoryName}
-                onChange={(e) => setEditSubCategoryName(e.target.value)}
-                placeholder="Edit subcategory name"
-                required
-                className="flex-1"
-                disabled={loadingStates[`edit-${sub._id}`]}
-                aria-label={`Edit name for ${sub.name}`}
-              />
-              <Button color="blue" type="submit" size="sm">
+              <div className="flex-1">
+                <TextInput
+                  value={editSubCategoryName}
+                  onChange={(e) => {
+                    if (error.edit) {
+                      setError((prev) => ({ ...prev, edit: '' }));
+                    }
+                    setEditSubCategoryName(e.target.value);
+                  }}
+                  placeholder="Edit subcategory name"
+                  className="flex-1"
+                  disabled={loadingStates[`edit-${sub._id}`]}
+                  aria-label={`Edit name for ${sub.name}`}
+                />
+                {error.edit && <p className="text-red-500">{error.edit}</p>}
+              </div>
+              <Button color="primary" type="submit" size="sm">
                 {loadingStates[`edit-${sub._id}`] ? 'Saving...' : 'Save'}
               </Button>
               <Button
@@ -275,14 +307,14 @@ const SubCategory = () => {
               <div className="flex items-center gap-4">
                 <div
                   onClick={() => handleEditStart(sub._id, sub.name)}
-                  color="blue"
+                  color="primary"
                   aria-label={`Edit ${sub.name}`}
                 >
                   <MdModeEdit className="text-black cursor-pointer" size={18} />
                 </div>
                 <div
-                  onClick={() => handleDelete(selectedCategory, sub)}
-                  color="blue"
+                  onClick={() => handleOpenDelete(sub)}
+                  color="primary"
                   aria-label={`Delete ${sub.name}`}
                 >
                   <MdDelete className="text-red-600 cursor-pointer" size={18} />
@@ -304,10 +336,11 @@ const SubCategory = () => {
       selectedCategory,
       handleToggle,
       handleEditStart,
-      handleDelete,
+      confirmDelete,
       handleEditSubmit,
       handleEditCancel,
       loadingStates,
+      error.edit,
     ],
   );
 
@@ -327,43 +360,56 @@ const SubCategory = () => {
               {showForm ? 'Cancel' : 'Create New SubCategory'}
             </Button>
           </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>
-          )}
-
-          <div className="mb-4">
-            <Select
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              value={selectedCategory}
-              className="w-full sm:w-1/2"
-              disabled={loadingStates.create || categoryList.length === 0}
-              aria-label="Select category"
-            >
-              <option value="">Select Category</option>
-              {categoryList.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
-                </option>
-              ))}
-            </Select>
-          </div>
         </div>
 
-        {showForm && (
+        <div className="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <TextInput
+            placeholder="Search"
+            className="w-full sm:w-1/3"
+            value={subCategorySearch}
+            onChange={(e) => dispatch(setSearchSubCategory(e.target.value))}
+          />
+          <Select
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            value={selectedCategory}
+            className="w-full sm:w-1/3"
+            disabled={loadingStates.create || categoryList.length === 0}
+            aria-label="Select category"
+          >
+            <option value="">Select Category</option>
+            {categoryList.map((cat ,index) => (
+              <option key={index} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        {error.delete && <p className="text-red-500">{error.delete}</p>}
+
+        {loading ? (
+          <Loading />
+        ) : showForm ? (
           <form
             onSubmit={handleAddSubCategory}
-            className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6"
+            className="w-full sm:w-2/3 md:w-1/2 flex flex-col gap-4 bg-white shadow-md rounded-lg p-4 sm:p-6 mb-4"
           >
             <h3 className="text-base sm:text-lg font-semibold text-gray-600">Create SubCategory</h3>
-            <TextInput
-              value={subCategoryName}
-              onChange={(e) => setSubCategoryName(e.target.value)}
-              placeholder="Enter subcategory name"
-              required
-              disabled={loadingStates.create}
-              aria-label="Subcategory name"
-            />
+            <div>
+              <TextInput
+                value={subCategoryName}
+                onChange={(e) => {
+                  if (error.create) {
+                    setError((prev) => ({ ...prev, create: '' }));
+                  }
+                  setSubCategoryName(e.target.value);
+                }}
+                placeholder="Enter subcategory name"
+                disabled={loadingStates.create}
+                aria-label="Subcategory name"
+              />
+              {error.create && <p className="text-red-500">{error.create}</p>}
+            </div>
             <Button
               color="primary"
               type="submit"
@@ -374,16 +420,22 @@ const SubCategory = () => {
               {loadingStates.create ? 'Creating...' : 'Create SubCategory'}
             </Button>
           </form>
-        )}
-
-        {selectedCategory && filteredSubCategories.length === 0 && (
-          <p className="text-gray-500 mt-4">No subcategories available.</p>
-        )}
-
-        {selectedCategory && filteredSubCategories.length > 0 && (
-          <ul className="bg-white shadow-md rounded-md divide-y mt-4">{subCategoryListRender}</ul>
-        )}
+        ) : selectedCategory ? (
+          filteredSubCategories.length > 0 ? (
+            <ul className="bg-white shadow-md rounded-md divide-y mt-4">{subCategoryListRender}</ul>
+          ) : (
+            <div className="bg-white rounded-md">
+              <NoDataFound />
+            </div>
+          )
+        ) : null}
       </div>
+      <DeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onCancel={handleCancelDelete}
+        onDelete={confirmDelete}
+        message={`Are you sure you want to delete this Subcategory?`}
+      />
     </div>
   );
 };

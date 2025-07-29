@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Button, Checkbox, Label, TextInput } from 'flowbite-react';
+import { useState } from 'react';
+import { Button, Checkbox, Label, Spinner, TextInput } from 'flowbite-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Login } from 'src/AxiosConfig/AxiosConfig';
 import { login } from 'src/Store/Slices/AdminUser';
@@ -12,35 +12,38 @@ const AuthLogin = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState<{ uniqueId?: string; password?: string }>({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const storedId = localStorage.getItem('remembered_uniqueId');
-    const storedPwd = localStorage.getItem('remembered_password');
-
-    if (storedId && storedPwd) {
-      setUniqueId(storedId);
-      setPassword(storedPwd);
-      setRememberMe(true);
-    }
-  }, []);
+  const validateForm = () => {
+    const errors: { uniqueId?: string; password?: string } = {};
+    if (!uniqueId.trim()) errors.uniqueId = 'Unique ID is required';
+    if (!password.trim()) errors.password = 'Password is required';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMsg('');
-
+    if (!validateForm()) return;
     try {
-      const response = await Login({ uniqueId, password });
+      setIsLoading(true);
+      const trimmedUniqueId = uniqueId.trim();
+      const trimmedPassword = password.trim();
+      const response = await Login({ uniqueId: trimmedUniqueId, password: trimmedPassword });
       const { token, admin } = response.data.data;
       dispatch(login(response.data.data));
-      if (rememberMe) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('admin', JSON.stringify(admin));
-      }
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('admin', JSON.stringify(admin));
+
       navigate('/');
     } catch (error: any) {
-      setErrorMsg(error.response?.data?.errorData || 'Login failed');
+      setErrorMsg('Incorrect userId or password. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,11 +57,18 @@ const AuthLogin = () => {
           id="uniqueId"
           type="text"
           sizing="md"
-          required
           value={uniqueId}
-          onChange={(e) => setUniqueId(e.target.value)}
+          onChange={(e) => {
+            setUniqueId(e.target.value);
+            if (formErrors.uniqueId) {
+              setFormErrors((prev) => ({ ...prev, uniqueId: undefined }));
+            }
+          }}
         />
+
+        {formErrors.uniqueId && <p className="text-red-600">{formErrors.uniqueId}</p>}
       </div>
+
       <div className="mb-4">
         <div className="mb-2 block">
           <Label value="Password" />
@@ -68,9 +78,13 @@ const AuthLogin = () => {
             id="userpwd"
             type={showPassword ? 'text' : 'password'}
             sizing="md"
-            required
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (formErrors.password) {
+                setFormErrors((prev) => ({ ...prev, password: undefined }));
+              }
+            }}
           />
           <button
             type="button"
@@ -78,20 +92,22 @@ const AuthLogin = () => {
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <HiEyeOff className="h-5 w-5 text-gray-500" />
-            ) : (
               <HiEye className="h-5 w-5 text-gray-500" />
+            ) : (
+              <HiEyeOff className="h-5 w-5 text-gray-500" />
             )}
           </button>
         </div>
+        {formErrors.password && <p className="text-red-600">{formErrors.password}</p>}
       </div>
+
       <div className="flex justify-between my-5">
         <div className="flex items-center gap-2">
           <Checkbox
             id="accept"
             checked={rememberMe}
+            className="border-gray-500"
             onChange={(e) => setRememberMe(e.target.checked)}
-            className="checkbox"
           />
           <Label htmlFor="accept" className="opacity-90 font-normal cursor-pointer">
             Remember Me
@@ -101,9 +117,15 @@ const AuthLogin = () => {
           Forgot Password?
         </Link>
       </div>
-      {errorMsg && <p className="text-red-600 text-sm mb-3">{errorMsg}</p>}
-      <Button type="submit" className="w-full bg-primary text-white rounded-xl">
-        Sign in
+      {errorMsg && <p className="text-red-600 mb-5">{errorMsg}</p>}
+
+      <Button
+        type="submit"
+        className="w-full bg-primary text-white rounded-xl flex justify-center items-center gap-2"
+        disabled={isLoading}
+      >
+        {isLoading && <Spinner size="sm" light />}
+        {isLoading ? 'Signing...' : 'Sign in'}
       </Button>
     </form>
   );
