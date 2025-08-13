@@ -122,7 +122,7 @@ const CreateTiffin = () => {
       if (!formData.day.trim()) newErrors.day = 'Day is required';
       if (!formData.date.trim()) newErrors.date = 'Date is required';
       if (!formData.endDate.trim()) newErrors.endDate = 'Booking Date is required';
-      if (!formData.description.trim()) newErrors.description = 'Description is required';
+      // if (!formData.description.trim()) newErrors.description = 'Description is required';
       if (formData.image_url.length === 0) newErrors.image_url = 'Tiffin Image is required';
     }
 
@@ -135,7 +135,7 @@ const CreateTiffin = () => {
         if (!item.quantity) itemErrors.quantity = 'Quantity is required';
         if (!item.weight.trim()) itemErrors.weight = 'Weight is required';
         if (!item.weightUnit.trim()) itemErrors.weightUnit = 'Weight unit is required';
-        if (!item.description.trim()) itemErrors.description = 'Description is required';
+        // if (!item.description.trim()) itemErrors.description = 'Description is required';
         itemErrorsArray[index] = itemErrors;
       });
 

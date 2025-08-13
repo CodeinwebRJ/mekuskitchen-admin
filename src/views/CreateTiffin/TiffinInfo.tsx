@@ -128,9 +128,9 @@ const TiffinInfo: React.FC<Props> = ({ errors, setErrors, formData, setFormData 
               placeholder="Describe the tiffin items, options, or special notes..."
               rows={4}
             />
-            {errors.description && (
+            {/* {errors.description && (
               <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-            )}
+            )} */}
           </div>
         </div>
       </div>
