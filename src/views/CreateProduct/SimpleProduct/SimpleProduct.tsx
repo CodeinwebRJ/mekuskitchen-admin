@@ -229,10 +229,10 @@ const SimpleProduct = () => {
     }
     if (!product.SKUName || product.SKUName.trim() === '')
       newErrors.SKUName = 'SKU Name is required';
-    if (!product.shortDescription || product.shortDescription.trim() === '')
-      newErrors.shortDescription = 'Short description is required';
-    if (!product.description || product.description.trim() === '')
-      newErrors.description = 'Description is required';
+    // if (!product.shortDescription || product.shortDescription.trim() === '')
+    //   newErrors.shortDescription = 'Short description is required';
+    // if (!product.description || product.description.trim() === '')
+    //   newErrors.description = 'Description is required';
     if (location.pathname === '/create-product') {
       if (!product.weight) newErrors.weight = 'Weight is required';
       if (!product.weightUnit) newErrors.weightUnit = 'Weight unit is required';
