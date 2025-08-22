@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import { Link } from 'react-router-dom';
-import { AdminDashboardData, getAllTiffinOrders } from 'src/AxiosConfig/AxiosConfig';
+import { AdminDashboardData, getAllTiffinOrders, getAllTiffinItems } from 'src/AxiosConfig/AxiosConfig';
 import Loading from 'src/components/Loading';
 
 const Dashboard = () => {
@@ -11,37 +11,42 @@ const Dashboard = () => {
     todaysOrderCount: 0,
     todaysTiffinCount: 0,
     todaysContactCount: 0,
+    itemMasterCount: 0, 
   });
   const [loading, setLoading] = useState(true);
 
   const date = new Date().toLocaleDateString();
 
-  const fetchAllData = async () => {
-    setLoading(true);
-    try {
-      const [dashboardRes, tiffinOrdersRes] = await Promise.all([
-        AdminDashboardData(),
-        getAllTiffinOrders({ date }),
-      ]);
+const fetchAllData = async () => {
+  setLoading(true);
+  try {
+    const [dashboardRes, tiffinOrdersRes, itemsRes] = await Promise.all([
+      AdminDashboardData(),
+      getAllTiffinOrders({ date }),
+      getAllTiffinItems({ page: 1, limit: 1000 }), // <-- send some payload
+    ]);
 
-      const { normalProductCount, skuProductCount, todaysOrderCount, todaysContactCount } =
-        dashboardRes.data.data;
+    const { normalProductCount, skuProductCount, todaysOrderCount, todaysContactCount } =
+      dashboardRes.data.data;
 
-      const todaysTiffinCount = tiffinOrdersRes.data.data.orders.length;
+    const todaysTiffinCount = tiffinOrdersRes.data.data.orders.length;
+    const itemMasterCount = itemsRes.data.data?.length || 0; // <-- total items
 
-      setStats({
-        normalProductCount,
-        skuProductCount,
-        todaysOrderCount,
-        todaysTiffinCount,
-        todaysContactCount,
-      });
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setStats({
+      normalProductCount,
+      skuProductCount,
+      todaysOrderCount,
+      todaysTiffinCount,
+      todaysContactCount,
+      itemMasterCount,
+    });
+  } catch (err) {
+    console.error('Error fetching dashboard data:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchAllData();
@@ -87,6 +92,14 @@ const Dashboard = () => {
       bg: 'bg-pink-100',
       textColor: 'text-yellow-700',
       link: '/query',
+    },
+     {
+      title: 'Item Master',
+      value: stats.itemMasterCount, 
+      icon: 'solar:chat-line-linear',
+      bg: 'bg-pink-100',
+      textColor: 'text-yellow-700',
+      link: '/manage-item-master',
     },
   ];
 

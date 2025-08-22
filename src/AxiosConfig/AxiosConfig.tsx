@@ -202,3 +202,80 @@ export const getAllTiffinOrders = async (data: any) => {
 export const AdminDashboardData = async () => {
   return axiosInstance.get('/api/v1/product/admin/dashboard');
 }
+
+// ------------------ Tiffin Item Master APIs ------------------
+
+export const createTiffinItem = async (data: any) => {
+  return axiosInstance.post('/api/v1/item-master/create', data);
+};
+
+export const getAllTiffinItems = async (data: any) => {
+  return axiosInstance.post('/api/v1/item-master/', data);
+};
+
+export const getTiffinItemById = async (id: string) => {
+  return axiosInstance.get(`/api/v1/item-master/${id}`);
+};
+
+export const editTiffinItem = async (id: string, data: any) => {
+  return axiosInstance.put(`/api/v1/item-master/update/${id}`, data);
+};
+
+export const deleteTiffinItem = async (id: string) => {
+  return axiosInstance.delete(`/api/v1/item-master/delete/${id}`);
+};
+
+export const changeItemStatus = async (id: string, status: boolean) => {
+  return axiosInstance.patch(`/api/v1/item-master/change-status/${id}`, { status });
+};
+
+// Types
+export interface PincodeType {
+  _id: string;
+  code: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PincodeCreatePayload {
+  code: string;
+}
+
+export interface PincodeUpdatePayload {
+  pincodeId: string;
+  code?: string;
+  isActive?: boolean;
+}
+
+export interface PincodeDeletePayload {
+  pincodeId: string;
+}
+
+// Get all pincodes
+export const getPincodeList = async (search?: string) => {
+  const res = await axiosInstance.get('/api/v1/pincode-master/get/pincode', {
+    params: { pincodeSearch: search || '' },
+  });
+  return res.data.data as PincodeType[];   
+};
+
+// Create new pincode
+export const CreatePincode = async (data: PincodeCreatePayload) => {
+  const res = await axiosInstance.post('/api/v1/pincode-master/add/pincode', data);
+  return res.data.data as PincodeType;     
+};
+
+// Update pincode
+export const UpdatePincode = async (data: PincodeUpdatePayload) => {
+  const res = await axiosInstance.patch('/api/v1/pincode-master/update/pincode', data);
+  return res.data.data as PincodeType;
+};
+
+// Delete pincode
+export const DeletePincode = async (data: PincodeDeletePayload) => {
+  const res = await axiosInstance.delete('/api/v1/pincode-master/delete/pincode', {
+    data,
+  });
+  return res.data;  // returns { statusCode, data: null, message }
+};
