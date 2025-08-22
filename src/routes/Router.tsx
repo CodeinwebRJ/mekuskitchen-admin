@@ -17,6 +17,9 @@ import TiffinCompo from 'src/views/Tiffin/TiffinCompo';
 import Profile from 'src/views/Profile/page';
 import DailyTiffin from 'src/views/DailyTiffin/page';
 import Dashboard from 'src/views/Dashboard/page';
+import CreateItemMaster from 'src/views/ItemMaster/CreateTiffinItemMaster/CreateItemMaster';
+import ManageItemMaster from 'src/views/ItemMaster/ManageItemMaster/ManageItemMaster';
+import PincodeMaster from 'src/views/Tiffin Pincode Master/PincodeMaster';
 
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -90,6 +93,30 @@ const Router = [
         element: (
           <ProtectedRoute>
             <CreateTiffin />
+          </ProtectedRoute>
+        ),
+      },
+       {
+        path: '/tiffin-pincode-master',
+        element: (
+          <ProtectedRoute>
+            <PincodeMaster />
+          </ProtectedRoute>
+        ),
+      },
+       {
+        path: '/create-tiffin-item-master',
+        element: (
+          <ProtectedRoute>
+            <CreateItemMaster />
+          </ProtectedRoute>
+        ),
+      },
+       {
+        path: '/manage-item-master',
+        element: (
+          <ProtectedRoute>
+            <ManageItemMaster/>
           </ProtectedRoute>
         ),
       },

@@ -52,6 +52,7 @@ const SidebarContent: MenuItem[] = [
         id: 'util-category',
         url: '/category',
       },
+
       {
         name: 'Simple Product',
         icon: getIconByName('Simple Product'),
@@ -86,6 +87,31 @@ const SidebarContent: MenuItem[] = [
             name: 'View Variation Product',
             id: 'product-view-variation',
             url: '/variations-product',
+            icon: getIconByName('Variations Product'),
+          },
+        ],
+      },
+      {
+        name: 'Create Pincode Master',
+        icon: getIconByName('Coupon'),
+        id: 'util-category',
+        url: '/tiffin-pincode-master',
+      },
+        {
+        name: 'Tiffin Item Master',
+        icon: getIconByName('Variations Product'),
+        id: 'util-product',
+        children: [
+          {
+            name: 'Create Tiffin Item Master',
+            id: 'product-create-variation',
+            url: '/create-tiffin-item-master',
+            icon: getIconByName('Variations Product'),
+          },
+          {
+            name: 'View tiffin item master',
+            id: 'product-view-variation',
+            url: '/manage-item-master',
             icon: getIconByName('Variations Product'),
           },
         ],

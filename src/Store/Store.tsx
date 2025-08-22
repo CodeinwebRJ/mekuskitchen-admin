@@ -5,6 +5,8 @@ import ProductSlice from './Slices/ProductData';
 import FilterSlice from './Slices/FilterData';
 import tiffinReducer from './Slices/Tiffin';
 import orderReducer from './Slices/Orders';
+import itemMasterReducer from './Slices/ItemMasterData';
+import pincodeReducer from './Slices/Pincode';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +16,8 @@ export const store = configureStore({
     filterData: FilterSlice,
     orders: orderReducer,
     tiffin: tiffinReducer,
+    itemMaster: itemMasterReducer,
+    pincode: pincodeReducer,
   },
 });
 
